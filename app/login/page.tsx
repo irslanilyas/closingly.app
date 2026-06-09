@@ -100,15 +100,15 @@ export default function LoginPage() {
           <form onSubmit={onVerify} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="code" className="text-[12.5px] font-medium">
-                6-digit code
+                Sign-in code
               </Label>
               <Input
                 id="code"
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="123456"
-                maxLength={6}
+                placeholder="12345678"
+                maxLength={8}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                 required
