@@ -91,11 +91,11 @@ const PHASES = [
 export default function DashboardPage() {
   return (
     <AppShell>
-      <div className="mb-14">
+      <div className="mb-8 sm:mb-14">
         <div className="text-[13px] uppercase tracking-[0.18em] text-muted-foreground mb-3">
           Workbench
         </div>
-        <h1 className="text-[32px] font-medium tracking-tight leading-[1.1] text-balance">
+        <h1 className="text-[24px] sm:text-[28px] lg:text-[32px] font-medium tracking-tight leading-[1.1] text-balance">
           Test seven revenue operations modules before they ship.
         </h1>
         <p className="mt-4 text-[14px] text-muted-foreground max-w-[640px] leading-relaxed">
@@ -104,7 +104,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {PHASES.map((phase) => (
           <section key={phase.label}>
             <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-4 font-medium">
@@ -114,7 +114,7 @@ export default function DashboardPage() {
               className={
                 phase.size === "full"
                   ? "grid grid-cols-1"
-                  : "grid grid-cols-2 gap-5"
+                  : "grid grid-cols-1 sm:grid-cols-2 gap-5"
               }
             >
               {phase.modules.map((m) => (

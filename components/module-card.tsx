@@ -21,7 +21,7 @@ export function ModuleCard({
       href={href}
       className="group block rounded-lg border border-border bg-card hover:border-foreground/20 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.10)] transition-all"
     >
-      <div className={size === "full" ? "p-8" : "p-7"}>
+      <div className={size === "full" ? "p-5 sm:p-8" : "p-5 sm:p-7"}>
         <div className="flex items-start justify-between">
           <div className="flex items-center justify-center size-10 rounded-md bg-secondary border border-border">
             <Icon

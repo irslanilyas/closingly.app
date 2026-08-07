@@ -80,7 +80,7 @@ export default function DealDetailPage({
 
   return (
     <AppShellClient>
-      <div className="grid grid-cols-[1fr_240px] gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6 lg:gap-10">
         <div>
           <Button
             asChild
@@ -93,7 +93,7 @@ export default function DealDetailPage({
             </Link>
           </Button>
 
-          <div className="flex items-start justify-between gap-6 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6 mb-2">
             <div className="min-w-0">
               <h1 className="text-[26px] font-medium tracking-tight leading-tight">
                 {deal.client_name ?? "Unnamed"}
@@ -106,7 +106,7 @@ export default function DealDetailPage({
               value={deal.stage}
               onValueChange={(v) => patch({ stage: v as Deal["stage"] })}
             >
-              <SelectTrigger className="w-[180px] h-9 text-[12.5px]">
+              <SelectTrigger className="w-full sm:w-[180px] h-9 text-[12.5px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -283,7 +283,7 @@ function FieldRow({
   const [v, setV] = useState(value);
   useEffect(() => setV(value), [value]);
   return (
-    <div className="grid grid-cols-[140px_1fr] gap-4 items-start py-3 border-b border-border last:border-b-0">
+    <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2 sm:gap-4 items-start py-3 border-b border-border last:border-b-0">
       <Label className="text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground font-medium pt-2">
         {label}
       </Label>
@@ -390,7 +390,7 @@ function NotesEditor({
       onChange={(e) => setV(e.target.value)}
       onBlur={() => v !== initial && onSave(v)}
       placeholder="Private notes — autosaves on blur."
-      className="min-h-[300px] text-[13px] leading-relaxed"
+      className="min-h-[200px] sm:min-h-[300px] text-[13px] leading-relaxed"
     />
   );
 }

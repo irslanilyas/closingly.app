@@ -102,7 +102,7 @@ export default function ForecasterPage() {
         description="Weighted revenue based on stage probability. No AI — just maths."
       />
 
-      <div className="grid grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-10">
         <StatCard label="Total pipeline" value={formatCurrency(totalPipeline)} />
         <StatCard
           label="Weighted forecast"
@@ -127,7 +127,7 @@ export default function ForecasterPage() {
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-5 font-medium">
               Weighted revenue by close window
             </div>
-            <div className="h-[280px]">
+            <div className="h-[200px] sm:h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
@@ -181,8 +181,8 @@ export default function ForecasterPage() {
             </div>
           </div>
 
-          <div className="rounded-md border border-border bg-card overflow-hidden">
-            <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_120px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30 text-[10.5px] uppercase tracking-[0.12em] font-medium text-muted-foreground">
+          <div className="rounded-md border border-border bg-card overflow-x-auto">
+            <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_120px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30 text-[10.5px] uppercase tracking-[0.12em] font-medium text-muted-foreground min-w-[800px]">
               <div>Client</div>
               <div>Company</div>
               <div>Stage</div>
@@ -194,7 +194,7 @@ export default function ForecasterPage() {
               {rows.map((r) => (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[1.4fr_1.4fr_120px_140px_120px_140px] gap-4 px-5 py-3.5 items-center text-[13px]"
+                  className="grid grid-cols-[1.4fr_1.4fr_120px_140px_120px_140px] gap-4 px-5 py-3.5 items-center text-[13px] min-w-[800px]"
                 >
                   <div className="font-medium truncate">
                     {r.client_name ?? "Unnamed"}

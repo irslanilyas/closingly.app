@@ -41,7 +41,7 @@ export function ProposalOutput({ data, streaming }: ProposalOutputProps) {
             </span>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
           <Field label="Client" value={data.client_name} />
           <Field label="Company" value={data.client_company} />
           <Field
@@ -53,7 +53,7 @@ export function ProposalOutput({ data, streaming }: ProposalOutputProps) {
           <Field label="Budget Signal" value={data.budget_signal} />
           <Field label="Timeline" value={data.timeline} />
           <Field label="Decision Maker" value={data.decision_maker} />
-          <div className="col-span-2 pt-1">
+          <div className="sm:col-span-2 pt-1">
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-2 font-medium">
               Fit Score
             </div>

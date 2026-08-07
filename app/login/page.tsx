@@ -1,8 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,51 +8,86 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-type Step = "email" | "otp";
-
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"password" | "magic">("password");
+  const [submitting, setSubmitting] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
 
-  const onSendCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setBusy(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setStep("otp");
-  };
+  const handlePasswordLogin = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  const onVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code) return;
-    setBusy(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: "email",
-    });
-    setBusy(false);
-    if (error) {
-      toast.error("Invalid or expired code. Try requesting a new one.");
-      return;
-    }
-    router.push("/");
-  };
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail || !password || submitting) return;
+
+      setSubmitting(true);
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password,
+        });
+
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+
+        toast.success("Signed in successfully!");
+        router.push("/");
+        router.refresh();
+      } catch (err) {
+        console.error("Login error:", err);
+        toast.error("Something went wrong. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [email, password, submitting, router]
+  );
+
+  const handleMagicLink = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail || submitting) return;
+
+      setSubmitting(true);
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.auth.signInWithOtp({
+          email: trimmedEmail,
+          options: {
+            emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+          },
+        });
+
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+
+        setMagicSent(true);
+      } catch (err) {
+        console.error("Magic link error:", err);
+        toast.error("Something went wrong. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [email, submitting]
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
-      <div className="w-[420px]">
-        <div className="mb-12">
+      <div className="w-full max-w-[420px]">
+        <div className="mb-8">
           <div className="text-[13px] uppercase tracking-[0.18em] text-muted-foreground mb-3">
             RevOps Builder
           </div>
@@ -62,20 +95,44 @@ export default function LoginPage() {
             Sign in to your workbench
           </h1>
           <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">
-            {step === "email"
-              ? "Enter your email and we'll send a 6-digit code."
-              : `Enter the code we sent to ${email}.`}
+            {mode === "password"
+              ? "Enter your email and password to sign in."
+              : "We'll email you a magic link. No password required."}
           </p>
         </div>
 
-        {step === "email" ? (
-          <form onSubmit={onSendCode} className="space-y-5">
+        {magicSent ? (
+          <div className="rounded-md border border-border bg-card p-6">
+            <div className="text-[13px] font-medium mb-2">Check your inbox</div>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
+              A sign-in link was sent to{" "}
+              <span className="text-foreground">{email}</span>. Open it on this
+              device to continue.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setMagicSent(false);
+                setEmail("");
+              }}
+              className="mt-4 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Use a different email
+            </button>
+          </div>
+        ) : mode === "password" ? (
+          <form
+            onSubmit={handlePasswordLogin}
+            action="javascript:void(0)"
+            className="space-y-5"
+          >
             <div className="space-y-2">
               <Label htmlFor="email" className="text-[12.5px] font-medium">
                 Email
               </Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 autoComplete="email"
                 placeholder="you@company.com"
@@ -85,51 +142,82 @@ export default function LoginPage() {
                 className="h-10"
               />
             </div>
-            <Button
-              type="submit"
-              disabled={busy || !email}
-              className="w-full h-10 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90"
-            >
-              {busy ? "Sending…" : "Send code"}
-            </Button>
-            <p className="text-[12px] text-muted-foreground text-center">
-              Access restricted to whitelisted emails.
-            </p>
-          </form>
-        ) : (
-          <form onSubmit={onVerify} className="space-y-5">
+
             <div className="space-y-2">
-              <Label htmlFor="code" className="text-[12.5px] font-medium">
-                Sign-in code
+              <Label htmlFor="password" className="text-[12.5px] font-medium">
+                Password
               </Label>
               <Input
-                id="code"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="12345678"
-                maxLength={8}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-10 tracking-[0.3em] text-center text-[18px]"
-                autoFocus
+                className="h-10"
               />
             </div>
+
             <Button
               type="submit"
-              disabled={busy || code.length < 6}
-              className="w-full h-10 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90"
+              disabled={submitting || !email || !password}
+              className="w-full h-10 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
             >
-              {busy ? "Verifying…" : "Sign in"}
+              {submitting ? "Signing in…" : "Sign in"}
             </Button>
-            <button
-              type="button"
-              onClick={() => { setStep("email"); setCode(""); }}
-              className="w-full text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
+
+            <div className="flex items-center justify-between text-[12.5px] pt-2">
+              <button
+                type="button"
+                onClick={() => setMode("magic")}
+                className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              >
+                Sign in with Magic Link instead
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form
+            onSubmit={handleMagicLink}
+            action="javascript:void(0)"
+            className="space-y-5"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="email-magic" className="text-[12.5px] font-medium">
+                Email
+              </Label>
+              <Input
+                id="email-magic"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-10"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={submitting || !email}
+              className="w-full h-10 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
             >
-              Use a different email
-            </button>
+              {submitting ? "Sending link…" : "Send magic link"}
+            </Button>
+
+            <div className="flex items-center justify-between text-[12.5px] pt-2">
+              <button
+                type="button"
+                onClick={() => setMode("password")}
+                className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              >
+                Sign in with Password instead
+              </button>
+            </div>
           </form>
         )}
       </div>

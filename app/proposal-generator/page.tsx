@@ -141,10 +141,10 @@ function ProposalGeneratorInner() {
         description="Paste a discovery call transcript. We extract the deal, score fit, and draft a proposal with reply options."
       />
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: input */}
         <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
                 htmlFor="cn"
@@ -189,7 +189,7 @@ function ProposalGeneratorInner() {
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
               placeholder="Paste raw or cleaned transcript here…"
-              className="min-h-[500px] text-[13px] leading-relaxed resize-y font-mono"
+              className="min-h-[300px] lg:min-h-[500px] text-[13px] leading-relaxed resize-y font-mono"
             />
           </div>
 

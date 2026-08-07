@@ -60,7 +60,7 @@ export default function ScopeGuardianPage() {
         description="Compare original SOW vs new client request. Catch scope creep before it bills you."
       />
 
-      <div className="grid grid-cols-2 gap-5 mb-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
         <div className="space-y-2">
           <Label className="text-[11.5px] uppercase tracking-[0.1em] font-medium text-muted-foreground">
             Original SOW / Project Scope
@@ -69,7 +69,7 @@ export default function ScopeGuardianPage() {
             value={sow}
             onChange={(e) => setSow(e.target.value)}
             placeholder="Paste the original scope of work or agreement…"
-            className="min-h-[280px] text-[13px] leading-relaxed font-mono"
+            className="min-h-[200px] md:min-h-[280px] text-[13px] leading-relaxed font-mono"
           />
         </div>
         <div className="space-y-2">
@@ -80,7 +80,7 @@ export default function ScopeGuardianPage() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Paste their latest message asking for changes/additions…"
-            className="min-h-[280px] text-[13px] leading-relaxed font-mono"
+            className="min-h-[200px] md:min-h-[280px] text-[13px] leading-relaxed font-mono"
           />
         </div>
       </div>

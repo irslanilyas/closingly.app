@@ -92,7 +92,7 @@ function FollowUpWriterInner() {
             Link to existing deal
           </Label>
           <Select value={dealId} onValueChange={setDealId}>
-            <SelectTrigger className="h-9 text-[13px] max-w-[440px]">
+            <SelectTrigger className="h-9 text-[13px] w-full max-w-[440px]">
               <SelectValue placeholder="Optional — no deal context" />
             </SelectTrigger>
             <SelectContent>

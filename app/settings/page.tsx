@@ -57,11 +57,11 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-[140px_1fr] gap-4 py-3 border-b border-border">
+    <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2 sm:gap-4 py-3 border-b border-border">
       <div className="text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground font-medium">
         {label}
       </div>
-      <div className={`text-[13px] ${mono ? "font-mono" : ""}`}>
+      <div className={`text-[13px] ${mono ? "font-mono break-all" : ""}`}>
         {value || "—"}
       </div>
     </div>

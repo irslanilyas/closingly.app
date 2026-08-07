@@ -193,7 +193,7 @@ function PriceCard({ result }: { result: Partial<PricingResult> | null }) {
       <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-5 font-medium">
         Recommended Price
       </div>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <PricePill label="Low" amount={result.price_low} currency={currency} />
         <PricePill
           label="Mid"
@@ -246,8 +246,8 @@ function PricePill({
       <div
         className={`tabular-nums tracking-tight font-medium ${
           headline
-            ? "text-[32px] text-[var(--accent-sage)]"
-            : "text-[20px] text-foreground/80"
+            ? "text-[24px] sm:text-[32px] text-[var(--accent-sage)]"
+            : "text-[18px] sm:text-[20px] text-foreground/80"
         }`}
       >
         {amount ? formatCurrency(amount, currency) : "—"}
@@ -288,11 +288,11 @@ function ComparablesCard({ deals }: { deals: Deal[] }) {
           No comparable deals yet.
         </div>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border overflow-x-auto">
           {deals.map((d) => (
             <div
               key={d.id}
-              className="grid grid-cols-[1fr_1fr_140px] gap-4 py-3 items-center"
+              className="grid grid-cols-[1fr_1fr_140px] gap-4 py-3 items-center min-w-[400px]"
             >
               <div className="text-[13px] font-medium truncate">
                 {d.client_name ?? "Unnamed"}

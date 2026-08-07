@@ -80,7 +80,7 @@ export default function TranscriberPage() {
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
             placeholder="Paste output from Otter, Fireflies, Zoom auto-transcribe, etc."
-            className="min-h-[400px] text-[13px] leading-relaxed font-mono"
+            className="min-h-[250px] sm:min-h-[400px] text-[13px] leading-relaxed font-mono"
           />
         </div>
 

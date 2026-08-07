@@ -134,8 +134,8 @@ export default function PipelinePage() {
         }
       />
 
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="relative w-[320px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+        <div className="relative w-full sm:w-[320px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
           <Input
             value={q}
@@ -192,11 +192,11 @@ export default function PipelinePage() {
 
       {!isLoading && filtered.length > 0 && view === "kanban" && (
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <div className="grid grid-cols-5 gap-4">
+          <div className="overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pb-4"><div className="grid grid-cols-5 gap-4 min-w-[900px]">
             {STAGE_ORDER.map((stage) => (
               <KanbanColumn key={stage} stage={stage} deals={byStage[stage]} />
             ))}
-          </div>
+          </div></div>
         </DndContext>
       )}
 
@@ -326,8 +326,8 @@ function ListView({ deals }: { deals: Deal[] }) {
   );
 
   return (
-    <div className="rounded-md border border-border bg-card overflow-hidden">
-      <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30">
+    <div className="rounded-md border border-border bg-card overflow-x-auto">
+      <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30 min-w-[800px]">
         <Header label="Client" k="client_name" />
         <Header label="Company" k="client_company" />
         <Header label="Stage" k="stage" />
@@ -340,7 +340,7 @@ function ListView({ deals }: { deals: Deal[] }) {
           <Link
             key={d.id}
             href={`/pipeline/${d.id}`}
-            className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3.5 items-center hover:bg-secondary/40 transition-colors"
+            className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3.5 items-center hover:bg-secondary/40 transition-colors min-w-[800px]"
           >
             <div className="text-[13px] font-medium truncate">
               {d.client_name ?? "Unnamed"}

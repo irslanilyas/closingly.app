@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig: NextConfig & {
+  allowedDevOrigins?: string[];
+} = {
+  allowedDevOrigins: [
+    "*.trycloudflare.com",
+  ],
 };
 
 export default nextConfig;
