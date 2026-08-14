@@ -1,14 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Machine-to-machine endpoints carry no session — Recall and Vercel Cron would
-// otherwise be redirected to /login. Each authenticates itself: the webhook by
-// signature, the worker by CRON_SECRET.
+// Paths that must work without a Supabase session. Each authenticates itself:
+// the Recall webhook by signature, the cron worker by CRON_SECRET, and the
+// public proposal page and its tracker by the share token in the URL.
 const PUBLIC_PATHS = [
   "/login",
   "/api/auth/callback",
   "/api/recall/webhook",
   "/api/cron/",
+  "/p/",
+  "/api/track/",
 ];
 
 // Supabase stores the session across one or more `sb-<ref>-auth-token` cookies

@@ -59,6 +59,34 @@ Rules: tight language, no filler phrases, use client's exact pain words where po
 TRANSCRIPT:
 ${transcript}`;
 
+/**
+ * Applies a plain-language instruction to an existing proposal.
+ *
+ * Returns the whole object rather than a patch: partial returns were
+ * unreliable, and the diff is computed client-side anyway so we can show the
+ * user exactly what moved.
+ */
+export const refineProposalPrompt = (
+  proposal: string,
+  instruction: string
+) => `You are editing an existing proposal for an independent professional.
+
+CURRENT PROPOSAL (JSON):
+${proposal}
+
+INSTRUCTION FROM THE USER:
+${instruction}
+
+Return the COMPLETE proposal as valid JSON with exactly the same keys and the same structure. Change only what the instruction asks for — leave every other field byte-identical.
+
+Rules:
+- Keep "deliverables" an array of strings.
+- Keep "investment_number" a string including the currency, e.g. "$10,000".
+- Do not invent facts about the client, their budget, or their timeline. If the instruction asks for something the proposal doesn't support, make the smallest reasonable change and leave the rest alone.
+- Match the existing voice: tight, plain, no filler.
+
+Output the JSON object only — no markdown fences, no commentary.`;
+
 export const followUpPrompt = (situation: string, dealContext?: string) => `You are a follow-up email writer for an independent professional.
 
 Situation: ${situation}
