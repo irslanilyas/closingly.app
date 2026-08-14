@@ -1,3 +1,32 @@
+/**
+ * Classifies a meeting before any expensive work happens.
+ *
+ * Runs on every recorded call, so it's deliberately cheap: a truncated
+ * transcript is plenty to tell a sales call from a standup, and only
+ * `discovery` goes on to generate a proposal. Without this, every internal
+ * sync would produce a junk deal and a junk proposal.
+ */
+export const triagePrompt = (transcript: string) => `Classify this meeting transcript.
+
+Categories:
+- "discovery": a prospective client describing a problem or project. Someone is being sold to. Scope, budget, or timeline come up.
+- "check_in": an update on work already agreed or underway with an existing client.
+- "kickoff": work is already won; this is about starting it.
+- "internal": no external client — a team sync, standup, or one-to-one.
+- "other": none of the above, or too little was said to tell.
+
+Return ONLY valid JSON:
+{
+  "kind": "discovery" | "check_in" | "kickoff" | "internal" | "other",
+  "confidence": "high" | "medium" | "low",
+  "reason": "one short sentence"
+}
+
+Lean toward "other" when the transcript is very short or mostly small talk — a wrong "discovery" wastes a proposal on nothing.
+
+TRANSCRIPT:
+${transcript}`;
+
 export const proposalPrompt = (transcript: string) => `You are a sales proposal generator for an independent professional.
 
 Read the discovery call transcript and return ONLY valid JSON with this exact structure:

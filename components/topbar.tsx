@@ -18,6 +18,7 @@ import { Menu, LogOut } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "Dashboard" },
+  { href: "/meetings", label: "Meetings" },
   { href: "/proposal-generator", label: "Proposals" },
   { href: "/pipeline", label: "Pipeline" },
   { href: "/follow-up-writer", label: "Follow-ups" },

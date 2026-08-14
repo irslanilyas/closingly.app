@@ -1,7 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/api/auth/callback"];
+// Machine-to-machine endpoints carry no session — Recall and Vercel Cron would
+// otherwise be redirected to /login. Each authenticates itself: the webhook by
+// signature, the worker by CRON_SECRET.
+const PUBLIC_PATHS = [
+  "/login",
+  "/api/auth/callback",
+  "/api/recall/webhook",
+  "/api/cron/",
+];
+
+// Supabase stores the session across one or more `sb-<ref>-auth-token` cookies
+// (chunked when large). Expire all of them so a dead session can't be replayed.
+function clearAuthCookies(request: NextRequest, response: NextResponse) {
+  for (const cookie of request.cookies.getAll()) {
+    if (cookie.name.startsWith("sb-")) {
+      response.cookies.set(cookie.name, "", { maxAge: 0, path: "/" });
+    }
+  }
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -27,9 +45,22 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // A revoked or expired refresh token makes getSession() throw. Without this
+  // guard the middleware crashes on every request — including /login — and the
+  // browser keeps replaying the dead cookie, so the app never recovers.
+  let session = null;
+  let staleSession = false;
+
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      staleSession = true;
+    } else {
+      session = data.session;
+    }
+  } catch {
+    staleSession = true;
+  }
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
@@ -37,7 +68,16 @@ export async function updateSession(request: NextRequest) {
   if (!session && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    if (staleSession) clearAuthCookies(request, redirect);
+    return redirect;
+  }
+
+  // Already on a public path but carrying a dead cookie — drop it here too,
+  // otherwise every subsequent request pays for the failed refresh again.
+  if (staleSession) {
+    clearAuthCookies(request, supabaseResponse);
+    return supabaseResponse;
   }
 
   if (session && path === "/login") {
