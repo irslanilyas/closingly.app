@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
 import { getTranscript, TranscriptNotReadyError } from "@/lib/recall";
@@ -7,8 +7,11 @@ import { dealFromTranscript } from "@/lib/pipeline/from-transcript";
 export const maxDuration = 60;
 
 /**
- * Drains the job queue. Invoked by Vercel Cron every minute, and callable by
- * hand during development.
+ * Drains the job queue.
+ *
+ * Claims due jobs, acknowledges immediately, then processes them after the
+ * response is sent. Called every minute by an external scheduler; the daily
+ * Vercel cron in vercel.json is a safety net for when that scheduler is down.
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -23,29 +26,38 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ processed: 0 });
   }
 
-  const results: Array<{ id: string; kind: string; ok: boolean }> = [];
-
-  for (const job of jobs) {
-    try {
-      switch (job.kind) {
-        case "process_transcript":
-          await processTranscript(job);
-          break;
-        default:
-          throw new Error(`Unknown job kind: ${job.kind}`);
-      }
-      await completeJob(job.id);
-      results.push({ id: job.id, kind: job.kind, ok: true });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(`[cron/worker] ${job.kind} failed:`, message);
-
-      await failJob(job, message, { retryable: isRetryable(err) });
-      results.push({ id: job.id, kind: job.kind, ok: false });
+  // Respond before doing the work. A transcript job takes 30-60s, but the
+  // schedulers that call this cap their request timeout well below that
+  // (cron-job.org's free tier stops at 30s) and disable jobs that keep
+  // "failing". The work is unaffected by the connection closing, so there is
+  // no reason to hold it open — the same reasoning as the Recall webhook.
+  after(async () => {
+    for (const job of jobs) {
+      await runJob(job);
     }
-  }
+  });
 
-  return NextResponse.json({ processed: jobs.length, results });
+  return NextResponse.json({
+    accepted: jobs.length,
+    ids: jobs.map((j) => j.id),
+  });
+}
+
+async function runJob(job: ClaimedJob) {
+  try {
+    switch (job.kind) {
+      case "process_transcript":
+        await processTranscript(job);
+        break;
+      default:
+        throw new Error(`Unknown job kind: ${job.kind}`);
+    }
+    await completeJob(job.id);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[cron/worker] ${job.kind} failed:`, message);
+    await failJob(job, message, { retryable: isRetryable(err) });
+  }
 }
 
 /**
