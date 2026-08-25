@@ -19,13 +19,7 @@ import { Menu, LogOut } from "lucide-react";
 const NAV = [
   { href: "/", label: "Dashboard" },
   { href: "/meetings", label: "Meetings" },
-  { href: "/proposal-generator", label: "Proposals" },
   { href: "/pipeline", label: "Pipeline" },
-  { href: "/follow-up-writer", label: "Follow-ups" },
-  { href: "/pricing-advisor", label: "Pricing" },
-  { href: "/forecaster", label: "Forecast" },
-  { href: "/meeting-transcriber", label: "Transcripts" },
-  { href: "/scope-guardian", label: "Scope" },
 ];
 
 export function Topbar({ email }: { email: string }) {
@@ -51,7 +45,7 @@ export function Topbar({ email }: { email: string }) {
             href="/"
             className="text-[15px] font-medium tracking-tight hover:opacity-70 transition-opacity"
           >
-            RevOps&nbsp;Builder
+            ROS
           </Link>
 
           {/* Desktop nav */}
@@ -109,7 +103,7 @@ export function Topbar({ email }: { email: string }) {
             <SheetContent side="right" className="w-[280px] sm:w-[320px]">
               <SheetHeader>
                 <SheetTitle className="text-[15px] font-medium tracking-tight text-left">
-                  RevOps Builder
+                  ROS
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 mt-6">

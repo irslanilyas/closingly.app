@@ -14,8 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { tryParsePartialJson, formatCurrency } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import type { Deal, PricingResult } from "@/lib/types";
+import { useStreamingJson } from "@/lib/hooks/use-streaming-json";
 import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,8 +26,9 @@ export default function PricingAdvisorPage() {
   const [scope, setScope] = useState("Medium");
   const [budget, setBudget] = useState("");
   const [timeline, setTimeline] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [result, setResult] = useState<Partial<PricingResult> | null>(null);
+  const { data: result, streaming, run } = useStreamingJson<PricingResult>(
+    "/api/pricing/generate"
+  );
   const [comparables, setComparables] = useState<Deal[]>([]);
 
   useEffect(() => {
@@ -35,40 +37,14 @@ export default function PricingAdvisorPage() {
       .then((j) => setComparables(j.deals ?? []));
   }, []);
 
-  const onGenerate = async () => {
-    if (!desc.trim() || streaming) return;
-    setStreaming(true);
-    setResult({});
-    try {
-      const r = await fetch("/api/pricing/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_description: desc,
-          industry,
-          scope,
-          budget_signal: budget,
-          timeline,
-        }),
-      });
-      if (!r.ok || !r.body) throw new Error();
-      const reader = r.body.getReader();
-      const decoder = new TextDecoder();
-      let acc = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        acc += decoder.decode(value, { stream: true });
-        const parsed = tryParsePartialJson<Partial<PricingResult>>(acc);
-        if (parsed) setResult(parsed);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Generation failed");
-    } finally {
-      setStreaming(false);
-    }
-  };
+  const onGenerate = () =>
+    run({
+      project_description: desc,
+      industry,
+      scope,
+      budget_signal: budget,
+      timeline,
+    });
 
   const relevantComparables = comparables
     .filter((d) => {
