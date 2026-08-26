@@ -7,6 +7,14 @@ import { scheduleBot, cancelBot } from "@/lib/recall";
 const JOIN_LEAD_MS = 60_000;
 
 /**
+ * Below this much remaining allowance, don't schedule at all. Recall would
+ * cut the bot off almost as soon as it joined — the meeting looks "recorded"
+ * but the transcript is too short to be useful, and the user has no way to
+ * tell that in advance from the toggle.
+ */
+const MIN_USEFUL_RECORDING_SECONDS = 5 * 60;
+
+/**
  * Turn the meeting agent on or off.
  *
  * Enabling schedules a Recall bot with `join_at`; disabling cancels it. The
@@ -87,11 +95,26 @@ export async function PATCH(
     .eq("id", user.id)
     .single();
 
-  if (
-    profile &&
-    profile.recording_seconds_used >= profile.recording_seconds_limit
-  ) {
+  const remainingSeconds = profile
+    ? profile.recording_seconds_limit - profile.recording_seconds_used
+    : null;
+
+  if (remainingSeconds !== null && remainingSeconds <= 0) {
     return NextResponse.json({ error: "allowance_exhausted" }, { status: 403 });
+  }
+
+  if (
+    remainingSeconds !== null &&
+    remainingSeconds < MIN_USEFUL_RECORDING_SECONDS
+  ) {
+    // Enough allowance to pass the check above, not enough to record anything
+    // worth having. Scheduling here would join, record a few minutes, and get
+    // cut off by Recall — a confusing half-empty transcript instead of a
+    // clear "you're basically out" message up front.
+    return NextResponse.json(
+      { error: "allowance_too_low", remaining_seconds: remainingSeconds },
+      { status: 403 }
+    );
   }
 
   // Already scheduled — nothing to do, and re-scheduling would orphan a bot.
@@ -114,6 +137,11 @@ export async function PATCH(
     const { botId } = await scheduleBot({
       meetingUrl: meeting.meet_link,
       joinAt,
+      // Undefined when there's no profile row (falls through to no cap) —
+      // every real profile has a limit, so this only matters for a row that
+      // doesn't exist yet, which allowance_exhausted above would already
+      // have caught if it had a limit of 0.
+      maxRecordingSeconds: remainingSeconds ?? undefined,
     });
 
     const { error } = await supabase

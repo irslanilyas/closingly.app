@@ -82,6 +82,14 @@ export default function MeetingsPage() {
 
       if (!res.ok) {
         const body = await res.json();
+
+        if (body.error === "allowance_too_low") {
+          const minutes = Math.max(1, Math.floor(body.remaining_seconds / 60));
+          throw new Error(
+            `Only ${minutes} min of recording allowance left — too little to be worth starting. Check Settings.`
+          );
+        }
+
         const messages: Record<string, string> = {
           no_meeting_link: "That meeting has no call link to join.",
           meeting_passed: "That meeting has already started.",

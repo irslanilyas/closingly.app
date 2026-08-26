@@ -20,11 +20,20 @@ export interface ScheduledBot {
  * `join_at` is the whole point: without it Recall dispatches the bot
  * immediately, so it turns up to an empty room now and is long gone by the
  * time the meeting actually starts.
+ *
+ * `maxRecordingSeconds`, when given, is enforced by Recall itself via
+ * `automatic_leave.in_call_recording_timeout` — the bot leaves on its own the
+ * instant it's hit, independent of anything our side does afterward. This is
+ * the recording-allowance cap: checking the allowance before scheduling only
+ * stops a call from *starting* over budget, not from *running* over budget
+ * once it's underway. A polling sweep to cancel a bot mid-call would always
+ * lag by however often it polls; a provider-enforced timeout doesn't.
  */
 export async function scheduleBot(opts: {
   meetingUrl: string;
   joinAt: string;
   botName?: string;
+  maxRecordingSeconds?: number;
 }): Promise<ScheduledBot> {
   const res = await fetch(`${BASE()}/bot/`, {
     method: "POST",
@@ -43,6 +52,13 @@ export async function scheduleBot(opts: {
           },
         },
       },
+      ...(opts.maxRecordingSeconds
+        ? {
+            automatic_leave: {
+              in_call_recording_timeout: opts.maxRecordingSeconds,
+            },
+          }
+        : {}),
     }),
   });
 
