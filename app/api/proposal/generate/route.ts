@@ -2,9 +2,12 @@ import { type NextRequest } from "next/server";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { proposalPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+const RATE_LIMIT = { action: "proposal_generate", limit: 20, windowMinutes: 60 };
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +21,9 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return new Response("Unauthorized", { status: 401 });
+
+    const limit = await checkRateLimit(user.id, RATE_LIMIT);
+    if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
     const encoder = new TextEncoder();
     let full = "";

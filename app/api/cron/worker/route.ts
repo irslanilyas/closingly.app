@@ -1,8 +1,9 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enqueue, claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
-import { getBotStatus, getTranscript, TranscriptNotReadyError } from "@/lib/recall";
+import { getBotStatus, getTranscript } from "@/lib/recall";
 import { dealFromTranscript } from "@/lib/pipeline/from-transcript";
+import { isRetryable } from "@/lib/retry";
 
 export const maxDuration = 60;
 
@@ -147,32 +148,6 @@ async function runJob(job: ClaimedJob) {
     console.error(`[cron/worker] ${job.kind} failed:`, message);
     await failJob(job, message, { retryable: isRetryable(err) });
   }
-}
-
-/**
- * Retry transient failures; give up on structural ones.
- *
- * Default is *not* retryable. A malformed prompt or a schema mismatch fails
- * identically every time, and retrying it three times just triples the token
- * bill for the same error.
- */
-function isRetryable(err: unknown): boolean {
-  if (err && typeof err === "object" && "retryable" in err) {
-    return (err as { retryable: boolean }).retryable;
-  }
-
-  if (err instanceof TranscriptNotReadyError) return true;
-
-  const message = err instanceof Error ? err.message.toLowerCase() : "";
-  return (
-    message.includes("fetch failed") ||
-    message.includes("timeout") ||
-    message.includes("econnreset") ||
-    message.includes("rate_limit") ||
-    message.includes("overloaded") ||
-    message.includes("429") ||
-    message.includes("529")
-  );
 }
 
 /**

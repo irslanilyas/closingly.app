@@ -200,7 +200,7 @@ export async function dealFromTranscript(
   return { kind: "discovery", dealId: deal.id, proposalId };
 }
 
-function clampScore(score: unknown): number | null {
+export function clampScore(score: unknown): number | null {
   const n = typeof score === "number" ? Math.round(score) : NaN;
   if (!Number.isFinite(n)) return null;
   // The column has a 1–10 check constraint; a model that returns 0 or 11
@@ -209,7 +209,7 @@ function clampScore(score: unknown): number | null {
 }
 
 /** "PKR 450,000" / "$12k" / "12,000" → a number, or null if it isn't one. */
-function parseAmount(value: unknown): number | null {
+export function parseAmount(value: unknown): number | null {
   if (typeof value !== "string") return null;
 
   const match = value.replace(/,/g, "").match(/(\d+(?:\.\d+)?)\s*([kKmM])?/);

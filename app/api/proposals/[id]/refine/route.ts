@@ -2,9 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CLAUDE_MODEL, complete, parseJsonResponse } from "@/lib/anthropic";
 import { refineProposalPrompt } from "@/lib/prompts";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { ProposalData } from "@/lib/types";
 
 export const maxDuration = 60;
+
+/** Iterative by design — a user refining one proposal several times in a
+ * sitting is the normal case, not abuse. */
+const RATE_LIMIT = { action: "proposal_refine", limit: 30, windowMinutes: 60 };
 
 const PROPOSAL_KEYS: Array<keyof ProposalData> = [
   "challenge",
@@ -31,6 +36,9 @@ export async function POST(
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   const { instruction } = (await request.json()) as { instruction?: string };
   if (!instruction?.trim()) {

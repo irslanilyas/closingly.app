@@ -1,0 +1,39 @@
+name: CI
+
+# Every push and PR gets typechecked, built, tested, and audited before it's
+# mergeable. Requires no repository secrets: every page that touches
+# Supabase is client-rendered, so `next build` never executes server code
+# that needs an env var — verified locally by building with none set.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx next build
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Audit production dependencies
+        # --omit=dev: devDependency CVEs (the shadcn CLI, eslint tooling) never
+        # ship to production and would make this gate fail on noise unrelated
+        # to what's actually deployed. Scoped to what's real.
+        run: npm audit --omit=dev --audit-level=high
