@@ -175,7 +175,7 @@ export default function PipelinePage() {
       )}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="rounded-md border border-dashed border-border bg-card/40 p-12 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-card/40 p-12 text-center">
           <div className="text-[13.5px] font-medium">No deals yet</div>
           <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Switch the agent on for a client call and a deal lands here on its
@@ -211,7 +211,7 @@ function KanbanColumn({ stage, deals }: { stage: DealStage; deals: Deal[] }) {
     <div
       ref={setNodeRef}
       className={cn(
-        "rounded-md border border-border bg-card/40 p-3 min-h-[400px] transition-colors",
+        "rounded-lg border border-border bg-card/40 p-3 min-h-[400px] transition-colors",
         isOver && "border-[var(--accent-sage)]/60 bg-[var(--accent-sage)]/5"
       )}
     >
@@ -249,8 +249,12 @@ function DealChip({ deal }: { deal: Deal }) {
       {...listeners}
       {...attributes}
       className={cn(
-        "rounded-md border border-border bg-card p-3 cursor-grab active:cursor-grabbing select-none transition-shadow",
-        isDragging && "opacity-50 shadow-lg"
+        "rounded-lg border border-border bg-card p-3 cursor-grab active:cursor-grabbing select-none lift",
+        // While dragging, drop the lift so the card sits under the cursor
+        // rather than fighting dnd-kit's own transform.
+        isDragging
+          ? "opacity-50 shadow-lg hover:translate-y-0"
+          : "hover:border-muted-foreground/25"
       )}
     >
       <Link href={`/pipeline/${deal.id}`} onClick={(e) => e.stopPropagation()}>
@@ -323,7 +327,7 @@ function ListView({ deals }: { deals: Deal[] }) {
   );
 
   return (
-    <div className="rounded-md border border-border bg-card overflow-x-auto">
+    <div className="rounded-lg border border-border bg-card overflow-x-auto">
       <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30 min-w-[800px]">
         <Header label="Client" k="client_name" />
         <Header label="Company" k="client_company" />

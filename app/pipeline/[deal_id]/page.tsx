@@ -161,7 +161,7 @@ export default function DealDetailPage({
 
             <TabsContent value="transcript" className="mt-6">
               {deal.transcript ? (
-                <pre className="rounded-md border border-border bg-card p-5 text-[12.5px] leading-relaxed whitespace-pre-wrap font-mono text-foreground/80 max-h-[600px] overflow-y-auto">
+                <pre className="rounded-lg border border-border bg-card p-5 text-[12.5px] leading-relaxed whitespace-pre-wrap font-mono text-foreground/80 max-h-[600px] overflow-y-auto">
                   {deal.transcript}
                 </pre>
               ) : (
@@ -280,7 +280,7 @@ function DetailsPanel({
   onPatch: (p: Partial<Deal>) => void;
 }) {
   return (
-    <div className="rounded-md border border-border bg-card px-5">
+    <div className="rounded-lg border border-border bg-card px-5">
       {DETAIL_FIELDS.map((field) => (
         <Row key={field.key} label={field.label}>
           {field.multiline ? (

@@ -7,6 +7,16 @@ const nextConfig: NextConfig & {
   allowedDevOrigins: [
     "*.trycloudflare.com",
   ],
+  experimental: {
+    // Persist Turbopack's compiler artifacts to `.next` between runs. Dev
+    // already does this by default since 16.1 — builds don't, and this repo
+    // lives on a mechanical drive where re-doing that work is the single
+    // most expensive thing in the loop.
+    turbopackFileSystemCacheForBuild: true,
+    // Pull only the icons actually referenced instead of walking the whole
+    // barrel file. lucide-react exports well over a thousand of them.
+    optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

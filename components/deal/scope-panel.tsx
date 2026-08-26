@@ -193,7 +193,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-5">
       <div className="flex items-center justify-between mb-2.5">
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
           {title}

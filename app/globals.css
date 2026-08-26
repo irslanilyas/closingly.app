@@ -181,3 +181,102 @@
     border-radius: 3px;
   }
 }
+
+/* ── Motion ───────────────────────────────────────────────────────────────
+   One vocabulary for entrances, used across the dashboard, pipeline and deal
+   pages so the whole app moves the same way. Everything animates `opacity`
+   and `transform` only — those are the two properties the compositor can
+   handle without a layout pass, so they stay smooth on a slow machine.
+
+   Durations sit in the 150–300ms band: fast enough to feel like a response
+   to something, slow enough to read as deliberate. Anything longer starts
+   feeling like the app is thinking.                                        */
+@layer utilities {
+  @keyframes ros-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes ros-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Grow a bar or rule from nothing — for meters and stage distributions. */
+  @keyframes ros-grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .animate-rise {
+    animation: ros-rise 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .animate-fade {
+    animation: ros-fade 200ms ease-out backwards;
+  }
+
+  .animate-grow-x {
+    transform-origin: left;
+    animation: ros-grow-x 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  /* Stagger children so a list assembles itself rather than snapping in all
+     at once. Capped at 8 — past that the last item feels late, and long
+     lists are exactly where an entrance animation stops being charming. */
+  .stagger > * {
+    animation: ros-rise 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .stagger > *:nth-child(1)  { animation-delay: 0ms; }
+  .stagger > *:nth-child(2)  { animation-delay: 40ms; }
+  .stagger > *:nth-child(3)  { animation-delay: 80ms; }
+  .stagger > *:nth-child(4)  { animation-delay: 120ms; }
+  .stagger > *:nth-child(5)  { animation-delay: 160ms; }
+  .stagger > *:nth-child(6)  { animation-delay: 200ms; }
+  .stagger > *:nth-child(7)  { animation-delay: 240ms; }
+  .stagger > *:nth-child(n + 8) { animation-delay: 280ms; }
+
+  /* Lift on hover without a layout shift: `translateY` moves the painted
+     pixels, it doesn't reflow the row, so neighbours never twitch. */
+  .lift {
+    transition:
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .lift:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* An entrance animation is decoration; a person who has asked their OS to
+   stop moving things has asked for a reason. Kill the movement, keep the
+   final state — never leave content stuck at opacity 0. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-fade,
+  .animate-grow-x,
+  .stagger > * {
+    animation: none !important;
+  }
+  .lift {
+    transition: border-color 180ms ease;
+  }
+  .lift:hover {
+    transform: none;
+  }
+}

@@ -152,13 +152,13 @@ export default function MeetingsPage() {
       ) : meetings.length === 0 ? (
         <EmptyState onSync={sync} syncing={syncing} />
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-8 stagger">
           {grouped.map(({ day, items }) => (
             <section key={day}>
               <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground mb-3 font-medium">
                 {day}
               </div>
-              <div className="rounded-md border border-border divide-y divide-border">
+              <div className="rounded-lg border border-border bg-card divide-y divide-border overflow-hidden">
                 {items.map((meeting) => (
                   <MeetingRow
                     key={meeting.id}
@@ -260,7 +260,7 @@ function EmptyState({
   syncing: boolean;
 }) {
   return (
-    <div className="rounded-md border border-dashed border-border px-6 py-14 text-center">
+    <div className="rounded-lg border border-dashed border-border px-6 py-14 text-center">
       <div className="text-[14px] font-medium">No meetings yet</div>
       <p className="mt-2 mx-auto max-w-[380px] text-[13px] text-muted-foreground leading-relaxed">
         Sync your Google Calendar to see upcoming calls here. Meetings with a

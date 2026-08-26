@@ -42,7 +42,7 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
 
   if (proposals.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border px-6 py-12 text-center">
+      <div className="rounded-lg border border-dashed border-border px-6 py-12 text-center">
         <FileText
           className="size-5 mx-auto text-muted-foreground mb-3"
           strokeWidth={1.5}
@@ -62,7 +62,7 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
         <Link
           key={proposal.id}
           href={`/proposals/${proposal.id}`}
-          className="group block rounded-md border border-border bg-card px-5 py-4 hover:border-[var(--accent-sage)]/40 transition-colors"
+          className="group block rounded-lg border border-border bg-card px-5 py-4 hover:border-[var(--accent-sage)]/40 transition-colors"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
