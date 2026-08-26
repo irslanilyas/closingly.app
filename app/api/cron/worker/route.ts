@@ -1,10 +1,21 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
-import { getTranscript, TranscriptNotReadyError } from "@/lib/recall";
+import { enqueue, claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
+import { getBotStatus, getTranscript, TranscriptNotReadyError } from "@/lib/recall";
 import { dealFromTranscript } from "@/lib/pipeline/from-transcript";
 
 export const maxDuration = 60;
+
+/**
+ * A non-terminal meeting whose row hasn't moved in this long gets checked
+ * directly against Recall. Short enough to catch a dropped webhook within a
+ * few worker ticks; long enough not to fight the webhook's own 20s processing
+ * delay or flag a meeting that's still genuinely in progress.
+ */
+const STALE_MINUTES = 5;
+
+/** How many stale meetings to reconcile per tick — keep each request cheap. */
+const RECONCILE_LIMIT = 10;
 
 /**
  * Drains the job queue.
@@ -22,9 +33,6 @@ export async function GET(request: NextRequest) {
   }
 
   const jobs = await claimJobs(5);
-  if (jobs.length === 0) {
-    return NextResponse.json({ processed: 0 });
-  }
 
   // Respond before doing the work. A transcript job takes 30-60s, but the
   // schedulers that call this cap their request timeout well below that
@@ -35,12 +43,93 @@ export async function GET(request: NextRequest) {
     for (const job of jobs) {
       await runJob(job);
     }
+    // Runs every tick, not just when jobs were claimed — a dropped webhook
+    // leaves nothing in the queue to claim in the first place.
+    await reconcileStaleMeetings();
   });
+
+  if (jobs.length === 0) {
+    return NextResponse.json({ processed: 0 });
+  }
 
   return NextResponse.json({
     accepted: jobs.length,
     ids: jobs.map((j) => j.id),
   });
+}
+
+/**
+ * Ask Recall directly about meetings our own webhook seems to have lost
+ * track of, instead of waiting indefinitely for a message that may never
+ * arrive — a rotated signing secret, a disabled endpoint, a dropped delivery
+ * are all silent from our side otherwise. This is what turned a stuck meeting
+ * into an eleven-hour support conversation the first time it happened.
+ */
+async function reconcileStaleMeetings() {
+  const supabase = createAdminClient();
+
+  const { data: stale, error } = await supabase
+    .from("meetings")
+    .select("id, recall_bot_id")
+    .in("status", ["bot_scheduled", "recording", "processing"])
+    .not("recall_bot_id", "is", null)
+    .lt(
+      "updated_at",
+      new Date(Date.now() - STALE_MINUTES * 60_000).toISOString()
+    )
+    .limit(RECONCILE_LIMIT);
+
+  if (error) {
+    console.error("[cron/worker] reconcile query failed:", error.message);
+    return;
+  }
+  if (!stale || stale.length === 0) return;
+
+  for (const meeting of stale) {
+    try {
+      await reconcileMeeting(meeting.id, meeting.recall_bot_id as string);
+    } catch (err) {
+      // One bad Recall lookup shouldn't stop the rest of the sweep.
+      console.error(
+        `[cron/worker] reconcile failed for meeting ${meeting.id}:`,
+        err
+      );
+    }
+  }
+}
+
+async function reconcileMeeting(meetingId: string, botId: string) {
+  const supabase = createAdminClient();
+  const bot = await getBotStatus(botId);
+
+  if (bot.isFatal) {
+    await supabase
+      .from("meetings")
+      .update({ status: "failed", error: "Recall reported a fatal bot error" })
+      .eq("id", meetingId);
+    return;
+  }
+
+  if (bot.isDone) {
+    console.log(
+      `[cron/worker] reconcile: bot ${botId} finished with no webhook received — enqueuing meeting ${meetingId}`
+    );
+    // dealFromTranscript is idempotent on deal_id and enqueue dedupes on
+    // botId, so this is safe even if the missing webhook turns up later.
+    await enqueue(
+      "process_transcript",
+      { meeting_id: meetingId, bot_id: botId },
+      { dedupeKey: botId }
+    );
+    return;
+  }
+
+  // Still genuinely in progress. Touch the row so a long call doesn't get
+  // re-checked against Recall every minute for its whole duration.
+  await supabase
+    .from("meetings")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", meetingId);
 }
 
 async function runJob(job: ClaimedJob) {
@@ -114,6 +203,14 @@ async function processTranscript(job: ClaimedJob) {
     throw Object.assign(new Error("meeting_not_found"), { retryable: false });
   }
 
+  // Only the fetch branch below sets status to "completed". A re-delivered
+  // webhook (Recall retries, or the reconciliation sweep catching one late)
+  // finds a transcript already stored, skips that branch entirely, and would
+  // otherwise leave the meeting parked at "processing" forever even though
+  // the work is done — exactly what happened the first time a webhook's
+  // signature stopped matching and a replay landed after the fact.
+  const hadTranscriptAlready = !!meeting.transcript;
+
   // ── Fetch (skipped if a previous attempt already got this far) ──────────
   if (!meeting.transcript) {
     const { text, durationSeconds } = await getTranscript(botId);
@@ -155,6 +252,16 @@ async function processTranscript(job: ClaimedJob) {
 
   // ── Triage → deal → draft proposal ─────────────────────────────────────
   const result = await dealFromTranscript(meetingId);
+
+  if (hadTranscriptAlready) {
+    // Heal the status the fetch branch would have set, without stomping a
+    // status something else may have written concurrently (e.g. "failed").
+    await supabase
+      .from("meetings")
+      .update({ status: "completed" })
+      .eq("id", meetingId)
+      .in("status", ["processing", "recording", "bot_scheduled"]);
+  }
 
   console.log(
     `[cron/worker] meeting ${meetingId}: ${result.kind}` +

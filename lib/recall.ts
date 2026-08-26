@@ -159,3 +159,44 @@ export class TranscriptNotReadyError extends Error {
     this.name = "TranscriptNotReadyError";
   }
 }
+
+export interface BotStatus {
+  /** The most recent status_changes code, e.g. "in_call_recording", "done". */
+  latestCode: string;
+  /** The call is over and a transcript should exist (or be close to it). */
+  isDone: boolean;
+  /** Recall gave up on the bot — nothing to fetch, no point retrying. */
+  isFatal: boolean;
+}
+
+/**
+ * Ask Recall directly what a bot is doing, independent of any webhook.
+ *
+ * Exists for the reconciliation sweep: a webhook is a promise from Recall to
+ * tell us when something happens, and promises get broken — a rotated signing
+ * secret, a disabled endpoint, a dropped delivery. This is how the worker
+ * checks the truth itself instead of waiting forever for a message that isn't
+ * coming.
+ */
+export async function getBotStatus(botId: string): Promise<BotStatus> {
+  const res = await fetch(`${BASE()}/bot/${botId}/?_t=${Date.now()}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Recall getBot failed (${res.status}): ${await res.text()}`);
+  }
+
+  const bot = await res.json();
+  const changes: Array<{ code?: string }> = bot?.status_changes ?? [];
+  const latestCode = changes.length
+    ? (changes[changes.length - 1].code ?? "")
+    : "";
+
+  return {
+    latestCode,
+    isDone: ["call_ended", "recording_done", "done"].includes(latestCode),
+    isFatal: latestCode === "fatal",
+  };
+}
