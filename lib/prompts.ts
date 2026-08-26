@@ -164,3 +164,52 @@ Return ONLY valid JSON:
 }
 
 Rules: lean toward "scope_creep" if it's genuinely additional work. Don't be a pushover. The user is the freelancer being protected. Output JSON only.`;
+
+/**
+ * Asks Kimi for a proposal design.
+ *
+ * The output is a fixed set of choices, not markup. Spelling out the whole
+ * vocabulary inline is what keeps it that way — the model never has to invent
+ * a value, so almost everything it returns survives validation instead of
+ * silently falling back to the default.
+ */
+export const templatePrompt = (brief: string, existingNames: string[]) =>
+  `You are a book and brand designer choosing a look for a consultant's client proposal.
+
+Return ONLY valid JSON, exactly this shape:
+
+{
+  "name": "two words max, evocative, e.g. 'Slate' or 'Warm Press'",
+  "description": "one short sentence a non-designer would understand",
+  "design": {
+    "heading_font": "sans" | "serif" | "display" | "mono",
+    "body_font": "sans" | "serif",
+    "density": "compact" | "normal" | "spacious",
+    "paper": "#rrggbb",
+    "ink": "#rrggbb",
+    "accent": "#rrggbb",
+    "header": "minimal" | "rule" | "block" | "centered",
+    "section_label": "caps" | "numbered" | "serif" | "hidden",
+    "divider": "none" | "hairline" | "rule",
+    "bullet": "dot" | "check" | "number" | "card",
+    "investment": "plain" | "boxed" | "hero",
+    "corners": "square" | "soft" | "round"
+  }
+}
+
+What the fields do:
+- paper is the page background, ink is the body text, accent carries the price and the bullets.
+- "display" is a high-contrast serif for headlines only; pair it with a serif or sans body.
+- "block" prints the title white-on-accent, so the accent must be dark enough to read against.
+- "hero" makes the fee large and centred on a tinted panel. Use it when the price is a selling point, not when it is high.
+- "numbered" labels sections 01, 02, 03 — formal, good for corporate readers.
+
+Rules:
+- ink against paper must be genuinely readable — aim past 7:1. Near-black on off-white is never wrong.
+- Pick a paper that is white or a very light tint. This document gets printed.
+- One accent only. It should feel chosen, not default: avoid pure #000000, #ffffff and stock blue #0000ff.
+- Make coherent choices. Spacious + display + centered + hairline reads editorial; compact + sans + numbered + rule reads corporate. Do not mix at random.
+${existingNames.length ? `- Must feel clearly different from what this user already has: ${existingNames.join(", ")}.` : ""}
+
+The consultant describes the impression they want:
+"${brief}"`;

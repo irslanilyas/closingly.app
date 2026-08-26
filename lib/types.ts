@@ -1,3 +1,5 @@
+import type { ProposalTheme } from "@/lib/proposal-theme";
+
 export type DealStage =
   | "lead"
   | "proposal_sent"
@@ -202,7 +204,8 @@ export interface Template {
   user_id: string | null;
   name: string;
   description: string | null;
-  component_source: string;
+  /** Validated design spec — see lib/proposal-theme.ts. Never code. */
+  design: ProposalTheme;
   is_builtin: boolean;
   created_at: string;
 }
@@ -233,7 +236,7 @@ export interface DealEvent {
 /* ── Background jobs ──────────────────────────────────────────────────── */
 
 /** Slow AI work, kept out of the Recall webhook so it can return fast. */
-export type JobKind = "process_transcript" | "generate_templates";
+export type JobKind = "process_transcript";
 
 export type JobStatus = "pending" | "running" | "done" | "failed";
 

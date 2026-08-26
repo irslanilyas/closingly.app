@@ -21,7 +21,25 @@ export async function PATCH(
   const body = (await request.json()) as {
     proposal_data?: ProposalData;
     change_summary?: string;
+    template_id?: string | null;
   };
+
+  // Switching template changes how the proposal looks, not what it says, so it
+  // skips the version snapshot below — design churn in the history panel would
+  // bury the content edits it exists to let you undo.
+  if (body.proposal_data === undefined && body.template_id !== undefined) {
+    const { error } = await supabase
+      .from("proposals")
+      .update({ template_id: body.template_id })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[proposals] template change failed:", error);
+      return NextResponse.json({ error: "update_failed" }, { status: 500 });
+    }
+
+    return NextResponse.json({ id, template_id: body.template_id });
+  }
 
   if (!body.proposal_data) {
     return NextResponse.json({ error: "missing_proposal_data" }, { status: 400 });

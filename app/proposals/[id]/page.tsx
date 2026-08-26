@@ -5,9 +5,14 @@ import Link from "next/link";
 import { AppShellClient } from "@/components/app-shell-client";
 import { ProposalDocument } from "@/components/proposal/proposal-document";
 import { SharePanel } from "@/components/proposal/share-panel";
+import {
+  TemplatePicker,
+  type TemplateOption,
+} from "@/components/proposal/template-picker";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
+import { coerceTheme, DEFAULT_THEME } from "@/lib/proposal-theme";
 import type { ProposalData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -19,6 +24,9 @@ interface Loaded {
   proposal_data: ProposalData;
   status: string;
   share_token: string | null;
+  template_id: string | null;
+  templates: { design: unknown } | null;
+  profiles: { full_name: string | null; email: string | null } | null;
   deals: { client_name: string | null; client_company: string | null } | null;
 }
 
@@ -49,7 +57,7 @@ export default function ProposalPage({
     const { data } = await supabase
       .from("proposals")
       .select(
-        "id, deal_id, proposal_data, status, share_token, deals(client_name, client_company)"
+        "id, deal_id, proposal_data, status, share_token, template_id, templates(design), profiles(full_name, email), deals(client_name, client_company)"
       )
       .eq("id", id)
       .single();
@@ -85,6 +93,31 @@ export default function ProposalPage({
 
     if (!res.ok) {
       toast.error("Couldn't save that change.");
+      await load();
+    }
+  };
+
+  const applyTemplate = async (template: TemplateOption | null) => {
+    // Optimistic: a design switch should feel instant, and the worst case is
+    // one repaint back to where it was.
+    setProposal((p) =>
+      p
+        ? {
+            ...p,
+            template_id: template?.id ?? null,
+            templates: template ? { design: template.design } : null,
+          }
+        : p
+    );
+
+    const res = await fetch(`/api/proposals/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ template_id: template?.id ?? null }),
+    });
+
+    if (!res.ok) {
+      toast.error("Couldn't change the design.");
       await load();
     }
   };
@@ -191,6 +224,13 @@ export default function ProposalPage({
         </button>
       </div>
 
+      <div className="mx-auto max-w-[680px] mb-8">
+        <TemplatePicker
+          selectedId={proposal.template_id}
+          onSelect={applyTemplate}
+        />
+      </div>
+
       {showHistory && (
         <div className="mx-auto max-w-[680px] mb-8 rounded-md border border-border divide-y divide-border">
           {versions.length === 0 ? (
@@ -233,10 +273,16 @@ export default function ProposalPage({
 
       <ProposalDocument
         data={proposal.proposal_data}
+        theme={
+          proposal.templates
+            ? coerceTheme(proposal.templates.design)
+            : DEFAULT_THEME
+        }
         onChange={save}
         changedKeys={changedKeys}
         clientName={proposal.deals?.client_name}
         clientCompany={proposal.deals?.client_company}
+        authorName={proposal.profiles?.full_name ?? proposal.profiles?.email}
       />
 
       <div className="mx-auto max-w-[680px] mt-14">

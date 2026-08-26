@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProposalDocument } from "@/components/proposal/proposal-document";
 import { ViewTracker } from "@/app/p/[token]/tracker";
+import { coerceTheme, DEFAULT_THEME, themeVars } from "@/lib/proposal-theme";
 import type { ProposalData } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export default async function SharedProposalPage({
   const { data } = await supabase
     .from("proposals")
     .select(
-      "id, proposal_data, share_expires_at, deals(client_name, client_company), profiles(full_name, email)"
+      "id, proposal_data, share_expires_at, templates(design), deals(client_name, client_company), profiles(full_name, email)"
     )
     .eq("share_token", token)
     .single();
@@ -45,21 +46,31 @@ export default async function SharedProposalPage({
     email: string | null;
   } | null;
 
+  const template = data.templates as unknown as { design: unknown } | null;
+  const theme = template ? coerceTheme(template.design) : DEFAULT_THEME;
+
   return (
-    <div className="min-h-screen bg-background">
+    // The template paints the whole page, not just the article. A themed
+    // document floating on the app's own background would read as a widget
+    // embedded in someone else's product — the opposite of the point.
+    <div
+      style={themeVars(theme)}
+      className="min-h-screen bg-[var(--p-paper)] text-[color:var(--p-ink)]"
+    >
       <ViewTracker token={token} />
 
       <main className="mx-auto max-w-[760px] px-6 py-16 sm:py-24">
         <ProposalDocument
           data={data.proposal_data as ProposalData}
+          theme={theme}
           readOnly
           clientName={deal?.client_name}
           clientCompany={deal?.client_company}
+          authorName={author?.full_name ?? author?.email}
         />
 
-        <footer className="mt-16 pt-8 border-t border-border">
-          <p className="text-[12.5px] text-muted-foreground">
-            Prepared by {author?.full_name ?? author?.email ?? "your consultant"}.
+        <footer className="mt-16 pt-8 border-t border-[var(--p-rule)]">
+          <p className="text-[12.5px] text-[color:var(--p-muted)]">
             Questions? Just reply to the email this came from.
           </p>
         </footer>
