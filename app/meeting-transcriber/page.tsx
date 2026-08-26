@@ -1,18 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { AppShellClient } from "@/components/app-shell-client";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CopyButton } from "@/components/copy-button";
-import { Loader2, Sparkles, ArrowRight, Info } from "lucide-react";
+import { Loader2, Sparkles, Info } from "lucide-react";
 import { toast } from "sonner";
 
 export default function TranscriberPage() {
-  const router = useRouter();
   const [raw, setRaw] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [cleaned, setCleaned] = useState("");
@@ -43,12 +41,6 @@ export default function TranscriberPage() {
     } finally {
       setStreaming(false);
     }
-  };
-
-  const onSendToProposal = () => {
-    if (!cleaned) return;
-    sessionStorage.setItem("cleaned_transcript", cleaned);
-    router.push("/proposal-generator?from=transcriber");
   };
 
   return (
@@ -115,18 +107,6 @@ export default function TranscriberPage() {
                 <span className="inline-block size-2 ml-0.5 bg-foreground/40 animate-pulse" />
               )}
             </pre>
-            {cleaned && !streaming && (
-              <div className="mt-5 pt-5 border-t border-border">
-                <Button
-                  onClick={onSendToProposal}
-                  variant="ghost"
-                  className="h-9 text-[13px] gap-2 -ml-2"
-                >
-                  Send to Proposal Generator
-                  <ArrowRight className="size-3.5" strokeWidth={1.75} />
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </div>

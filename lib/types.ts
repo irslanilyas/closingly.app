@@ -59,7 +59,6 @@ export interface Deal {
   timeline: string | null;
   decision_maker: string | null;
   fit_score: number | null;
-  proposal_data: ProposalData | null;
   suggested_replies: SuggestedReply[] | null;
   stage: DealStage;
   source: string;

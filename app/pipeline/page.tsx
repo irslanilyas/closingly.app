@@ -178,14 +178,11 @@ export default function PipelinePage() {
         <div className="rounded-md border border-dashed border-border bg-card/40 p-12 text-center">
           <div className="text-[13.5px] font-medium">No deals yet</div>
           <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Generate a proposal and click <em>Save to pipeline</em>.
+            Switch the agent on for a client call and a deal lands here on its
+            own.
           </div>
-          <Button
-            asChild
-            variant="ghost"
-            className="mt-4 text-[12.5px] h-8"
-          >
-            <Link href="/proposal-generator">Open Proposal Generator →</Link>
+          <Button asChild variant="ghost" className="mt-4 text-[12.5px] h-8">
+            <Link href="/meetings">Go to meetings →</Link>
           </Button>
         </div>
       )}
