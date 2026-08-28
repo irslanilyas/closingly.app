@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import { isFounder } from "@/lib/founders";
 import { Menu, LogOut } from "lucide-react";
 
 const NAV = [
@@ -28,6 +29,12 @@ export function Topbar({ email }: { email: string }) {
   const router = useRouter();
   const supabase = createClient();
   const [open, setOpen] = useState(false);
+
+  // Only shown to the two of us — a beta tester's nav shouldn't include an
+  // internal build log next to their actual client work.
+  const nav = isFounder(email)
+    ? [...NAV, { href: "/progress", label: "Progress" }]
+    : NAV;
 
   const onLogout = async () => {
     await supabase.auth.signOut();
@@ -51,7 +58,7 @@ export function Topbar({ email }: { email: string }) {
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <Link
                 key={n.href}
                 href={n.href}
@@ -108,7 +115,7 @@ export function Topbar({ email }: { email: string }) {
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 mt-6">
-                {NAV.map((n) => (
+                {nav.map((n) => (
                   <Link
                     key={n.href}
                     href={n.href}
