@@ -159,10 +159,13 @@ async function runJob(job: ClaimedJob) {
  */
 async function processTranscript(job: ClaimedJob) {
   const meetingId = job.payload.meeting_id as string;
-  const botId = job.payload.bot_id as string;
+  const botId = job.payload.bot_id as string | undefined;
+  // Hand-imported transcripts run this same job, so the created deal can be
+  // told apart from one the agent recorded itself.
+  const source = (job.payload.source as string) ?? "meeting_agent";
 
-  if (!meetingId || !botId) {
-    throw new Error("process_transcript payload missing meeting_id or bot_id");
+  if (!meetingId) {
+    throw new Error("process_transcript payload missing meeting_id");
   }
 
   const supabase = createAdminClient();
@@ -188,6 +191,16 @@ async function processTranscript(job: ClaimedJob) {
 
   // ── Fetch (skipped if a previous attempt already got this far) ──────────
   if (!meeting.transcript) {
+    // Only the bot flow can fetch; an import arrives with its transcript
+    // already stored, so reaching here without a bot means the row lost its
+    // transcript somehow and there is nothing to recover it from.
+    if (!botId) {
+      throw Object.assign(
+        new Error("no transcript and no bot to fetch one from"),
+        { retryable: false }
+      );
+    }
+
     const { text, durationSeconds } = await getTranscript(botId);
 
     await supabase
@@ -226,7 +239,7 @@ async function processTranscript(job: ClaimedJob) {
   }
 
   // ── Triage → deal → draft proposal ─────────────────────────────────────
-  const result = await dealFromTranscript(meetingId);
+  const result = await dealFromTranscript(meetingId, source);
 
   if (hadTranscriptAlready) {
     // Heal the status the fetch branch would have set, without stomping a

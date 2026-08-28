@@ -24,12 +24,24 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { ForecastView } from "@/components/pipeline/forecast-view";
 import { formatDistanceToNowStrict } from "date-fns";
-import { LayoutGrid, List, Search } from "lucide-react";
+import { LayoutGrid, List, Search, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-type View = "kanban" | "list";
+type View = "kanban" | "list" | "forecast";
+
+/** Table-driven so adding a fourth view is a row, not another copied button. */
+const VIEWS = [
+  { id: "kanban", label: "Kanban", Icon: LayoutGrid },
+  { id: "list", label: "List", Icon: List },
+  { id: "forecast", label: "Forecast", Icon: TrendingUp },
+] as const satisfies ReadonlyArray<{
+  id: View;
+  label: string;
+  Icon: typeof LayoutGrid;
+}>;
 
 export default function PipelinePage() {
   const qc = useQueryClient();
@@ -144,29 +156,28 @@ export default function PipelinePage() {
             className="h-9 pl-8 text-[13px]"
           />
         </div>
-        <div className="flex items-center gap-1 p-0.5 border border-border rounded-md bg-background">
-          <button
-            onClick={() => setView("kanban")}
-            className={cn(
-              "h-7 px-2.5 rounded text-[12px] inline-flex items-center gap-1.5 transition-colors",
-              view === "kanban"
-                ? "bg-secondary text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <LayoutGrid className="size-3.5" strokeWidth={1.5} /> Kanban
-          </button>
-          <button
-            onClick={() => setView("list")}
-            className={cn(
-              "h-7 px-2.5 rounded text-[12px] inline-flex items-center gap-1.5 transition-colors",
-              view === "list"
-                ? "bg-secondary text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <List className="size-3.5" strokeWidth={1.5} /> List
-          </button>
+        <div
+          role="tablist"
+          aria-label="Pipeline view"
+          className="flex items-center gap-1 p-0.5 border border-border rounded-md bg-background"
+        >
+          {VIEWS.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              role="tab"
+              aria-selected={view === id}
+              onClick={() => setView(id)}
+              className={cn(
+                "h-7 px-2.5 rounded text-[12px] inline-flex items-center gap-1.5 transition-colors",
+                view === id
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="size-3.5" strokeWidth={1.5} />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -199,6 +210,10 @@ export default function PipelinePage() {
 
       {!isLoading && filtered.length > 0 && view === "list" && (
         <ListView deals={filtered} />
+      )}
+
+      {!isLoading && filtered.length > 0 && view === "forecast" && (
+        <ForecastView deals={filtered} />
       )}
     </AppShellClient>
   );

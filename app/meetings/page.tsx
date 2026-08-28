@@ -7,11 +7,12 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImportCallDialog } from "@/components/meetings/import-call-dialog";
 import { createClient } from "@/lib/supabase/client";
-import type { Meeting } from "@/lib/types";
+import { MEETING_STATUS_LABELS, type Meeting } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { RefreshCw, Video, CalendarX2 } from "lucide-react";
+import { RefreshCw, Video, CalendarX2, FileUp, Loader2 } from "lucide-react";
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -129,18 +130,21 @@ export default function MeetingsPage() {
             ? " "
             : `${meetings.length} upcoming${armed > 0 ? ` · ${armed} with agent on` : ""}`}
         </div>
-        <Button
-          onClick={sync}
-          disabled={syncing}
-          variant="outline"
-          className="h-9 text-[12.5px] gap-2 cursor-pointer"
-        >
-          <RefreshCw
-            className={cn("size-3.5", syncing && "animate-spin")}
-            strokeWidth={1.5}
-          />
-          {syncing ? "Syncing…" : "Sync calendar"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportCallDialog onImported={load} />
+          <Button
+            onClick={sync}
+            disabled={syncing}
+            variant="outline"
+            className="h-9 text-[12.5px] gap-2 cursor-pointer"
+          >
+            <RefreshCw
+              className={cn("size-3.5", syncing && "animate-spin")}
+              strokeWidth={1.5}
+            />
+            {syncing ? "Syncing…" : "Sync calendar"}
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -150,7 +154,7 @@ export default function MeetingsPage() {
           ))}
         </div>
       ) : meetings.length === 0 ? (
-        <EmptyState onSync={sync} syncing={syncing} />
+        <EmptyState onSync={sync} syncing={syncing} onImported={load} />
       ) : (
         <div className="space-y-8 stagger">
           {grouped.map(({ day, items }) => (
@@ -191,6 +195,13 @@ function MeetingRow({
     : false;
   const canArm = hasLink && !started;
 
+  // A hand-imported call has no calendar event and no bot — that combination
+  // only ever comes from the import dialog.
+  const imported =
+    !meeting.google_event_id && !meeting.recall_bot_id && !!meeting.transcript;
+  const processing = meeting.status === "processing";
+  const noAgentNeeded = imported || processing;
+
   return (
     <div className="flex items-center gap-4 px-4 py-3.5">
       <div className="w-[70px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground">
@@ -202,7 +213,12 @@ function MeetingRow({
           {meeting.title ?? "Untitled meeting"}
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12px] text-muted-foreground">
-          {hasLink ? (
+          {imported ? (
+            <>
+              <FileUp className="size-3" strokeWidth={1.5} />
+              <span>Imported transcript</span>
+            </>
+          ) : hasLink ? (
             <>
               <Video className="size-3" strokeWidth={1.5} />
               <span>{platformLabel(meeting.platform)}</span>
@@ -231,48 +247,83 @@ function MeetingRow({
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
-        <span
-          className={cn(
-            "text-[11px] uppercase tracking-[0.1em] hidden sm:inline",
-            meeting.agent_enabled
-              ? "text-[var(--accent-sage)] font-medium"
-              : "text-muted-foreground"
-          )}
-        >
-          {meeting.agent_enabled ? "Agent on" : "Agent off"}
-        </span>
-        <Switch
-          checked={meeting.agent_enabled}
-          onCheckedChange={onToggle}
-          disabled={pending || !canArm}
-          aria-label={`Meeting agent for ${meeting.title ?? "meeting"}`}
-        />
+        {processing ? (
+          <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+            <Loader2 className="size-3 animate-spin" strokeWidth={1.75} />
+            Reading
+          </span>
+        ) : noAgentNeeded ? (
+          // An imported call already happened — offering to send a bot to it
+          // would be nonsense, so the control simply isn't there.
+          <span className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground hidden sm:inline">
+            {meeting.deal_id ? "Processed" : statusLabel(meeting.status)}
+          </span>
+        ) : (
+          <>
+            <span
+              className={cn(
+                "text-[11px] uppercase tracking-[0.1em] hidden sm:inline",
+                meeting.agent_enabled
+                  ? "text-[var(--accent-sage)] font-medium"
+                  : "text-muted-foreground"
+              )}
+            >
+              {meeting.agent_enabled ? "Agent on" : "Agent off"}
+            </span>
+            <Switch
+              checked={meeting.agent_enabled}
+              onCheckedChange={onToggle}
+              disabled={pending || !canArm}
+              aria-label={`Meeting agent for ${meeting.title ?? "meeting"}`}
+            />
+          </>
+        )}
       </div>
     </div>
   );
 }
 
+/** Falls back to the raw value so an unfamiliar status still reads as something. */
+function statusLabel(status: Meeting["status"]): string {
+  return MEETING_STATUS_LABELS[status] ?? String(status).replace(/_/g, " ");
+}
+
+/**
+ * The cold-start screen. Someone who just signed up has no calendar synced and
+ * quite possibly no client call booked this week — telling them only to "sync
+ * and wait" gives them nothing to do and nothing to judge the product by. So
+ * importing a past call is offered here as an equal option, not a footnote.
+ */
 function EmptyState({
   onSync,
   syncing,
+  onImported,
 }: {
   onSync: () => void;
   syncing: boolean;
+  onImported: () => void;
 }) {
   return (
     <div className="rounded-lg border border-dashed border-border px-6 py-14 text-center">
       <div className="text-[14px] font-medium">No meetings yet</div>
-      <p className="mt-2 mx-auto max-w-[380px] text-[13px] text-muted-foreground leading-relaxed">
-        Sync your Google Calendar to see upcoming calls here. Meetings with a
+      <p className="mt-2 mx-auto max-w-[420px] text-[13px] text-muted-foreground leading-relaxed">
+        Sync your Google Calendar to see upcoming calls here — meetings with a
         Meet, Zoom, or Teams link can have the agent switched on.
       </p>
-      <Button
-        onClick={onSync}
-        disabled={syncing}
-        className="mt-5 h-9 text-[12.5px] bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
-      >
-        {syncing ? "Syncing…" : "Sync calendar"}
-      </Button>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <Button
+          onClick={onSync}
+          disabled={syncing}
+          className="h-9 text-[12.5px] bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        >
+          {syncing ? "Syncing…" : "Sync calendar"}
+        </Button>
+        <ImportCallDialog onImported={onImported} />
+      </div>
+      <p className="mt-4 mx-auto max-w-[420px] text-[12px] text-muted-foreground/80 leading-relaxed">
+        Don&rsquo;t have a call coming up? Import a transcript from a past one
+        and you&rsquo;ll have a deal and a drafted proposal in about a minute.
+      </p>
     </div>
   );
 }

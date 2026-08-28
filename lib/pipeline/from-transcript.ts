@@ -40,9 +40,16 @@ export interface ProcessResult {
  * user attaches it themselves. Junk in the pipeline is worse than a manual step.
  *
  * Nothing is ever sent. The proposal is a draft the user reviews.
+ *
+ * @param source Stamped onto the created deal. The bot flow leaves the default;
+ * a hand-imported transcript passes `"imported"`. Worth distinguishing because
+ * the two have different trustworthiness — an imported transcript came from
+ * some other tool with its own speaker-labelling quirks, and later analysis
+ * (win rates, pricing calibration) shouldn't silently blend the two.
  */
 export async function dealFromTranscript(
-  meetingId: string
+  meetingId: string,
+  source: string = "meeting_agent"
 ): Promise<ProcessResult> {
   const supabase = createAdminClient();
 
@@ -129,7 +136,7 @@ export async function dealFromTranscript(
       suggested_replies: extracted.suggested_replies ?? null,
       proposed_amount: parseAmount(extracted.proposal?.investment_number),
       stage: "lead",
-      source: "meeting_agent",
+      source,
     })
     .select("id")
     .single();
