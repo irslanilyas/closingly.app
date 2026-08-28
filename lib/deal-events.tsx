@@ -1,12 +1,14 @@
 import type { DealEvent, DealEventKind } from "@/lib/types";
 import {
   ArrowRight,
+  Award,
   CircleDot,
   Eye,
   FileText,
   Link2,
   Mail,
   Mic,
+  Search,
   StickyNote,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +46,8 @@ const ICONS: Record<DealEventKind, LucideIcon> = {
   proposal_viewed: Eye,
   followup_generated: Mail,
   note_added: StickyNote,
+  postmortem_generated: Search,
+  case_study_generated: Award,
 };
 
 /**
@@ -92,6 +96,10 @@ export function describeDealEvent(
       return { Icon, tone: "neutral", label: "Follow-up drafted" };
     case "note_added":
       return { Icon, tone: "neutral", label: "Note added" };
+    case "postmortem_generated":
+      return { Icon, tone: "neutral", label: "Post-mortem generated" };
+    case "case_study_generated":
+      return { Icon, tone: "accent", label: "Case study generated" };
     case "created":
       return { Icon, tone: "neutral", label: "Deal created" };
     default:

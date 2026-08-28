@@ -147,6 +147,58 @@ Clean this up:
 
 Return ONLY the cleaned transcript as plain text. No JSON wrapping, no explanation.`;
 
+/**
+ * Runs once, when a deal is marked lost. Reads the discovery transcript plus
+ * whatever the deal accumulated (pain point, budget signal, notes) and tries
+ * to name the actual failure point rather than a generic "it didn't work out".
+ */
+export const postmortemPrompt = (dealContext: string, transcript: string) =>
+  `You are helping an independent professional understand why a deal was lost, so the same mistake doesn't repeat.
+
+DEAL CONTEXT:
+${dealContext}
+
+DISCOVERY TRANSCRIPT (if available):
+${transcript || "No transcript on this deal."}
+
+Return ONLY valid JSON:
+{
+  "what_went_wrong": "2-3 blunt sentences naming the actual reason, not a vague summary",
+  "earliest_warning_sign": "the earliest moment in the deal that hinted this was going to fail, quoting or referencing the transcript/context if possible",
+  "price_or_scope_factor": "did price, scope, or timeline play a role, and how — or 'Not a factor' if genuinely unrelated",
+  "what_to_try_next_time": "one concrete, specific action for a similar future deal — not generic advice like 'follow up more'"
+}
+
+Rules: be direct, not diplomatic — this is private and only the user reads it. If the transcript or context genuinely doesn't support a confident answer, say so plainly rather than inventing a reason. Output JSON only.`;
+
+/**
+ * Runs once, when a deal is marked won. Pulls real language from the
+ * transcript rather than inventing generic praise, so the testimonial ask
+ * doesn't read as fabricated when the client sees it.
+ */
+export const caseStudyPrompt = (dealContext: string, transcript: string) =>
+  `You are drafting case-study material for an independent professional, from a deal they just won.
+
+DEAL CONTEXT:
+${dealContext}
+
+DISCOVERY TRANSCRIPT (if available):
+${transcript || "No transcript on this deal."}
+
+Return ONLY valid JSON:
+{
+  "headline": "one line, specific outcome or transformation, not generic",
+  "summary": "3-4 sentences: the client's situation, what was done, the result — written for a prospective client to read",
+  "client_quote": "a short quote that sounds like something the client actually said, grounded in the transcript's language — never invent a quote they didn't imply",
+  "results": ["concrete outcome 1", "concrete outcome 2", "concrete outcome 3"],
+  "testimonial_request_email": {
+    "subject": "short, specific",
+    "body": "2-3 sentences asking the client to confirm or lightly edit the quote above for public use — warm, not pushy"
+  }
+}
+
+Rules: never fabricate a metric or outcome the transcript/context doesn't support — if there's nothing concrete, keep "results" short rather than making numbers up. Tight language, no filler. Output JSON only.`;
+
 export const scopePrompt = (sow: string, message: string) => `You are a scope-creep detector for an independent professional.
 
 Original SOW:

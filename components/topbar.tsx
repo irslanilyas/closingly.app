@@ -20,6 +20,7 @@ const NAV = [
   { href: "/", label: "Dashboard" },
   { href: "/meetings", label: "Meetings" },
   { href: "/pipeline", label: "Pipeline" },
+  { href: "/insights", label: "Insights" },
 ];
 
 export function Topbar({ email }: { email: string }) {

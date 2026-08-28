@@ -17,8 +17,12 @@ import {
 } from "@/components/ui/select";
 import { ProposalPanel } from "@/components/deal/proposal-panel";
 import { FollowUpsPanel } from "@/components/deal/followups-panel";
+import { PricingPanel } from "@/components/deal/pricing-panel";
 import { ScopePanel } from "@/components/deal/scope-panel";
 import { ActivityPanel } from "@/components/deal/activity-panel";
+import { PostmortemPanel } from "@/components/deal/postmortem-panel";
+import { CaseStudyPanel } from "@/components/deal/case-study-panel";
+import { ClientHealthCard } from "@/components/deal/client-health-card";
 import { formatCurrency } from "@/lib/format";
 import { type Deal, STAGE_LABELS, STAGE_ORDER } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
@@ -136,15 +140,26 @@ export default function DealDetailPage({
           <Tabs defaultValue="proposal">
             <TabsList>
               <TabsTrigger value="proposal">Proposal</TabsTrigger>
+              <TabsTrigger value="pricing">Pricing</TabsTrigger>
               <TabsTrigger value="followups">Follow-ups</TabsTrigger>
               <TabsTrigger value="scope">Scope</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="transcript">Transcript</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
+              {deal.stage === "lost" && (
+                <TabsTrigger value="wrapup">Post-mortem</TabsTrigger>
+              )}
+              {deal.stage === "won" && (
+                <TabsTrigger value="wrapup">Case Study</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="proposal" className="mt-6">
               <ProposalPanel dealId={deal.id} />
+            </TabsContent>
+
+            <TabsContent value="pricing" className="mt-6">
+              <PricingPanel deal={deal} />
             </TabsContent>
 
             <TabsContent value="followups" className="mt-6">
@@ -179,6 +194,18 @@ export default function DealDetailPage({
                 className="min-h-[280px]"
               />
             </TabsContent>
+
+            {deal.stage === "lost" && (
+              <TabsContent value="wrapup" className="mt-6">
+                <PostmortemPanel dealId={deal.id} />
+              </TabsContent>
+            )}
+
+            {deal.stage === "won" && (
+              <TabsContent value="wrapup" className="mt-6">
+                <CaseStudyPanel dealId={deal.id} />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 
@@ -198,6 +225,8 @@ export default function DealDetailPage({
               </div>
             )}
           </section>
+
+          <ClientHealthCard dealId={deal.id} stage={deal.stage} />
 
           <section>
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-4 font-medium">
@@ -306,6 +335,37 @@ function DetailsPanel({
               proposed_amount: v ? parseFloat(v.replace(/[^\d.]/g, "")) : null,
             })
           }
+        />
+      </Row>
+
+      <Row label="Estimated hours">
+        <AutosaveInput
+          value={deal.estimated_hours?.toString() ?? ""}
+          onSave={(v) =>
+            onPatch({
+              estimated_hours: v ? parseFloat(v.replace(/[^\d.]/g, "")) : null,
+            })
+          }
+        />
+      </Row>
+
+      <Row label="Start date">
+        <Input
+          type="date"
+          value={deal.start_date ?? ""}
+          onChange={(e) => onPatch({ start_date: e.target.value || null })}
+          className="h-9 text-[13px]"
+        />
+      </Row>
+
+      <Row label="Target end date">
+        <Input
+          type="date"
+          value={deal.target_end_date ?? ""}
+          onChange={(e) =>
+            onPatch({ target_end_date: e.target.value || null })
+          }
+          className="h-9 text-[13px]"
         />
       </Row>
     </div>

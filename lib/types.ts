@@ -64,6 +64,9 @@ export interface Deal {
   source: string;
   notes: string | null;
   proposed_amount: number | null;
+  estimated_hours: number | null;
+  start_date: string | null;
+  target_end_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +81,24 @@ export interface ProposalGeneration {
   fit_score: number;
   proposal: ProposalData;
   suggested_replies: SuggestedReply[];
+}
+
+export interface PostmortemResult {
+  what_went_wrong: string;
+  earliest_warning_sign: string;
+  price_or_scope_factor: string;
+  what_to_try_next_time: string;
+}
+
+export interface CaseStudyResult {
+  headline: string;
+  summary: string;
+  client_quote: string;
+  results: string[];
+  testimonial_request_email: {
+    subject: string;
+    body: string;
+  };
 }
 
 export interface ScopeAnalysis {
@@ -219,7 +240,9 @@ export type DealEventKind =
   | "proposal_shared"
   | "proposal_viewed"
   | "followup_generated"
-  | "note_added";
+  | "note_added"
+  | "postmortem_generated"
+  | "case_study_generated";
 
 export interface DealEvent {
   id: string;
@@ -261,6 +284,59 @@ export interface RecordingUsage {
   limit_seconds: number;
   remaining_seconds: number;
   percent_used: number;
+}
+
+/* ── Insights (Phase 13) ──────────────────────────────────────────────── */
+
+export interface WinLossStats {
+  count: number;
+  avg_proposed_amount: number | null;
+  avg_followups: number;
+  avg_days_to_close: number | null;
+}
+
+export interface TemplateWinRate {
+  template_id: string;
+  template_name: string;
+  won: number;
+  lost: number;
+  win_rate: number;
+}
+
+/** Below this many closed deals, the stats are noise, not signal. */
+export const WIN_LOSS_MIN_SAMPLE = 5;
+
+export type WinLossInsights =
+  | { insufficient_data: true; closed_count: number; needed: number }
+  | {
+      insufficient_data: false;
+      won: WinLossStats;
+      lost: WinLossStats;
+      by_template: TemplateWinRate[];
+    };
+
+export interface CapacityWeek {
+  week_start: string;
+  hours_committed: number;
+  capacity_hours: number;
+  over_capacity: boolean;
+}
+
+export interface CapacityInsights {
+  weekly_capacity_hours: number;
+  weeks: CapacityWeek[];
+  /** Deals contributing hours but missing dates/estimate — surfaced so the user knows to fill them in. */
+  unscheduled_deal_count: number;
+}
+
+/* ── Client health (Phase 13) ─────────────────────────────────────────── */
+
+export type ClientHealthLevel = "healthy" | "cooling" | "at_risk";
+
+export interface ClientHealth {
+  level: ClientHealthLevel;
+  score: number;
+  reasons: string[];
 }
 
 export function toRecordingUsage(

@@ -49,6 +49,9 @@ export async function PATCH(
       "stage",
       "notes",
       "proposed_amount",
+      "estimated_hours",
+      "start_date",
+      "target_end_date",
     ];
     for (const k of allowed) {
       if (k in body) update[k] = body[k];
