@@ -1,18 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AppShellClient } from "@/components/app-shell-client";
 import { PageHeader } from "@/components/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CapacityInsights, WinLossInsights } from "@/lib/types";
+import type { AttentionDeal } from "@/app/api/insights/attention/route";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { ArrowRight } from "lucide-react";
+
+const HEALTH_STYLE = {
+  cooling:
+    "bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900",
+  at_risk: "bg-destructive/10 text-destructive border-destructive/25",
+} as const;
+
+const HEALTH_LABEL = { cooling: "Cooling", at_risk: "At risk" } as const;
 
 export default function InsightsPage() {
   const [winLoss, setWinLoss] = useState<WinLossInsights | null>(null);
   const [capacity, setCapacity] = useState<CapacityInsights | null>(null);
+  const [attention, setAttention] = useState<AttentionDeal[] | null>(null);
 
   useEffect(() => {
     fetch("/api/insights/win-loss")
@@ -23,6 +35,10 @@ export default function InsightsPage() {
       .then((r) => r.json())
       .then(setCapacity)
       .catch(() => toast.error("Couldn't load capacity insights."));
+    fetch("/api/insights/attention")
+      .then((r) => r.json())
+      .then((j) => setAttention(j.deals))
+      .catch(() => toast.error("Couldn't load deals needing attention."));
   }, []);
 
   return (
@@ -34,6 +50,51 @@ export default function InsightsPage() {
       />
 
       <div className="space-y-12 max-w-[900px]">
+        <section>
+          <SectionTitle>Needs attention</SectionTitle>
+          {attention === null ? (
+            <Skeleton className="h-[100px] w-full rounded-lg" />
+          ) : attention.length === 0 ? (
+            <EmptyCard>
+              Every active deal looks healthy — nothing&rsquo;s gone quiet.
+            </EmptyCard>
+          ) : (
+            <div className="rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
+              {attention.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/pipeline/${d.id}`}
+                  className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-secondary/50 transition-colors group"
+                >
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-medium truncate">
+                      {d.client_name ?? "Unnamed"}
+                      {d.client_company ? ` — ${d.client_company}` : ""}
+                    </div>
+                    <div className="text-[11.5px] text-muted-foreground truncate mt-0.5">
+                      {d.health.reasons[0]}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span
+                      className={cn(
+                        "text-[10.5px] uppercase tracking-[0.1em] font-medium px-2 py-0.5 rounded-full border",
+                        HEALTH_STYLE[d.health.level as "cooling" | "at_risk"]
+                      )}
+                    >
+                      {HEALTH_LABEL[d.health.level as "cooling" | "at_risk"]}
+                    </span>
+                    <ArrowRight
+                      className="size-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors"
+                      strokeWidth={1.75}
+                    />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section>
           <SectionTitle>Win / loss</SectionTitle>
           {winLoss === null ? (

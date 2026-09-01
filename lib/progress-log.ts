@@ -51,6 +51,7 @@ export const PROGRESS_LOG: ProgressSection[] = [
       "Tracks which sections a client actually reads",
       "Multiple AI-generated visual templates",
       "Every edit versioned and undoable",
+      "Quiet ‘built with Closingly’ credit on shared links (growth loop)",
     ],
   },
   {
@@ -67,10 +68,12 @@ export const PROGRESS_LOG: ProgressSection[] = [
     Icon: Sparkles,
     items: [
       "Client health flags deals going quiet",
+      "Needs-attention list, worst deals first, across the whole pipeline",
       "Win/loss stats by proposal template",
       "Capacity forecast warns before you overcommit",
       "Loss post-mortems — private, no sugarcoating",
       "Case-study drafts from deals you win",
+      "Competitor mentions auto-flagged with a positioning note",
     ],
   },
   {

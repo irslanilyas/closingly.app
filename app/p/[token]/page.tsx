@@ -69,10 +69,18 @@ export default async function SharedProposalPage({
           authorName={author?.full_name ?? author?.email}
         />
 
-        <footer className="mt-16 pt-8 border-t border-[var(--p-rule)]">
+        <footer className="mt-16 pt-8 border-t border-[var(--p-rule)] flex items-center justify-between gap-4">
           <p className="text-[12.5px] text-[color:var(--p-muted)]">
             Questions? Just reply to the email this came from.
           </p>
+          {/* Deliberately quiet — same muted color as the page, no logo, no
+              brand accent. The point is findable, not promoted. */}
+          <a
+            href="/"
+            className="text-[11px] text-[color:var(--p-muted)]/70 hover:text-[color:var(--p-muted)] transition-colors shrink-0"
+          >
+            Proposal built with Closingly
+          </a>
         </footer>
       </main>
     </div>

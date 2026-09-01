@@ -61,13 +61,13 @@ function LoginForm() {
     <div className="w-full max-w-[420px]">
       <div className="mb-8">
         <div className="text-[13px] uppercase tracking-[0.18em] text-muted-foreground mb-3">
-          ROS
+          Closingly
         </div>
         <h1 className="text-[26px] sm:text-[30px] font-medium tracking-tight leading-[1.1]">
           Sign in to your workbench
         </h1>
         <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">
-          ROS reads your calendar to spot client calls, and sends follow-ups from
+          Closingly reads your calendar to spot client calls, and sends follow-ups from
           your own address. Nothing is recorded unless you switch it on for a
           specific meeting.
         </p>

@@ -134,6 +134,8 @@ export async function dealFromTranscript(
       fit_score: clampScore(extracted.fit_score),
       transcript,
       suggested_replies: extracted.suggested_replies ?? null,
+      competitor_mentioned: extracted.competitor_mentioned ?? null,
+      competitive_note: extracted.competitive_note ?? null,
       proposed_amount: parseAmount(extracted.proposal?.investment_number),
       stage: "lead",
       source,
@@ -199,6 +201,16 @@ export async function dealFromTranscript(
       kind: "proposal_drafted",
       to_value: extracted.proposal?.investment_number ?? "Draft",
       metadata: { proposal_id: proposalId },
+    });
+  }
+
+  if (extracted.competitor_mentioned) {
+    events.push({
+      deal_id: deal.id,
+      user_id: meeting.user_id,
+      kind: "competitor_flagged",
+      to_value: extracted.competitor_mentioned,
+      metadata: { note: extracted.competitive_note ?? null },
     });
   }
 

@@ -39,6 +39,8 @@ Read the discovery call transcript and return ONLY valid JSON with this exact st
   "timeline": "their stated timeline",
   "decision_maker": "who decides",
   "fit_score": 1-10 integer,
+  "competitor_mentioned": "name of a competing option/vendor/tool the client brought up, or null if none was mentioned",
+  "competitive_note": "one short sentence on how to position against them, or null if competitor_mentioned is null",
   "proposal": {
     "challenge": "2-3 sentences",
     "approach": "3-4 sentences, no fluff",
@@ -54,7 +56,7 @@ Read the discovery call transcript and return ONLY valid JSON with this exact st
   ]
 }
 
-Rules: tight language, no filler phrases, use client's exact pain words where possible. Output the JSON object only — no markdown fences, no commentary.
+Rules: tight language, no filler phrases, use client's exact pain words where possible. Never invent a competitor mention that isn't in the transcript — leave both competitor fields null rather than guess. Output the JSON object only — no markdown fences, no commentary.
 
 TRANSCRIPT:
 ${transcript}`;

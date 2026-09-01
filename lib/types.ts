@@ -67,6 +67,8 @@ export interface Deal {
   estimated_hours: number | null;
   start_date: string | null;
   target_end_date: string | null;
+  competitor_mentioned: string | null;
+  competitive_note: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +81,8 @@ export interface ProposalGeneration {
   timeline: string;
   decision_maker: string;
   fit_score: number;
+  competitor_mentioned: string | null;
+  competitive_note: string | null;
   proposal: ProposalData;
   suggested_replies: SuggestedReply[];
 }
@@ -242,7 +246,8 @@ export type DealEventKind =
   | "followup_generated"
   | "note_added"
   | "postmortem_generated"
-  | "case_study_generated";
+  | "case_study_generated"
+  | "competitor_flagged";
 
 export interface DealEvent {
   id: string;

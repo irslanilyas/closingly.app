@@ -18,8 +18,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RevOps Builder",
-  description: "Internal workbench for revenue operations modules.",
+  title: "Closingly",
+  description: "Turn client calls into priced proposals, automatically.",
 };
 
 export default function RootLayout({
@@ -38,7 +38,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
-          storageKey="revops-theme"
+          storageKey="closingly-theme"
           disableTransitionOnChange
         >
           <QueryProvider>

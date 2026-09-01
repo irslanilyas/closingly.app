@@ -10,6 +10,7 @@ import {
   Mic,
   Search,
   StickyNote,
+  Swords,
   type LucideIcon,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ const ICONS: Record<DealEventKind, LucideIcon> = {
   note_added: StickyNote,
   postmortem_generated: Search,
   case_study_generated: Award,
+  competitor_flagged: Swords,
 };
 
 /**
@@ -100,6 +102,12 @@ export function describeDealEvent(
       return { Icon, tone: "neutral", label: "Post-mortem generated" };
     case "case_study_generated":
       return { Icon, tone: "accent", label: "Case study generated" };
+    case "competitor_flagged":
+      return {
+        Icon,
+        tone: "accent",
+        label: <>Competitor mentioned: {strong(event.to_value ?? "—")}</>,
+      };
     case "created":
       return { Icon, tone: "neutral", label: "Deal created" };
     default:

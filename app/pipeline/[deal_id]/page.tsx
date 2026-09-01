@@ -228,6 +228,24 @@ export default function DealDetailPage({
 
           <ClientHealthCard dealId={deal.id} stage={deal.stage} />
 
+          {deal.competitor_mentioned && (
+            <section>
+              <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-3 font-medium">
+                Competitive intel
+              </div>
+              <div className="rounded-md border border-border bg-card px-3.5 py-3 space-y-1.5">
+                <div className="text-[13px] font-medium">
+                  {deal.competitor_mentioned}
+                </div>
+                {deal.competitive_note && (
+                  <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+                    {deal.competitive_note}
+                  </p>
+                )}
+              </div>
+            </section>
+          )}
+
           <section>
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-4 font-medium">
               Activity

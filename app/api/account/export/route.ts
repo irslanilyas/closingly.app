@@ -13,7 +13,7 @@ import type {
 export const maxDuration = 30;
 
 /**
- * Everything a user has ever put into ROS, as one downloadable file.
+ * Everything a user has ever put into Closingly, as one downloadable file.
  *
  * Deliberately uses the RLS-scoped client, not the admin client. Every table
  * here already has a "you can only see your own rows" policy — reusing that

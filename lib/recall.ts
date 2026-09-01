@@ -40,7 +40,7 @@ export async function scheduleBot(opts: {
     headers: authHeaders(),
     body: JSON.stringify({
       meeting_url: opts.meetingUrl,
-      bot_name: opts.botName ?? "ROS Notetaker",
+      bot_name: opts.botName ?? "Closingly Notetaker",
       join_at: opts.joinAt,
       recording_config: {
         transcript: {

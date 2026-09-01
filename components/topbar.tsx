@@ -53,7 +53,7 @@ export function Topbar({ email }: { email: string }) {
             href="/"
             className="text-[15px] font-medium tracking-tight hover:opacity-70 transition-opacity"
           >
-            ROS
+            Closingly
           </Link>
 
           {/* Desktop nav */}
@@ -111,7 +111,7 @@ export function Topbar({ email }: { email: string }) {
             <SheetContent side="right" className="w-[280px] sm:w-[320px]">
               <SheetHeader>
                 <SheetTitle className="text-[15px] font-medium tracking-tight text-left">
-                  ROS
+                  Closingly
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 mt-6">
