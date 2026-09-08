@@ -26,6 +26,8 @@ export const PROGRESS_LOG: ProgressSection[] = [
     Icon: Mic,
     items: [
       "Bot joins scheduled calls and transcribes automatically",
+      "Play the recording back with the transcript following along",
+      "Click any line to jump straight to that moment in the call",
       "Or paste any transcript to import manually",
       "Auto-detects discovery calls vs internal syncs",
       "Self-heals if a bot's status gets stuck",

@@ -104,7 +104,10 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[560px]">
+      {/* Capped and scrollable: a pasted transcript grows the body past the
+          viewport, and without this the footer button lands off-screen with
+          no way to reach it. */}
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Import a call</DialogTitle>
           <DialogDescription>
@@ -115,7 +118,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-1">
+        <div className="space-y-4 py-1 flex-1 overflow-y-auto min-h-0 -mx-1 px-1">
           <div className="space-y-2">
             <label
               htmlFor="import-title"
@@ -159,7 +162,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
               placeholder={
                 "Speaker 1: Thanks for making time today…\nSpeaker 2: Of course. So the problem we're running into is…"
               }
-              className="min-h-[220px] text-[12.5px] leading-relaxed font-mono"
+              className="min-h-[180px] max-h-[40vh] text-[12.5px] leading-relaxed font-mono"
             />
             <p className="text-[11.5px] text-muted-foreground leading-relaxed">
               Speaker labels help but aren&rsquo;t required — paste it as it

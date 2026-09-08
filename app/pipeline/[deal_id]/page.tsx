@@ -23,6 +23,7 @@ import { ActivityPanel } from "@/components/deal/activity-panel";
 import { PostmortemPanel } from "@/components/deal/postmortem-panel";
 import { CaseStudyPanel } from "@/components/deal/case-study-panel";
 import { ClientHealthCard } from "@/components/deal/client-health-card";
+import { TranscriptPlayer } from "@/components/deal/transcript-player";
 import { formatCurrency } from "@/lib/format";
 import { type Deal, STAGE_LABELS, STAGE_ORDER } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
@@ -175,15 +176,10 @@ export default function DealDetailPage({
             </TabsContent>
 
             <TabsContent value="transcript" className="mt-6">
-              {deal.transcript ? (
-                <pre className="rounded-lg border border-border bg-card p-5 text-[12.5px] leading-relaxed whitespace-pre-wrap font-mono text-foreground/80 max-h-[600px] overflow-y-auto">
-                  {deal.transcript}
-                </pre>
-              ) : (
-                <p className="text-[12.5px] text-muted-foreground">
-                  No transcript on this deal.
-                </p>
-              )}
+              <TranscriptPlayer
+                dealId={deal.id}
+                fallbackTranscript={deal.transcript}
+              />
             </TabsContent>
 
             <TabsContent value="notes" className="mt-6">

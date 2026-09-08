@@ -201,12 +201,16 @@ async function processTranscript(job: ClaimedJob) {
       );
     }
 
-    const { text, durationSeconds } = await getTranscript(botId);
+    const { text, segments, durationSeconds } = await getTranscript(botId);
 
     await supabase
       .from("meetings")
       .update({
         transcript: text,
+        // Same content as `transcript`, kept in its timed form so playback can
+        // follow along. Null rather than [] when timing is missing, so the UI
+        // can tell "no segments" apart from "a recording with silence".
+        transcript_segments: segments.length ? segments : null,
         transcript_fetched_at: new Date().toISOString(),
         recording_seconds: durationSeconds,
         status: text.trim() ? "completed" : "failed",

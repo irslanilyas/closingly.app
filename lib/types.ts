@@ -160,6 +160,14 @@ export interface Attendee {
   responseStatus?: string;
 }
 
+/** A speaker's turn with playback offsets, mirrored from lib/recall.ts. */
+export interface TranscriptSegment {
+  speaker: string;
+  start: number;
+  end: number;
+  text: string;
+}
+
 export interface Meeting {
   id: string;
   user_id: string;
@@ -175,6 +183,7 @@ export interface Meeting {
   agent_enabled: boolean;
   status: MeetingStatus;
   transcript: string | null;
+  transcript_segments: TranscriptSegment[] | null;
   transcript_fetched_at: string | null;
   recording_seconds: number | null;
   meeting_kind: MeetingKind | null;

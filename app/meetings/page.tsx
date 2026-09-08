@@ -38,6 +38,25 @@ export default function MeetingsPage() {
     load();
   }, [load]);
 
+  /**
+   * A meeting the worker is still acting on changes status with no user
+   * action behind it, so the page has to go looking. Without this an import
+   * sits on "Processing" until someone manually refreshes, which reads as
+   * the import having silently failed.
+   *
+   * Only polls while something is actually in flight, and stops on its own
+   * once everything settles.
+   */
+  const hasInFlight = meetings.some(
+    (m) => m.status === "processing" || m.status === "recording"
+  );
+
+  useEffect(() => {
+    if (!hasInFlight) return;
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, [hasInFlight, load]);
+
   const sync = async () => {
     setSyncing(true);
     try {
