@@ -134,7 +134,13 @@ export function parseTranscriptSegments(raw: unknown): TranscriptSegment[] {
     start_timestamp?: unknown;
     end_timestamp?: unknown;
   };
-  type RawSegment = { speaker?: string; words?: RawWord[] };
+  type RawSegment = {
+    /** Current shape: the real display name lives here. */
+    participant?: { name?: string | null };
+    /** Older/alternate shape, kept as a fallback. */
+    speaker?: string;
+    words?: RawWord[];
+  };
 
   return raw
     .map((s: RawSegment) => {
@@ -153,7 +159,10 @@ export function parseTranscriptSegments(raw: unknown): TranscriptSegment[] {
         .filter((n): n is number => n !== null);
 
       return {
-        speaker: s.speaker ?? "Speaker",
+        // Recall puts the real display name on `participant`, not `speaker`.
+        // Reading the wrong key labelled every line "Speaker", which cost the
+        // extraction prompts any sense of who was the client and who wasn't.
+        speaker: s.participant?.name?.trim() || s.speaker || "Speaker",
         start: starts.length ? Math.min(...starts) : 0,
         end: ends.length ? Math.max(...ends) : 0,
         text,
