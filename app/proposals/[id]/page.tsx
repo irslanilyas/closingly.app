@@ -321,7 +321,7 @@ export default function ProposalPage({
             <Button
               onClick={refine}
               disabled={refining || !instruction.trim()}
-              className="h-8 gap-1.5 text-[12.5px] bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer shrink-0"
+              className="h-8 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0"
             >
               <Sparkles className="size-3.5" strokeWidth={1.5} />
               {refining ? "Working…" : "Refine"}

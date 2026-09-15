@@ -1,0 +1,51 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "closingly",
+
+  // The generated OpenNext worker is wrapped by custom-worker.ts, which adds
+  // the cron handler. Everything else is passed straight through.
+  "main": "./custom-worker.ts",
+
+  // 2025-08-16 is the floor: Sentry needs `https.request`, and anything older
+  // than 2025-05-05 is missing FinalizationRegistry, which Next relies on.
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  // Wrangler's esbuild pass keeps function names by default, which wraps
+  // functions in a `__name(...)` helper. next-themes serialises a function into
+  // an inline <script> with toString(), so the helper ends up in the browser
+  // where it does not exist: "ReferenceError: __name is not defined", and the
+  // anti-flash theme script never runs. Verified in the local Workers preview.
+  "keep_names": false,
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // The app lives on the subdomain; the root stays free for the landing page.
+  // Because closingly.app is already on Cloudflare, deploying creates the DNS
+  // record and the TLS certificate for this automatically.
+  "routes": [{ "pattern": "app.closingly.app", "custom_domain": true }],
+
+  // Without this, every deploy deletes plain variables that were added in the
+  // dashboard. Secrets survive either way; this makes vars behave the same.
+  "keep_vars": true,
+
+  // Every minute, replacing the external pinger. This one trigger drives
+  // transcript processing, the follow-up sweep and the email digest.
+  "triggers": {
+    "crons": ["* * * * *"]
+  },
+
+  // Deliberately absent, and why:
+  //   - no R2 incremental cache: the app has no ISR, `revalidate` or
+  //     `"use cache"`, so there is nothing to store, and R2 requires a card
+  //     on file even on its free tier.
+  //   - no Images binding: the app does not use next/image.
+  //   - no WORKER_SELF_REFERENCE: only needed by the caching overrides above.
+
+  "observability": {
+    "enabled": true
+  }
+}

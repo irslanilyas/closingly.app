@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { GOOGLE_SCOPES } from "@/lib/google/scopes";
+import { Wordmark } from "@/components/shell/wordmark";
 
 const ERROR_COPY: Record<string, string> = {
   access_denied: "You cancelled the Google sign-in. Try again when you're ready.",
@@ -60,13 +61,11 @@ function LoginForm() {
   return (
     <div className="w-full max-w-[420px]">
       <div className="mb-8">
-        <div className="text-[13px] uppercase tracking-[0.18em] text-muted-foreground mb-3">
-          Closingly
-        </div>
-        <h1 className="text-[26px] sm:text-[30px] font-medium tracking-tight leading-[1.1]">
+        <Wordmark href={null} className="mb-7" />
+        <h1 className="text-[30px] sm:text-[34px] tracking-[-0.02em] leading-[1.12]">
           Sign in to your workbench
         </h1>
-        <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">
+        <p className="mt-3.5 text-[14px] text-muted-foreground leading-relaxed text-pretty">
           Closingly reads your calendar to spot client calls, and sends follow-ups from
           your own address. Nothing is recorded unless you switch it on for a
           specific meeting.
@@ -80,16 +79,17 @@ function LoginForm() {
       )}
 
       <Button
+        variant="brand"
         onClick={signIn}
         disabled={submitting}
-        className="w-full h-11 gap-3 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        className="w-full h-11 gap-3 text-[14px]"
       >
         <GoogleMark />
         {submitting ? "Opening Google…" : "Continue with Google"}
       </Button>
 
       <p className="mt-5 text-[12px] text-muted-foreground leading-relaxed">
-        Access is limited to invited testers during the beta.
+        Signing in creates your workspace. It takes about two minutes to set up.
       </p>
     </div>
   );

@@ -94,7 +94,7 @@ export function SharePanel({
         <Button
           onClick={createLink}
           disabled={working}
-          className="mt-4 h-9 text-[12.5px] gap-2 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+          className="mt-4 h-9 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
         >
           <Link2 className="size-3.5" strokeWidth={1.5} />
           {working ? "Creating…" : "Create share link"}
@@ -188,7 +188,7 @@ export function SharePanel({
                       </span>
                       <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-[var(--accent-sage)]"
+                          className="h-full rounded-full bg-[var(--brand)]"
                           style={{
                             width: `${(s.count / analytics.total_views) * 100}%`,
                           }}

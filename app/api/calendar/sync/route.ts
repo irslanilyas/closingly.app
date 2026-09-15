@@ -53,6 +53,9 @@ export async function POST() {
         attendees: e.attendees,
         meet_link: e.meet_link,
         platform: e.platform,
+        event_type: e.event_type,
+        is_call: e.is_call,
+        not_call_reason: e.not_call_reason,
       })),
       { onConflict: "google_event_id" }
     );
@@ -64,6 +67,7 @@ export async function POST() {
 
     return NextResponse.json({
       synced: events.length,
+      calls: events.filter((e) => e.is_call).length,
       with_links: events.filter((e) => e.meet_link).length,
     });
   } catch (err) {

@@ -51,7 +51,7 @@ export function FollowUpsPanel({ deal }: { deal: Deal }) {
       <Button
         onClick={() => run({ situation, deal_id: deal.id })}
         disabled={!situation.trim() || streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
       >
         {streaming ? (
           <>

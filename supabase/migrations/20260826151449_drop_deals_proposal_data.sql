@@ -1,4 +1,4 @@
--- Applied 2026-08-26. See PLAN.md Phase 11.
+-- Applied 2026-08-26.
 --
 -- The only writer was the standalone /proposal-generator page's "Save to
 -- Pipeline" button, which wrote here directly instead of through the

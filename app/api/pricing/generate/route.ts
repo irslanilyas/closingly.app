@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { pricingPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
+import { latestFacts } from "@/lib/onboarding/persist";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -31,6 +32,10 @@ export async function POST(request: NextRequest) {
       .order("created_at", { ascending: false })
       .limit(10);
 
+    // Their market, not an assumed one. A user who has not onboarded yet gets
+    // USD and no floor rather than someone else's currency.
+    const facts = await latestFacts(supabase, user.id);
+
     const prompt = pricingPrompt({
       project_description: body.project_description ?? "",
       industry: body.industry ?? "",
@@ -38,6 +43,10 @@ export async function POST(request: NextRequest) {
       budget_signal: body.budget_signal ?? "",
       timeline: body.timeline ?? "",
       deals_json: JSON.stringify(pastDeals ?? []),
+      currency: facts?.commercial.currency ?? "USD",
+      pricing_model: facts?.commercial.pricing_model ?? "fixed_project",
+      minimum_project_value: facts?.commercial.minimum_project_value ?? null,
+      target_audience: facts?.business.target_audience ?? "unknown",
     });
 
     const encoder = new TextEncoder();

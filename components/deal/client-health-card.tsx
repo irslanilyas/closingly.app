@@ -7,7 +7,7 @@ import type { ClientHealth, DealEvent, DealStage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const LEVEL_STYLE: Record<ClientHealth["level"], string> = {
-  healthy: "bg-[var(--accent-sage)]/10 text-[var(--accent-sage)] border-[var(--accent-sage)]/25",
+  healthy: "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/25",
   cooling:
     "bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900",
   at_risk: "bg-destructive/10 text-destructive border-destructive/25",

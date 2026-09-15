@@ -10,6 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        // The one persimmon control on a surface. Deliberately a variant and
+        // not an inline `bg-[var(--brand)]` repeated at each call site, so a
+        // palette change stays a value edit in globals.css.
+        brand:
+          "bg-brand text-brand-fg hover:bg-[color-mix(in_oklch,var(--brand),black_10%)]",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

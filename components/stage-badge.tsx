@@ -5,7 +5,7 @@ const TONE: Record<DealStage, string> = {
   lead: "bg-secondary text-foreground/70 border-border",
   proposal_sent: "bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900",
   negotiating: "bg-sky-50 text-sky-900 border-sky-200 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900",
-  won: "bg-[var(--accent-sage)]/12 text-[var(--accent-sage)] border-[var(--accent-sage)]/25",
+  won: "bg-[var(--brand)]/12 text-[var(--brand)] border-[var(--brand)]/25",
   lost: "bg-rose-50 text-rose-900 border-rose-200 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900",
 };
 

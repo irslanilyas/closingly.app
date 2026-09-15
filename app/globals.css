@@ -8,8 +8,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -41,242 +41,295 @@
   --color-card: var(--card);
   --color-success: var(--success);
   --color-warning: var(--warning);
-  --color-accent-sage: var(--accent-sage);
-  --color-accent-sage-fg: var(--accent-sage-fg);
+
+  /* Direction-neutral by name: a palette change is a value edit, never a
+     codebase-wide rename again. */
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-vivid: var(--brand-vivid);
+  --color-clay: var(--clay);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.6);
 }
 
-/* RevOps Builder palette: warm neutral + sage green accent.
-   Editorial / minimal, inspired by Linear, Vercel, Notion, Stripe. */
+/* ── Palette ──────────────────────────────────────────────────────────────
+   Ground is a near-white paper with the faintest warmth in it, ink is a deep
+   graphite, and the accent is a steel blue: confident, readable, and calm
+   enough to sit under financial figures all day without shouting at them.
+
+   The accent carries in two steps because a single mid-tone cannot do both
+   jobs well: `brand` holds text and fills controls, `brand-vivid` is the
+   brighter mark used for icons, charts and borders where the bar is 3:1.  */
 :root {
-  --background: oklch(0.992 0.002 90);          /* near white, slight warmth */
-  --foreground: oklch(0.21 0.012 90);           /* deep warm graphite */
+  --background: oklch(0.985 0.003 90);          /* near white, faint warmth */
+  --foreground: oklch(0.215 0.012 90);          /* deep graphite, never #000 */
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.012 90);
+  --card-foreground: oklch(0.215 0.012 90);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.012 90);
-  --primary: oklch(0.21 0.012 90);              /* graphite primary */
+  --popover-foreground: oklch(0.215 0.012 90);
+
+  --primary: oklch(0.215 0.012 90);
   --primary-foreground: oklch(0.985 0.003 90);
-  --secondary: oklch(0.965 0.004 90);
-  --secondary-foreground: oklch(0.27 0.013 90);
-  --muted: oklch(0.965 0.004 90);
-  --muted-foreground: oklch(0.50 0.012 90);
-  --accent: oklch(0.965 0.004 90);
-  --accent-foreground: oklch(0.27 0.013 90);
-  --destructive: oklch(0.55 0.20 27);
-  --border: oklch(0.91 0.005 90);
-  --input: oklch(0.91 0.005 90);
-  --ring: oklch(0.45 0.06 160);
-  --accent-sage: oklch(0.45 0.06 160);          /* sage green #2D5F4F */
-  --accent-sage-fg: oklch(0.985 0.003 90);
-  --success: oklch(0.55 0.13 150);
-  --warning: oklch(0.72 0.14 70);
-  --chart-1: oklch(0.45 0.06 160);
-  --chart-2: oklch(0.62 0.05 160);
-  --chart-3: oklch(0.78 0.03 160);
-  --chart-4: oklch(0.40 0.012 90);
-  --chart-5: oklch(0.60 0.012 90);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.985 0.003 90);
-  --sidebar-foreground: oklch(0.21 0.012 90);
-  --sidebar-primary: oklch(0.45 0.06 160);
-  --sidebar-primary-foreground: oklch(0.985 0.003 90);
-  --sidebar-accent: oklch(0.95 0.005 90);
-  --sidebar-accent-foreground: oklch(0.27 0.013 90);
-  --sidebar-border: oklch(0.91 0.005 90);
-  --sidebar-ring: oklch(0.45 0.06 160);
+  --secondary: oklch(0.962 0.004 90);
+  --secondary-foreground: oklch(0.285 0.013 90);
+  --muted: oklch(0.962 0.004 90);
+  --muted-foreground: oklch(0.498 0.012 90);
+  --accent: oklch(0.962 0.004 90);
+  --accent-foreground: oklch(0.285 0.013 90);
+
+  --border: oklch(0.905 0.005 90);
+  --input: oklch(0.905 0.005 90);
+
+  /* Steel blue, in two steps.
+     `brand` is the readable tone that fills controls and carries labels
+     against the ground; `brand-vivid` is a step brighter for marks, icons,
+     charts and borders, where the requirement is 3:1 rather than 4.5:1. */
+  --brand: oklch(0.517 0.116 250);
+  --brand-fg: oklch(0.992 0.002 90);
+  --brand-vivid: oklch(0.608 0.142 252);
+  --brand-soft: oklch(0.955 0.021 250);         /* wash, for tints only */
+  --ring: oklch(0.517 0.116 250);
+
+  /* Second data series. Reads as a relative of the accent without competing
+     with it for attention. */
+  --clay: oklch(0.592 0.062 245);
+
+  /* Pushed well off the accent hue so failure never reads as the brand. */
+  --destructive: oklch(0.552 0.196 27);
+
+  --success: oklch(0.552 0.126 152);
+  --warning: oklch(0.735 0.135 76);
+
+  --chart-1: oklch(0.608 0.142 252);
+  --chart-2: oklch(0.592 0.062 245);
+  --chart-3: oklch(0.735 0.135 76);
+  --chart-4: oklch(0.552 0.126 152);
+  --chart-5: oklch(0.498 0.012 90);
+
+  --radius: 0.625rem;                            /* soft — nothing sharp */
+
+  /* Rail width. Lives here rather than in a TS constant because the rail is a
+     client component and the frame that insets by it is a server component —
+     a shared export across that boundary becomes a client-reference stub. */
+  --rail: 232px;
+
+  --sidebar: oklch(0.972 0.004 90);
+  --sidebar-foreground: oklch(0.215 0.012 90);
+  --sidebar-primary: oklch(0.608 0.142 252);
+  --sidebar-primary-foreground: oklch(0.992 0.002 90);
+  --sidebar-accent: oklch(0.935 0.005 90);
+  --sidebar-accent-foreground: oklch(0.285 0.013 90);
+  --sidebar-border: oklch(0.905 0.005 90);
+  --sidebar-ring: oklch(0.608 0.142 252);
 }
 
+/* Dark is the same scheme at low key: a cool graphite ground rather than a
+   flat black, with the blue lifted so it keeps its identity against it. */
 .dark {
-  --background: oklch(0.16 0.008 90);
-  --foreground: oklch(0.96 0.003 90);
-  --card: oklch(0.20 0.009 90);
-  --card-foreground: oklch(0.96 0.003 90);
-  --popover: oklch(0.20 0.009 90);
-  --popover-foreground: oklch(0.96 0.003 90);
-  --primary: oklch(0.95 0.003 90);
-  --primary-foreground: oklch(0.20 0.009 90);
-  --secondary: oklch(0.26 0.010 90);
-  --secondary-foreground: oklch(0.96 0.003 90);
-  --muted: oklch(0.26 0.010 90);
-  --muted-foreground: oklch(0.70 0.008 90);
-  --accent: oklch(0.26 0.010 90);
-  --accent-foreground: oklch(0.96 0.003 90);
-  --destructive: oklch(0.70 0.19 22);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.07 160);
-  --accent-sage: oklch(0.55 0.07 160);
-  --accent-sage-fg: oklch(0.16 0.008 90);
-  --success: oklch(0.65 0.14 150);
-  --warning: oklch(0.78 0.14 70);
-  --chart-1: oklch(0.55 0.07 160);
-  --chart-2: oklch(0.65 0.05 160);
-  --chart-3: oklch(0.78 0.03 160);
-  --chart-4: oklch(0.50 0.012 90);
-  --chart-5: oklch(0.70 0.012 90);
-  --sidebar: oklch(0.20 0.009 90);
-  --sidebar-foreground: oklch(0.96 0.003 90);
-  --sidebar-primary: oklch(0.55 0.07 160);
-  --sidebar-primary-foreground: oklch(0.16 0.008 90);
-  --sidebar-accent: oklch(0.26 0.010 90);
-  --sidebar-accent-foreground: oklch(0.96 0.003 90);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.55 0.07 160);
+  --background: oklch(0.192 0.007 250);
+  --foreground: oklch(0.945 0.004 90);
+
+  --card: oklch(0.232 0.008 250);
+  --card-foreground: oklch(0.945 0.004 90);
+  --popover: oklch(0.248 0.008 250);
+  --popover-foreground: oklch(0.945 0.004 90);
+
+  --primary: oklch(0.945 0.004 90);
+  --primary-foreground: oklch(0.192 0.007 250);
+  --secondary: oklch(0.278 0.009 250);
+  --secondary-foreground: oklch(0.945 0.004 90);
+  --muted: oklch(0.278 0.009 250);
+  --muted-foreground: oklch(0.722 0.009 250);
+  --accent: oklch(0.278 0.009 250);
+  --accent-foreground: oklch(0.945 0.004 90);
+
+  --border: oklch(0.352 0.010 250);
+  --input: oklch(0.372 0.010 250);
+
+  --brand: oklch(0.668 0.132 252);
+  --brand-vivid: oklch(0.735 0.126 252);
+  --brand-fg: oklch(0.172 0.010 250);
+  --brand-soft: oklch(0.322 0.052 252);
+  --ring: oklch(0.702 0.132 252);
+
+  --clay: oklch(0.652 0.058 245);
+
+  --destructive: oklch(0.638 0.192 27);
+  --success: oklch(0.662 0.126 152);
+  --warning: oklch(0.788 0.135 76);
+
+  --chart-1: oklch(0.702 0.132 252);
+  --chart-2: oklch(0.652 0.058 245);
+  --chart-3: oklch(0.788 0.135 76);
+  --chart-4: oklch(0.662 0.126 152);
+  --chart-5: oklch(0.722 0.009 250);
+
+  --sidebar: oklch(0.212 0.007 250);
+  --sidebar-foreground: oklch(0.945 0.004 90);
+  --sidebar-primary: oklch(0.702 0.132 252);
+  --sidebar-primary-foreground: oklch(0.172 0.010 250);
+  --sidebar-accent: oklch(0.278 0.009 250);
+  --sidebar-accent-foreground: oklch(0.945 0.004 90);
+  --sidebar-border: oklch(0.352 0.010 250);
+  --sidebar-ring: oklch(0.702 0.132 252);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv11", "ss01", "ss03";
   }
+
+  html {
+    @apply font-sans;
+  }
+
+  /* Display voice is the serif. Warm, slightly wonky, and the clearest
+     signal that this was not assembled from a component gallery. */
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  h3, h4 {
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  html {
-    @apply font-sans;
+
+  /* Figures here are compared, not read. Tabular by default so money and
+     dates line up without every call site remembering to ask. */
+  table, .tabular, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
-  /* Editorial typography defaults */
-  h1, h2, h3, h4 {
-    @apply tracking-tight;
-    font-feature-settings: "ss01";
+
+  /* ── Browser surfaces ──────────────────────────────────────────────────
+     Left at their defaults these belong to no design system, and they are
+     the cheapest tell that a page was assembled rather than built. */
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--foreground);
+  }
+
+  :root {
+    caret-color: var(--brand);
+    accent-color: var(--brand);
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border: 3px solid var(--background);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* A panel: soft, warm, lifted just enough to sit above the stock. */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 2px oklch(0.215 0.012 90 / 0.04),
+                0 4px 12px -4px oklch(0.215 0.012 90 / 0.06);
   }
-  .text-pretty {
-    text-wrap: pretty;
+
+  /* Persimmon wash. Tint only — never a fill competing with the accent. */
+  .wash {
+    background: var(--brand-soft);
   }
-  /* Subtle in-page rule used for editorial breaks */
-  .hairline {
-    height: 1px;
-    background: var(--border);
+
+  /* Fills a structural void so nothing is ever a blank rectangle. */
+  .stock-grain {
+    background-image: radial-gradient(
+      var(--border) 0.5px, transparent 0.5px
+    );
+    background-size: 7px 7px;
+    opacity: 0.5;
   }
-  /* Thin scrollbar for horizontal scroll areas */
+
+  /* Small caps label. Earned for column heads and metadata, not decoration. */
+  .label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
-    -webkit-overflow-scrolling: touch;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    height: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
   }
 }
 
 /* ── Motion ───────────────────────────────────────────────────────────────
-   One vocabulary for entrances, used across the dashboard, pipeline and deal
-   pages so the whole app moves the same way. Everything animates `opacity`
-   and `transform` only — those are the two properties the compositor can
-   handle without a layout pass, so they stay smooth on a slow machine.
-
-   Durations sit in the 150–300ms band: fast enough to feel like a response
-   to something, slow enough to read as deliberate. Anything longer starts
-   feeling like the app is thinking.                                        */
+   One authored moment: content warms up into place — a short rise with the
+   brand wash receding. Everything else simply resolves. Exponential
+   ease-out, from an already-visible default.                              */
 @layer utilities {
-  @keyframes ros-rise {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  @keyframes warm-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: none; }
   }
 
-  @keyframes ros-fade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  @keyframes resolve {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 
-  /* Grow a bar or rule from nothing — for meters and stage distributions. */
-  @keyframes ros-grow-x {
-    from {
-      transform: scaleX(0);
-    }
-    to {
-      transform: scaleX(1);
-    }
+  .warm-in {
+    animation: warm-in 420ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
   }
 
-  .animate-rise {
-    animation: ros-rise 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  .resolve {
+    animation: resolve 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
   }
 
-  .animate-fade {
-    animation: ros-fade 200ms ease-out backwards;
-  }
-
-  .animate-grow-x {
-    transform-origin: left;
-    animation: ros-grow-x 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-
-  /* Stagger children so a list assembles itself rather than snapping in all
-     at once. Capped at 8 — past that the last item feels late, and long
-     lists are exactly where an entrance animation stops being charming. */
-  .stagger > * {
-    animation: ros-rise 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-  .stagger > *:nth-child(1)  { animation-delay: 0ms; }
-  .stagger > *:nth-child(2)  { animation-delay: 40ms; }
-  .stagger > *:nth-child(3)  { animation-delay: 80ms; }
-  .stagger > *:nth-child(4)  { animation-delay: 120ms; }
-  .stagger > *:nth-child(5)  { animation-delay: 160ms; }
-  .stagger > *:nth-child(6)  { animation-delay: 200ms; }
-  .stagger > *:nth-child(7)  { animation-delay: 240ms; }
-  .stagger > *:nth-child(n + 8) { animation-delay: 280ms; }
-
-  /* Lift on hover without a layout shift: `translateY` moves the painted
-     pixels, it doesn't reflow the row, so neighbours never twitch. */
-  .lift {
+  /* Rows lift on hover. Soft world, so it moves rather than sharpening. */
+  .row-lift {
     transition:
-      transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 180ms ease,
-      box-shadow 180ms ease;
-  }
-  .lift:hover {
-    transform: translateY(-1px);
+      background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
-/* An entrance animation is decoration; a person who has asked their OS to
-   stop moving things has asked for a reason. Kill the movement, keep the
-   final state — never leave content stuck at opacity 0. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise,
-  .animate-fade,
-  .animate-grow-x,
-  .stagger > * {
-    animation: none !important;
-  }
-  .lift {
-    transition: border-color 180ms ease;
-  }
-  .lift:hover {
-    transform: none;
-  }
+  .warm-in, .resolve { animation: none !important; }
+  .row-lift { transition: none; }
 }

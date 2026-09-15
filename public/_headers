@@ -1,0 +1,4 @@
+# Next.js content-hashes everything under /_next/static, so a file at a given
+# URL never changes. Cache it for a year; a new deploy produces new URLs.
+/_next/static/*
+  Cache-Control: public,max-age=31536000,immutable

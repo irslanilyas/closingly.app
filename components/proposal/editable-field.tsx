@@ -72,7 +72,7 @@ export function EditableField({
         rows={1}
         className={cn(
           "w-full resize-none bg-secondary/50 rounded-sm px-2 py-1 -mx-2 -my-1",
-          "outline-none ring-1 ring-[var(--accent-sage)]/40 focus:ring-[var(--accent-sage)]",
+          "outline-none ring-1 ring-[var(--brand)]/40 focus:ring-[var(--brand)]",
           "font-[inherit] text-[inherit] leading-[inherit] text-foreground",
           className
         )}
@@ -94,7 +94,7 @@ export function EditableField({
       className={cn(
         "cursor-text rounded-sm px-2 py-1 -mx-2 -my-1 transition-colors",
         "hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-        highlight && "bg-[var(--accent-sage)]/10 ring-1 ring-[var(--accent-sage)]/30",
+        highlight && "bg-[var(--brand)]/10 ring-1 ring-[var(--brand)]/30",
         !value && "text-muted-foreground italic",
         className
       )}

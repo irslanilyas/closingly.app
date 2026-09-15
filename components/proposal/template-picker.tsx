@@ -163,12 +163,12 @@ export function TemplatePicker({
           }}
           disabled={generating}
           placeholder="Warm, understated, a bit editorial…"
-          className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-[13px] outline-none placeholder:text-muted-foreground focus:border-[var(--accent-sage)]/50"
+          className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-[13px] outline-none placeholder:text-muted-foreground focus:border-[var(--brand)]/50"
         />
         <Button
           onClick={generate}
           disabled={generating || !brief.trim()}
-          className="h-9 gap-1.5 text-[12.5px] bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer shrink-0"
+          className="h-9 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0"
         >
           <Sparkles className="size-3.5" strokeWidth={1.5} />
           {generating ? "Designing…" : "Design one"}
@@ -208,7 +208,7 @@ function Swatch({
         className={cn(
           "w-full text-left rounded-md border overflow-hidden transition-colors",
           selected
-            ? "border-[var(--accent-sage)] ring-1 ring-[var(--accent-sage)]/30"
+            ? "border-[var(--brand)] ring-1 ring-[var(--brand)]/30"
             : "border-border hover:border-muted-foreground/40"
         )}
       >
@@ -249,7 +249,7 @@ function Swatch({
       </button>
 
       {selected && (
-        <span className="absolute top-1.5 right-1.5 grid place-items-center size-4 rounded-full bg-[var(--accent-sage)] text-[var(--accent-sage-fg)]">
+        <span className="absolute top-1.5 right-1.5 grid place-items-center size-4 rounded-full bg-[var(--brand)] text-[var(--brand-fg)]">
           <Check className="size-2.5" strokeWidth={3} />
         </span>
       )}

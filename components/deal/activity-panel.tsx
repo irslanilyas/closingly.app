@@ -58,7 +58,7 @@ export function ActivityPanel({ dealId }: { dealId: string }) {
               className={cn(
                 "relative z-10 grid size-[22px] shrink-0 place-items-center rounded-full border bg-card",
                 tone === "accent"
-                  ? "border-[var(--accent-sage)]/40 text-[var(--accent-sage)]"
+                  ? "border-[var(--brand)]/40 text-[var(--brand)]"
                   : "border-border text-muted-foreground"
               )}
             >

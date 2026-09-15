@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShellClient } from "@/components/app-shell-client";
+import { SetupChecklist } from "@/components/onboarding/setup-checklist";
+import { NeedsYou, NextCallCard, AskPrompt } from "@/components/dashboard/needs-you";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/format";
@@ -166,6 +168,10 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      <SetupChecklist />
+
+      <NeedsYou />
+
       {loading ? (
         <DashboardSkeleton />
       ) : (
@@ -309,10 +315,10 @@ export default function DashboardPage() {
                         {meeting.title ?? "Untitled meeting"}
                       </span>
                       {meeting.agent_enabled && (
-                        <span className="flex items-center gap-1.5 shrink-0 text-[11px] uppercase tracking-[0.08em] text-[var(--accent-sage)] font-medium">
+                        <span className="flex items-center gap-1.5 shrink-0 text-[11px] uppercase tracking-[0.08em] text-[var(--brand)] font-medium">
                           <span className="relative flex size-1.5">
-                            <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--accent-sage)] opacity-60 animate-ping" />
-                            <span className="relative inline-flex size-1.5 rounded-full bg-[var(--accent-sage)]" />
+                            <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--brand)] opacity-60 animate-ping" />
+                            <span className="relative inline-flex size-1.5 rounded-full bg-[var(--brand)]" />
                           </span>
                           <Video className="size-3" strokeWidth={1.5} />
                           Agent on
@@ -325,8 +331,12 @@ export default function DashboardPage() {
             </section>
           </div>
 
-          <aside className="animate-rise" style={{ animationDelay: "200ms" }}>
-            <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-4 font-medium">
+          <aside className="space-y-6">
+            <NextCallCard />
+            <AskPrompt />
+
+            <div>
+            <div className="label mb-4">
               Recent activity
             </div>
             {events.length === 0 ? (
@@ -352,7 +362,7 @@ export default function DashboardPage() {
                         className={cn(
                           "relative z-10 mt-0.5 grid size-[22px] shrink-0 place-items-center rounded-full border bg-card transition-colors",
                           tone === "accent"
-                            ? "border-[var(--accent-sage)]/40 text-[var(--accent-sage)]"
+                            ? "border-[var(--brand)]/40 text-[var(--brand)]"
                             : "border-border text-muted-foreground"
                         )}
                       >
@@ -376,6 +386,7 @@ export default function DashboardPage() {
                 })}
               </ol>
             )}
+            </div>
           </aside>
         </div>
       )}
@@ -442,7 +453,7 @@ function Stat({
       <div
         className={cn(
           "text-[19px] sm:text-[22px] font-medium tabular-nums tracking-tight leading-none",
-          accent && "text-[var(--accent-sage)]"
+          accent && "text-[var(--brand)]"
         )}
       >
         {value}
@@ -475,7 +486,7 @@ function MiniStat({
       <Icon
         className={cn(
           "size-3.5",
-          accent ? "text-[var(--accent-sage)]" : "text-muted-foreground"
+          accent ? "text-[var(--brand)]" : "text-muted-foreground"
         )}
         strokeWidth={1.5}
       />
@@ -521,7 +532,7 @@ function EmptyPipeline() {
       </p>
       <Link
         href="/meetings"
-        className="group mt-4 inline-flex items-center gap-1 text-[12.5px] text-[var(--accent-sage)] hover:underline underline-offset-4"
+        className="group mt-4 inline-flex items-center gap-1 text-[12.5px] text-[var(--brand)] hover:underline underline-offset-4"
       >
         Go to meetings
         <ArrowRight

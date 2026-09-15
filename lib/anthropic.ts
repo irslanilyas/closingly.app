@@ -1,7 +1,34 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
+/**
+ * Built on first use, not at import.
+ *
+ * On Cloudflare Workers, secrets are attached to each request rather than
+ * existing at process start. A client constructed at module scope reads
+ * `ANTHROPIC_API_KEY` whenever the module happens to be evaluated, and if that
+ * is ever before the request has populated the environment, the isolate keeps
+ * a keyless client for its whole life: every AI feature fails in production
+ * and nowhere else. Deferring construction to the first call closes that off.
+ *
+ * Exported as a proxy so the nine call sites that use `anthropic.messages`
+ * keep working unchanged. A constructor that throws for a missing key leaves
+ * nothing cached, so the next call tries again instead of staying broken.
+ */
+let client: Anthropic | null = null;
+
+function getClient(): Anthropic {
+  if (!client) {
+    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return client;
+}
+
+export const anthropic = new Proxy({} as Anthropic, {
+  get(_target, prop) {
+    const real = getClient();
+    const value = Reflect.get(real, prop, real);
+    return typeof value === "function" ? value.bind(real) : value;
+  },
 });
 
 /** Extraction and generation. The prompts in lib/prompts.ts are tuned to this. */

@@ -35,7 +35,6 @@ export default function ProgressPage() {
   return (
     <AppShellClient>
       <PageHeader
-        eyebrow="Progress"
         title="What's built so far"
         description="A running log, not a pitch — updated whenever something ships."
       />
@@ -48,7 +47,7 @@ export default function ProgressPage() {
           >
             <div className="flex items-center gap-2.5 mb-4">
               <section.Icon
-                className="size-4 text-[var(--accent-sage)]"
+                className="size-4 text-[var(--brand)]"
                 strokeWidth={1.75}
               />
               <h2 className="text-[13.5px] font-medium">{section.title}</h2>

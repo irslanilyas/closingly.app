@@ -167,7 +167,7 @@ export function ForecastView({ deals }: { deals: Deal[] }) {
               />
               <Bar
                 dataKey="weighted"
-                fill="var(--accent-sage)"
+                fill="var(--brand)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={64}
               />
@@ -206,7 +206,7 @@ export function ForecastView({ deals }: { deals: Deal[] }) {
               <div className="text-right tabular-nums text-muted-foreground">
                 {(r.probability * 100).toFixed(0)}%
               </div>
-              <div className="text-right tabular-nums font-medium text-[var(--accent-sage)]">
+              <div className="text-right tabular-nums font-medium text-[var(--brand)]">
                 {formatCurrency(r.weighted)}
               </div>
             </div>
@@ -230,7 +230,7 @@ function Stat({
     <div className="rounded-lg border border-border bg-card px-4 py-3.5 lift hover:border-muted-foreground/25">
       <div
         className={`text-[19px] sm:text-[22px] font-medium tabular-nums tracking-tight leading-none ${
-          accent ? "text-[var(--accent-sage)]" : ""
+          accent ? "text-[var(--brand)]" : ""
         }`}
       >
         {value}

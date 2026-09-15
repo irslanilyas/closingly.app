@@ -29,7 +29,7 @@ export function CaseStudyPanel({ dealId }: { dealId: string }) {
       <Button
         onClick={() => run({})}
         disabled={streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
       >
         {streaming ? (
           <>
@@ -85,7 +85,7 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
           <ul className="space-y-1.5">
             {data.results.map((r, i) => (
               <li key={i} className="text-[13px] leading-relaxed flex gap-2.5">
-                <span className="text-[var(--accent-sage)]">—</span>
+                <span className="text-[var(--brand)]">—</span>
                 <span>{r}</span>
               </li>
             ))}

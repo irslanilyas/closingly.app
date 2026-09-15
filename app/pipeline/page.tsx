@@ -1,93 +1,99 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AppShellClient } from "@/components/app-shell-client";
-import { PageHeader } from "@/components/page-header";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { StageBadge } from "@/components/stage-badge";
-import { formatCurrency } from "@/lib/format";
-import {
-  type Deal,
-  type DealStage,
-  STAGE_LABELS,
-  STAGE_ORDER,
-} from "@/lib/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
-  type DragEndEvent,
   PointerSensor,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
+  useDroppable,
+  type DragEndEvent,
 } from "@dnd-kit/core";
-import { ForecastView } from "@/components/pipeline/forecast-view";
-import { formatDistanceToNowStrict } from "date-fns";
-import { LayoutGrid, List, Search, TrendingUp } from "lucide-react";
-import { toast } from "sonner";
+import { AppShellClient } from "@/components/app-shell-client";
+import { PageHeader } from "@/components/page-header";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DealCard } from "@/components/pipeline/deal-card";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  STAGE_LABELS,
+  STAGE_ORDER,
+  STAGE_PROBABILITY,
+  type DealStage,
+} from "@/lib/types";
+import type { PipelineDeal } from "@/app/api/pipeline/route";
+import { Search, Columns3, Rows3, Inbox, AlertCircle } from "lucide-react";
 
-type View = "kanban" | "list" | "forecast";
+type View = "board" | "list";
 
-/** Table-driven so adding a fourth view is a row, not another copied button. */
-const VIEWS = [
-  { id: "kanban", label: "Kanban", Icon: LayoutGrid },
-  { id: "list", label: "List", Icon: List },
-  { id: "forecast", label: "Forecast", Icon: TrendingUp },
-] as const satisfies ReadonlyArray<{
-  id: View;
-  label: string;
-  Icon: typeof LayoutGrid;
-}>;
+/** Open stages only. Won and lost are outcomes, not work in progress. */
+const OPEN_STAGES: DealStage[] = ["lead", "proposal_sent", "negotiating"];
 
-export default function PipelinePage() {
+export function PipelineView() {
   const qc = useQueryClient();
+  const [view, setView] = useState<View>("board");
+  const [q, setQ] = useState("");
+  const [needsAction, setNeedsAction] = useState(false);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["deals"],
+    queryKey: ["pipeline"],
     queryFn: async () => {
-      const r = await fetch("/api/deals");
+      const r = await fetch("/api/pipeline");
       if (!r.ok) throw new Error("Failed to load");
-      const j = (await r.json()) as { deals: Deal[] };
+      const j = (await r.json()) as { deals: PipelineDeal[] };
       return j.deals;
     },
   });
 
-  const [view, setView] = useState<View>("kanban");
-  const [q, setQ] = useState("");
-
   const filtered = useMemo(() => {
-    if (!data) return [];
-    if (!q.trim()) return data;
-    const needle = q.toLowerCase();
-    return data.filter(
-      (d) =>
-        (d.client_name ?? "").toLowerCase().includes(needle) ||
-        (d.client_company ?? "").toLowerCase().includes(needle)
-    );
-  }, [data, q]);
+    let rows = data ?? [];
 
-  const totals = useMemo(() => {
-    const total = filtered.reduce(
-      (s, d) => s + (d.proposed_amount ?? 0),
+    if (needsAction) rows = rows.filter((d) => d.next_action != null);
+
+    const needle = q.trim().toLowerCase();
+    if (needle) {
+      rows = rows.filter(
+        (d) =>
+          (d.client_name ?? "").toLowerCase().includes(needle) ||
+          (d.client_company ?? "").toLowerCase().includes(needle) ||
+          (d.pain_point ?? "").toLowerCase().includes(needle)
+      );
+    }
+
+    return rows;
+  }, [data, q, needsAction]);
+
+  const stats = useMemo(() => {
+    const open = filtered.filter((d) => OPEN_STAGES.includes(d.stage));
+    const value = open.reduce((s, d) => s + (d.proposed_amount ?? 0), 0);
+    const weighted = open.reduce(
+      (s, d) => s + (d.proposed_amount ?? 0) * STAGE_PROBABILITY[d.stage],
       0
     );
-    return { count: filtered.length, total };
+    const attention = filtered.filter(
+      (d) => d.next_action?.priority === 1
+    ).length;
+    return { count: open.length, value, weighted: Math.round(weighted), attention };
   }, [filtered]);
 
   const byStage = useMemo(() => {
-    const map: Record<DealStage, Deal[]> = {
-      lead: [],
-      proposal_sent: [],
-      negotiating: [],
-      won: [],
-      lost: [],
-    };
-    for (const d of filtered) {
-      map[d.stage] = map[d.stage] || [];
-      map[d.stage].push(d);
+    const map = {} as Record<DealStage, PipelineDeal[]>;
+    for (const stage of STAGE_ORDER) map[stage] = [];
+    for (const d of filtered) map[d.stage]?.push(d);
+
+    // Most urgent first inside every column, so the top of a stack is always
+    // the deal worth looking at.
+    for (const stage of STAGE_ORDER) {
+      map[stage].sort((a, b) => {
+        const pa = a.next_action?.priority ?? 9;
+        const pb = b.next_action?.priority ?? 9;
+        if (pa !== pb) return pa - pb;
+        return (b.proposed_amount ?? 0) - (a.proposed_amount ?? 0);
+      });
     }
     return map;
   }, [filtered]);
@@ -96,16 +102,14 @@ export default function PipelinePage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  const onDragEnd = async (e: DragEndEvent) => {
-    const dealId = e.active.id as string;
-    const dest = e.over?.id as DealStage | undefined;
-    if (!dest || !STAGE_ORDER.includes(dest)) return;
+  const setStage = async (dealId: string, dest: DealStage) => {
     const deal = data?.find((d) => d.id === dealId);
     if (!deal || deal.stage === dest) return;
 
-    // Optimistic
-    qc.setQueryData<Deal[]>(["deals"], (prev) =>
-      (prev ?? []).map((d) => (d.id === dealId ? { ...d, stage: dest } : d))
+    qc.setQueryData<PipelineDeal[]>(["pipeline"], (prev) =>
+      (prev ?? []).map((d) =>
+        d.id === dealId ? { ...d, stage: dest, days_in_stage: 0 } : d
+      )
     );
 
     try {
@@ -117,272 +121,320 @@ export default function PipelinePage() {
       if (!r.ok) throw new Error();
       toast.success(`Moved to ${STAGE_LABELS[dest]}`);
     } catch {
-      toast.error("Couldn’t update stage");
-      qc.invalidateQueries({ queryKey: ["deals"] });
+      toast.error("Couldn't update the stage.");
+      qc.invalidateQueries({ queryKey: ["pipeline"] });
     }
   };
 
+  /**
+   * Puts the deal in the follow-up queue with the reason the rules gave, so
+   * the message gets drafted and the work leaves the board. The board is for
+   * deciding; the queue is for writing.
+   */
+  const chase = async (deal: PipelineDeal) => {
+    if (!deal.next_action) return;
+
+    qc.setQueryData<PipelineDeal[]>(["pipeline"], (prev) =>
+      (prev ?? []).map((d) => (d.id === deal.id ? { ...d, queued: true } : d))
+    );
+
+    try {
+      const r = await fetch("/api/follow-ups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deal_id: deal.id,
+          reason: deal.next_action.reason,
+          priority: deal.next_action.priority,
+        }),
+      });
+      if (!r.ok) throw new Error();
+
+      const { id } = (await r.json()) as { id: string };
+      // Drafted immediately rather than on open: the point of sending it to
+      // the queue is that the writing is already done when you get there.
+      fetch(`/api/follow-ups/${id}/draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      }).catch(() => {});
+
+      toast.success("Added to follow-ups. The message is being written.");
+    } catch {
+      toast.error("Couldn't add that.");
+      qc.invalidateQueries({ queryKey: ["pipeline"] });
+    }
+  };
+
+  const onDragEnd = (e: DragEndEvent) => {
+    const dest = e.over?.id as DealStage | undefined;
+    if (!dest || !STAGE_ORDER.includes(dest)) return;
+    setStage(e.active.id as string, dest);
+  };
+
   return (
-    <AppShellClient>
+    <>
       <PageHeader
-        eyebrow="Module 2 / Pipeline"
-        title="Deal Pipeline"
-        description="Every saved deal. Drag between stages, drill in for the full record."
+        title="Every deal in play"
+        description="Sorted by what needs you, not by when it was created. Move a deal, or send it straight to follow-ups with the message written."
         right={
-          <div className="text-right">
-            <div className="text-[26px] font-medium tabular-nums tracking-tight">
-              {totals.count}
-              <span className="text-muted-foreground/70 mx-2 text-[15px] font-normal">
-                /
-              </span>
-              <span className="text-[var(--accent-sage)]">
-                {formatCurrency(totals.total)}
-              </span>
-            </div>
-            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground mt-1">
-              Deals / total value
-            </div>
+          <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
+            {(
+              [
+                { value: "board", Icon: Columns3, label: "Board" },
+                { value: "list", Icon: Rows3, label: "List" },
+              ] as const
+            ).map((v) => (
+              <button
+                key={v.value}
+                type="button"
+                onClick={() => setView(v.value)}
+                aria-label={v.label}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1.5 text-[12.5px] transition-colors",
+                  view === v.value
+                    ? "bg-secondary font-medium text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <v.Icon className="size-3.5" strokeWidth={1.7} />
+                {v.label}
+              </button>
+            ))}
           </div>
         }
       />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
-        <div className="relative w-full sm:w-[320px]">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+      <div className="mb-6 grid gap-3 sm:grid-cols-4">
+        <Stat label="Open deals" value={String(stats.count)} />
+        <Stat label="In play" value={formatCurrency(stats.value)} />
+        <Stat
+          label="Weighted"
+          value={formatCurrency(stats.weighted)}
+          hint="By stage probability"
+        />
+        <Stat
+          label="Need you today"
+          value={String(stats.attention)}
+          accent={stats.attention > 0}
+        />
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[220px] flex-1 sm:max-w-[320px]">
+          <Search
+            className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+            strokeWidth={1.7}
+          />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search client or company…"
+            placeholder="Filter by client or what they need"
             className="h-9 pl-8 text-[13px]"
           />
         </div>
-        <div
-          role="tablist"
-          aria-label="Pipeline view"
-          className="flex items-center gap-1 p-0.5 border border-border rounded-md bg-background"
+
+        <button
+          type="button"
+          onClick={() => setNeedsAction((v) => !v)}
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-[12.5px] transition-colors",
+            needsAction
+              ? "border-brand bg-brand-soft/60 text-foreground"
+              : "border-border bg-card text-muted-foreground hover:text-foreground"
+          )}
         >
-          {VIEWS.map(({ id, label, Icon }) => (
-            <button
-              key={id}
-              role="tab"
-              aria-selected={view === id}
-              onClick={() => setView(id)}
-              className={cn(
-                "h-7 px-2.5 rounded text-[12px] inline-flex items-center gap-1.5 transition-colors",
-                view === id
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Icon className="size-3.5" strokeWidth={1.5} />
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          ))}
-        </div>
+          <AlertCircle className="size-3.5" strokeWidth={1.7} />
+          Needs action
+        </button>
       </div>
 
-      {isLoading && (
-        <div className="text-[13px] text-muted-foreground">Loading…</div>
-      )}
-
-      {!isLoading && filtered.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-card/40 p-12 text-center">
-          <div className="text-[13.5px] font-medium">No deals yet</div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Switch the agent on for a client call and a deal lands here on its
-            own.
-          </div>
-          <Button asChild variant="ghost" className="mt-4 text-[12.5px] h-8">
-            <Link href="/meetings">Go to meetings →</Link>
-          </Button>
-        </div>
-      )}
-
-      {!isLoading && filtered.length > 0 && view === "kanban" && (
+      {isLoading ? (
+        <BoardSkeleton />
+      ) : filtered.length === 0 ? (
+        <EmptyPipeline filtered={!!q.trim() || needsAction} />
+      ) : view === "board" ? (
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <div className="overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pb-4"><div className="grid grid-cols-5 gap-4 min-w-[900px]">
-            {STAGE_ORDER.map((stage) => (
-              <KanbanColumn key={stage} stage={stage} deals={byStage[stage]} />
-            ))}
-          </div></div>
+          <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+            <div className="flex min-w-max gap-3">
+              {STAGE_ORDER.map((stage) => (
+                <Column
+                  key={stage}
+                  stage={stage}
+                  deals={byStage[stage]}
+                  onStage={setStage}
+                  onChase={chase}
+                />
+              ))}
+            </div>
+          </div>
         </DndContext>
+      ) : (
+        <ListView deals={filtered} onStage={setStage} onChase={chase} />
       )}
+    </>
+  );
+}
 
-      {!isLoading && filtered.length > 0 && view === "list" && (
-        <ListView deals={filtered} />
-      )}
-
-      {!isLoading && filtered.length > 0 && view === "forecast" && (
-        <ForecastView deals={filtered} />
-      )}
+export default function PipelinePage() {
+  return (
+    <AppShellClient>
+      <PipelineView />
     </AppShellClient>
   );
 }
 
-function KanbanColumn({ stage, deals }: { stage: DealStage; deals: Deal[] }) {
-  const { isOver, setNodeRef } = useDroppable({ id: stage });
-  const sum = deals.reduce((s, d) => s + (d.proposed_amount ?? 0), 0);
+/* ── Board ─────────────────────────────────────────────────────────────── */
+
+function Column({
+  stage,
+  deals,
+  onStage,
+  onChase,
+}: {
+  stage: DealStage;
+  deals: PipelineDeal[];
+  onStage: (id: string, stage: DealStage) => void;
+  onChase: (deal: PipelineDeal) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: stage });
+  const value = deals.reduce((s, d) => s + (d.proposed_amount ?? 0), 0);
+
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        "rounded-lg border border-border bg-card/40 p-3 min-h-[400px] transition-colors",
-        isOver && "border-[var(--accent-sage)]/60 bg-[var(--accent-sage)]/5"
+        "flex w-[288px] shrink-0 flex-col rounded-xl border p-2.5 transition-colors",
+        isOver
+          ? "border-brand bg-brand-soft/40"
+          : "border-border bg-secondary/40"
       )}
     >
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="text-[11px] uppercase tracking-[0.14em] font-medium">
+      <div className="mb-2.5 flex items-baseline justify-between gap-2 px-1">
+        <span className="text-[12.5px] font-medium tracking-tight">
           {STAGE_LABELS[stage]}
-        </div>
-        <div className="text-[10.5px] text-muted-foreground tabular-nums">
-          {deals.length} · {formatCurrency(sum)}
-        </div>
+          <span className="ml-1.5 text-[11.5px] font-normal text-muted-foreground tabular-nums">
+            {deals.length}
+          </span>
+        </span>
+        {value > 0 && (
+          <span className="text-[11.5px] text-muted-foreground tabular-nums">
+            {formatCurrency(value)}
+          </span>
+        )}
       </div>
-      <div className="space-y-2">
+
+      <div className="flex flex-col gap-2">
         {deals.length === 0 ? (
-          <div className="text-[11.5px] text-muted-foreground/70 px-1 py-6 text-center">
-            No deals
-          </div>
+          <div className="stock-grain rounded-lg py-8" aria-hidden />
         ) : (
-          deals.map((d) => <DealChip key={d.id} deal={d} />)
+          deals.map((deal) => (
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              onStage={(next) => onStage(deal.id, next)}
+              onChase={() => onChase(deal)}
+            />
+          ))
         )}
       </div>
     </div>
   );
 }
 
-function DealChip({ deal }: { deal: Deal }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({ id: deal.id });
-  const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-    : undefined;
+/* ── List ──────────────────────────────────────────────────────────────── */
+
+function ListView({
+  deals,
+  onStage,
+  onChase,
+}: {
+  deals: PipelineDeal[];
+  onStage: (id: string, stage: DealStage) => void;
+  onChase: (deal: PipelineDeal) => void;
+}) {
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className={cn(
-        "rounded-lg border border-border bg-card p-3 cursor-grab active:cursor-grabbing select-none lift",
-        // While dragging, drop the lift so the card sits under the cursor
-        // rather than fighting dnd-kit's own transform.
-        isDragging
-          ? "opacity-50 shadow-lg hover:translate-y-0"
-          : "hover:border-muted-foreground/25"
-      )}
-    >
-      <Link href={`/pipeline/${deal.id}`} onClick={(e) => e.stopPropagation()}>
-        <div className="text-[13px] font-medium tracking-tight truncate">
-          {deal.client_name ?? "Unnamed"}
-        </div>
-        <div className="text-[11.5px] text-muted-foreground truncate mt-0.5">
-          {deal.client_company ?? "—"}
-        </div>
-        <div className="mt-2.5 flex items-center justify-between">
-          <span className="text-[12px] font-medium tabular-nums text-[var(--accent-sage)]">
-            {deal.proposed_amount
-              ? formatCurrency(deal.proposed_amount)
-              : "—"}
-          </span>
-          <span className="text-[10.5px] text-muted-foreground tabular-nums">
-            {formatDistanceToNowStrict(new Date(deal.created_at), {
-              addSuffix: true,
-            })}
-          </span>
-        </div>
-      </Link>
+    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+      {deals.map((deal) => (
+        <DealCard
+          key={deal.id}
+          deal={deal}
+          draggable={false}
+          onStage={(next) => onStage(deal.id, next)}
+          onChase={() => onChase(deal)}
+        />
+      ))}
     </div>
   );
 }
 
-function ListView({ deals }: { deals: Deal[] }) {
-  const [sortKey, setSortKey] = useState<keyof Deal>("created_at");
-  const [dir, setDir] = useState<"asc" | "desc">("desc");
+/* ── Bits ──────────────────────────────────────────────────────────────── */
 
-  const sorted = useMemo(() => {
-    return [...deals].sort((a, b) => {
-      const x = a[sortKey];
-      const y = b[sortKey];
-      if (x === null || x === undefined) return 1;
-      if (y === null || y === undefined) return -1;
-      if (typeof x === "number" && typeof y === "number")
-        return dir === "asc" ? x - y : y - x;
-      return dir === "asc"
-        ? String(x).localeCompare(String(y))
-        : String(y).localeCompare(String(x));
-    });
-  }, [deals, sortKey, dir]);
-
-  const Header = ({
-    label,
-    k,
-    className,
-  }: {
-    label: string;
-    k: keyof Deal;
-    className?: string;
-  }) => (
-    <button
-      onClick={() => {
-        if (sortKey === k) setDir(dir === "asc" ? "desc" : "asc");
-        else {
-          setSortKey(k);
-          setDir("asc");
-        }
-      }}
-      className={cn(
-        "text-[10.5px] uppercase tracking-[0.12em] font-medium text-muted-foreground hover:text-foreground transition-colors text-left",
-        className
-      )}
-    >
-      {label}
-      {sortKey === k && <span className="ml-1">{dir === "asc" ? "↑" : "↓"}</span>}
-    </button>
-  );
-
+function Stat({
+  label,
+  value,
+  hint,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  accent?: boolean;
+}) {
   return (
-    <div className="rounded-lg border border-border bg-card overflow-x-auto">
-      <div className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3 border-b border-border bg-secondary/30 min-w-[800px]">
-        <Header label="Client" k="client_name" />
-        <Header label="Company" k="client_company" />
-        <Header label="Stage" k="stage" />
-        <Header label="Amount" k="proposed_amount" className="text-right justify-self-end" />
-        <Header label="Created" k="created_at" />
-        <Header label="Updated" k="updated_at" />
+    <div className="panel p-3.5">
+      <div className="label">{label}</div>
+      <div
+        className={cn(
+          "mt-1.5 text-[22px] leading-none tabular-nums tracking-tight",
+          accent && "text-brand"
+        )}
+      >
+        {value}
       </div>
-      <div className="divide-y divide-border">
-        {sorted.map((d) => (
-          <Link
-            key={d.id}
-            href={`/pipeline/${d.id}`}
-            className="grid grid-cols-[1.4fr_1.4fr_120px_140px_140px_140px] gap-4 px-5 py-3.5 items-center hover:bg-secondary/40 transition-colors min-w-[800px]"
-          >
-            <div className="text-[13px] font-medium truncate">
-              {d.client_name ?? "Unnamed"}
-            </div>
-            <div className="text-[12.5px] text-muted-foreground truncate">
-              {d.client_company ?? "—"}
-            </div>
-            <div>
-              <StageBadge stage={d.stage} />
-            </div>
-            <div className="text-[13px] tabular-nums text-right">
-              {d.proposed_amount ? formatCurrency(d.proposed_amount) : "—"}
-            </div>
-            <div className="text-[12px] text-muted-foreground tabular-nums">
-              {formatDistanceToNowStrict(new Date(d.created_at), {
-                addSuffix: true,
-              })}
-            </div>
-            <div className="text-[12px] text-muted-foreground tabular-nums">
-              {formatDistanceToNowStrict(new Date(d.updated_at), {
-                addSuffix: true,
-              })}
-            </div>
-          </Link>
-        ))}
-      </div>
+      {hint && (
+        <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>
+      )}
+    </div>
+  );
+}
+
+function BoardSkeleton() {
+  return (
+    <div className="flex gap-3 overflow-hidden" aria-hidden>
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="w-[288px] shrink-0 space-y-2">
+          <Skeleton className="h-5 w-28 rounded" />
+          <Skeleton className="h-[104px] w-full rounded-xl" />
+          <Skeleton className="h-[104px] w-full rounded-xl" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyPipeline({ filtered }: { filtered: boolean }) {
+  return (
+    <div className="panel px-6 py-12 text-center">
+      <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
+        <Inbox className="size-4 text-muted-foreground" strokeWidth={1.6} />
+      </span>
+      <p className="mt-4 text-[14px] font-medium tracking-tight">
+        {filtered ? "Nothing matches that" : "No deals yet"}
+      </p>
+      <p className="mx-auto mt-1.5 max-w-[46ch] text-[12.5px] leading-relaxed text-muted-foreground">
+        {filtered
+          ? "Clear the filter to see the whole pipeline."
+          : "Switch the notetaker on for a client call, or paste a transcript from one that already happened. A deal shows up here with the proposal already drafted."}
+      </p>
+      {!filtered && (
+        <Link
+          href="/meetings"
+          className="mt-4 inline-flex items-center gap-1 text-[12.5px] text-brand hover:underline"
+        >
+          Go to your calls
+        </Link>
+      )}
     </div>
   );
 }

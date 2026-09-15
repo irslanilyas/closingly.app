@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShellClient } from "@/components/app-shell-client";
 import { PageHeader } from "@/components/page-header";
+import { NotificationSettings } from "@/components/settings/notification-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -118,12 +119,17 @@ export default function SettingsPage() {
 
   return (
     <AppShellClient>
-      <PageHeader eyebrow="Settings" title="Account" />
+      <PageHeader title="Account" />
 
       <div className="max-w-[560px] space-y-10">
         <section>
           <SectionLabel>Profile</SectionLabel>
           <Row label="Email" value={loading ? "—" : status?.email ?? "—"} />
+        </section>
+
+        <section>
+          <SectionLabel>Notifications</SectionLabel>
+          <NotificationSettings />
         </section>
 
         <section>
@@ -143,7 +149,7 @@ export default function SettingsPage() {
                 </span>
               ) : status?.connected ? (
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--accent-sage)] font-medium">
+                  <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--brand)] font-medium">
                     Connected
                   </span>
                   <Button
@@ -185,7 +191,7 @@ export default function SettingsPage() {
               </div>
               <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-[var(--accent-sage)] transition-all"
+                  className="h-full rounded-full bg-[var(--brand)] transition-all"
                   style={{ width: `${usage.percent_used}%` }}
                 />
               </div>

@@ -1,29 +1,25 @@
 interface PageHeaderProps {
-  eyebrow?: string;
   title: string;
   description?: string;
   right?: React.ReactNode;
 }
 
-export function PageHeader({
-  eyebrow,
-  title,
-  description,
-  right,
-}: PageHeaderProps) {
+/**
+ * The page's own sentence, set in the display serif.
+ *
+ * There is no eyebrow. A small capitalised label above every title repeating
+ * the nav item you just clicked is the single clearest tell of a template, and
+ * the rail already says where you are.
+ */
+export function PageHeader({ title, description, right }: PageHeaderProps) {
   return (
-    <div className="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6">
+    <div className="mb-6 sm:mb-9 flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6">
       <div className="min-w-0">
-        {eyebrow && (
-          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-2 font-medium">
-            {eyebrow}
-          </div>
-        )}
-        <h1 className="text-[22px] sm:text-[26px] font-medium tracking-tight leading-tight">
+        <h1 className="text-[26px] sm:text-[31px] leading-[1.15] tracking-[-0.02em]">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 text-[13.5px] text-muted-foreground max-w-[680px] leading-relaxed">
+          <p className="mt-2.5 text-[13.5px] text-muted-foreground max-w-[62ch] leading-relaxed text-pretty">
             {description}
           </p>
         )}

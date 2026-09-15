@@ -175,7 +175,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
           <Button
             onClick={submit}
             disabled={chars < MIN_CHARS || submitting}
-            className="bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer gap-2"
+            className="bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer gap-2"
           >
             {submitting ? (
               <>

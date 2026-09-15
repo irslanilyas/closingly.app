@@ -7,6 +7,17 @@ const nextConfig: NextConfig & {
   allowedDevOrigins: [
     "*.trycloudflare.com",
   ],
+  // Cloudflare (OpenNext) bundles the proxy with esbuild under the "module"
+  // condition, which resolves @opentelemetry/api to its build/esm entry. Next's
+  // file tracing copies only build/src, so that entry is missing and the proxy
+  // bundle cannot resolve it. The package is installed at all only because
+  // Sentry depends on it, and its presence also switches off the adapter's own
+  // fallback to Next's compiled copy. Including the whole build folder is the
+  // fix the adapter's source code names. Matched with { dot, contains }, "*"
+  // covers every route and the middleware entry.
+  outputFileTracingIncludes: {
+    "*": ["./node_modules/@opentelemetry/api/build/**/*"],
+  },
   experimental: {
     // Persist Turbopack's compiler artifacts to `.next` between runs. Dev
     // already does this by default since 16.1 — builds don't, and this repo

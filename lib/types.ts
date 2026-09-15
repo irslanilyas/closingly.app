@@ -157,6 +157,8 @@ export interface Attendee {
   email: string;
   displayName?: string;
   organizer?: boolean;
+  /** Google marks the calendar owner's own row. Used to read their RSVP. */
+  self?: boolean;
   responseStatus?: string;
 }
 
@@ -187,6 +189,10 @@ export interface Meeting {
   transcript_fetched_at: string | null;
   recording_seconds: number | null;
   meeting_kind: MeetingKind | null;
+  /** False for flights, birthdays, focus blocks and solo holds. */
+  is_call: boolean;
+  event_type: string | null;
+  not_call_reason: string | null;
   error: string | null;
   created_at: string;
   updated_at: string;
@@ -272,7 +278,7 @@ export interface DealEvent {
 /* ── Background jobs ──────────────────────────────────────────────────── */
 
 /** Slow AI work, kept out of the Recall webhook so it can return fast. */
-export type JobKind = "process_transcript";
+export type JobKind = "process_transcript" | "starter_proposal";
 
 export type JobStatus = "pending" | "running" | "done" | "failed";
 
@@ -365,3 +371,58 @@ export function toRecordingUsage(
     percent_used: limit > 0 ? Math.min(100, (used / limit) * 100) : 0,
   };
 }
+
+/* ── Generated documents (onboarding output contract) ──────────────────────
+   The section-based shape the generation service must return. Distinct from
+   the older fixed-field `ProposalData`: a section carries its own confidence
+   and evidence, which is what makes "this sentence is a placeholder, that one
+   came from the transcript" expressible at all.                            */
+
+export type SectionConfidence = "confirmed" | "inferred" | "placeholder";
+
+export interface GeneratedSection {
+  key: string;
+  heading: string;
+  body: string;
+  /** Transcript segment ids. Always empty for a starter proposal. */
+  evidence: string[];
+  confidence: SectionConfidence;
+}
+
+export interface GeneratedProposal {
+  title: string;
+  subtitle: string;
+  sections: GeneratedSection[];
+  commercial_summary: {
+    pricing_text: string;
+    timeline_text: string;
+    assumptions: string[];
+    requires_approval: boolean;
+  };
+  recommended_next_step: string;
+  open_questions: string[];
+  scope_risks: string[];
+}
+
+export interface GenerationQuality {
+  missing_required_fields: string[];
+  unsupported_claims: string[];
+  brand_alignment_notes: string[];
+  ready_for_human_review: boolean;
+}
+
+export interface GenerationResult {
+  proposal: GeneratedProposal;
+  quality: GenerationQuality;
+}
+
+/** Mirrors proposals.generation_state. */
+export type GenerationState =
+  | "queued"
+  | "processing_profile"
+  | "processing_document"
+  | "validating"
+  | "ready_for_review"
+  | "needs_input"
+  | "failed_retryable"
+  | "failed_terminal";

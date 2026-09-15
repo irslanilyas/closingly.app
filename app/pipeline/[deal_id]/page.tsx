@@ -23,6 +23,7 @@ import { ActivityPanel } from "@/components/deal/activity-panel";
 import { PostmortemPanel } from "@/components/deal/postmortem-panel";
 import { CaseStudyPanel } from "@/components/deal/case-study-panel";
 import { ClientHealthCard } from "@/components/deal/client-health-card";
+import { DealNotes } from "@/components/deal/notes";
 import { TranscriptPlayer } from "@/components/deal/transcript-player";
 import { formatCurrency } from "@/lib/format";
 import { type Deal, STAGE_LABELS, STAGE_ORDER } from "@/lib/types";
@@ -210,7 +211,7 @@ export default function DealDetailPage({
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-3 font-medium">
               Value
             </div>
-            <div className="text-[24px] font-medium tabular-nums tracking-tight text-[var(--accent-sage)]">
+            <div className="text-[24px] font-medium tabular-nums tracking-tight text-[var(--brand)]">
               {deal.proposed_amount
                 ? formatCurrency(deal.proposed_amount)
                 : "—"}
@@ -223,6 +224,8 @@ export default function DealDetailPage({
           </section>
 
           <ClientHealthCard dealId={deal.id} stage={deal.stage} />
+
+          <DealNotes dealId={deal.id} />
 
           {deal.competitor_mentioned && (
             <section>

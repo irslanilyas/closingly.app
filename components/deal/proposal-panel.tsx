@@ -62,7 +62,7 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
         <Link
           key={proposal.id}
           href={`/proposals/${proposal.id}`}
-          className="group block rounded-lg border border-border bg-card px-5 py-4 hover:border-[var(--accent-sage)]/40 transition-colors"
+          className="group block rounded-lg border border-border bg-card px-5 py-4 hover:border-[var(--brand)]/40 transition-colors"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -102,8 +102,8 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
 function StatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
     draft: "bg-secondary text-muted-foreground",
-    shared: "bg-[var(--accent-sage)]/10 text-[var(--accent-sage)]",
-    accepted: "bg-[var(--accent-sage)]/15 text-[var(--accent-sage)]",
+    shared: "bg-[var(--brand)]/10 text-[var(--brand)]",
+    accepted: "bg-[var(--brand)]/15 text-[var(--brand)]",
     rejected: "bg-secondary text-muted-foreground",
   };
 

@@ -195,7 +195,7 @@ function SyncedTranscript({
               type="button"
               onClick={toggle}
               aria-label={playing ? "Pause" : "Play"}
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:opacity-90 transition-opacity cursor-pointer"
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--brand)] text-[var(--brand-fg)] hover:opacity-90 transition-opacity cursor-pointer"
             >
               {playing ? (
                 <Pause className="size-4" strokeWidth={2} />
@@ -229,7 +229,7 @@ function SyncedTranscript({
               value={time}
               onChange={(e) => seekTo(parseFloat(e.target.value))}
               aria-label="Seek"
-              className="flex-1 h-1 accent-[var(--accent-sage)] cursor-pointer"
+              className="flex-1 h-1 accent-[var(--brand)] cursor-pointer"
             />
 
             <span className="text-[11.5px] tabular-nums text-muted-foreground shrink-0">
@@ -266,14 +266,14 @@ function SyncedTranscript({
             className={cn(
               "w-full text-left px-4 py-3 transition-colors",
               audioUrl && "hover:bg-secondary/60 cursor-pointer",
-              i === active && "bg-[var(--accent-sage)]/10"
+              i === active && "bg-[var(--brand)]/10"
             )}
           >
             <div className="flex items-baseline gap-2.5 mb-1">
               <span
                 className={cn(
                   "text-[12px] font-medium",
-                  i === active ? "text-[var(--accent-sage)]" : "text-foreground/70"
+                  i === active ? "text-[var(--brand)]" : "text-foreground/70"
                 )}
               >
                 {s.speaker}

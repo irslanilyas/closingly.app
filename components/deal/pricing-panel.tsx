@@ -55,7 +55,7 @@ export function PricingPanel({ deal }: { deal: Deal }) {
   return (
     <div className="space-y-6">
       {prefilled && (
-        <p className="text-[12px] text-[var(--accent-sage)]">
+        <p className="text-[12px] text-[var(--brand)]">
           Prefilled from this deal — edit anything that looks off.
         </p>
       )}
@@ -133,7 +133,7 @@ export function PricingPanel({ deal }: { deal: Deal }) {
           })
         }
         disabled={!desc.trim() || streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
       >
         {streaming ? (
           <>
@@ -215,7 +215,7 @@ function PriceCard({
           <span
             className={`text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full border font-medium ${
               result.confidence === "high"
-                ? "bg-[var(--accent-sage)]/10 text-[var(--accent-sage)] border-[var(--accent-sage)]/25"
+                ? "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/25"
                 : result.confidence === "medium"
                   ? "bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900"
                   : "bg-secondary text-muted-foreground border-border"
@@ -253,7 +253,7 @@ function PricePill({
       <div
         className={`tabular-nums tracking-tight font-medium ${
           headline
-            ? "text-[24px] sm:text-[30px] text-[var(--accent-sage)]"
+            ? "text-[24px] sm:text-[30px] text-[var(--brand)]"
             : "text-[17px] sm:text-[19px] text-foreground/80"
         }`}
       >

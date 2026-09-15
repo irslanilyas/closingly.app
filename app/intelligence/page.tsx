@@ -44,7 +44,6 @@ export default function InsightsPage() {
   return (
     <AppShellClient>
       <PageHeader
-        eyebrow="Insights"
         title="What your pipeline is telling you"
         description="Learned from your own closed deals and committed hours — not generic advice."
       />
@@ -128,7 +127,7 @@ export default function InsightsPage() {
                           <span className="text-[11.5px] text-muted-foreground tabular-nums">
                             {t.won}W / {t.lost}L
                           </span>
-                          <span className="text-[13px] font-medium tabular-nums text-[var(--accent-sage)]">
+                          <span className="text-[13px] font-medium tabular-nums text-[var(--brand)]">
                             {Math.round(t.win_rate * 100)}%
                           </span>
                         </div>
@@ -171,7 +170,7 @@ export default function InsightsPage() {
                             "h-full rounded-full transition-all",
                             w.over_capacity
                               ? "bg-destructive"
-                              : "bg-[var(--accent-sage)]"
+                              : "bg-[var(--brand)]"
                           )}
                           style={{ width: `${pct}%` }}
                         />
@@ -234,7 +233,7 @@ function StageCard({
         <span
           className={cn(
             "text-[13px] font-medium",
-            tone === "accent" && "text-[var(--accent-sage)]"
+            tone === "accent" && "text-[var(--brand)]"
           )}
         >
           {label}

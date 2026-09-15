@@ -50,7 +50,7 @@ export function ScopePanel({ dealId }: { dealId: string }) {
             Agreed scope
           </label>
           {sow && (
-            <span className="text-[11px] text-[var(--accent-sage)]">
+            <span className="text-[11px] text-[var(--brand)]">
               Loaded from this deal&rsquo;s proposal
             </span>
           )}
@@ -78,7 +78,7 @@ export function ScopePanel({ dealId }: { dealId: string }) {
       <Button
         onClick={() => run({ sow, message })}
         disabled={!sow.trim() || !message.trim() || streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--accent-sage)] text-[var(--accent-sage-fg)] hover:bg-[var(--accent-sage)]/90 cursor-pointer"
+        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
       >
         {streaming ? (
           <>
@@ -114,7 +114,7 @@ const VERDICTS = {
   in_scope: {
     label: "In scope",
     Icon: ShieldCheck,
-    cls: "bg-[var(--accent-sage)]/10 text-[var(--accent-sage)] border-[var(--accent-sage)]/30",
+    cls: "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/30",
     copy: "This falls within what was agreed. Proceed.",
   },
   scope_creep: {
@@ -174,7 +174,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
       {result.estimated_additional_billing &&
         result.estimated_additional_billing !== "N/A" && (
           <Card title="Worth billing">
-            <div className="text-[19px] font-medium tabular-nums tracking-tight text-[var(--accent-sage)]">
+            <div className="text-[19px] font-medium tabular-nums tracking-tight text-[var(--brand)]">
               {result.estimated_additional_billing}
             </div>
           </Card>

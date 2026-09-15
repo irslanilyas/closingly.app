@@ -1,4 +1,4 @@
--- Applied 2026-08-26. See PLAN.md Phase 9.
+-- Applied 2026-08-26.
 --
 -- A template is a validated design spec, not generated code. `component_source`
 -- assumed we would store React/HTML authored by a model and execute or inject
