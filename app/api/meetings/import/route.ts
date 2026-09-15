@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { enqueue } from "@/lib/jobs";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const maxDuration = 30;
 
 /** Same floor the pipeline itself enforces — fail here with a clear message
  *  rather than accepting the paste and silently producing nothing. */

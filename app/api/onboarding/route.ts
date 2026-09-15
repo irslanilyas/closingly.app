@@ -5,7 +5,6 @@ import { persistOnboarding } from "@/lib/onboarding/persist";
 import { enqueue } from "@/lib/jobs";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
 
 /**
  * Resubmitting is legitimate — settings changes write a new profile version —

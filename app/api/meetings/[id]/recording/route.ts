@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRecordingUrl } from "@/lib/recall";
 
-export const runtime = "nodejs";
 
 /**
  * A fresh playback URL for a meeting's recording.

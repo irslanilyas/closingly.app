@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // public proposal page and its tracker by the share token in the URL.
 const PUBLIC_PATHS = [
   "/login",
+  "/api/auth/google",
   "/api/auth/callback",
   "/api/recall/webhook",
   "/api/cron/",

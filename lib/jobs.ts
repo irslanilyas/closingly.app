@@ -52,8 +52,8 @@ export interface ClaimedJob {
  * Claim up to `limit` due jobs.
  *
  * Single-worker-friendly rather than bulletproof: we read then write, so two
- * concurrent workers could in principle claim the same row. With one Vercel
- * cron that can't happen, and every job is written to be idempotent anyway.
+ * concurrent workers could in principle claim the same row. With one cron
+ * trigger that can't happen, and every job is written to be idempotent anyway.
  * Swap this for `SELECT ... FOR UPDATE SKIP LOCKED` via an RPC if we ever run
  * workers in parallel.
  */

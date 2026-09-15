@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export const runtime = "nodejs";
 
 const ALLOWED = ["connected", "skipped", "pending"] as const;
 type CalendarStatus = (typeof ALLOWED)[number];

@@ -10,7 +10,6 @@ import type {
   Template,
 } from "@/lib/types";
 
-export const maxDuration = 30;
 
 /**
  * Everything a user has ever put into Closingly, as one downloadable file.

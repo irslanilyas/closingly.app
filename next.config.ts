@@ -1,12 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig & {
-  allowedDevOrigins?: string[];
-} = {
-  allowedDevOrigins: [
-    "*.trycloudflare.com",
-  ],
+const nextConfig: NextConfig = {
   // Cloudflare (OpenNext) bundles the proxy with esbuild under the "module"
   // condition, which resolves @opentelemetry/api to its build/esm entry. Next's
   // file tracing copies only build/src, so that entry is missing and the proxy
@@ -26,7 +21,7 @@ const nextConfig: NextConfig & {
     turbopackFileSystemCacheForBuild: true,
     // Pull only the icons actually referenced instead of walking the whole
     // barrel file. lucide-react exports well over a thousand of them.
-    optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
+    optimizePackageImports: ["lucide-react", "date-fns"],
   },
 };
 

@@ -7,7 +7,6 @@ import {
   type WinLossStats,
 } from "@/lib/types";
 
-export const runtime = "nodejs";
 
 export async function GET() {
   const supabase = await createClient();

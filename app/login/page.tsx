@@ -4,14 +4,13 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GOOGLE_SCOPES } from "@/lib/google/scopes";
 import { Wordmark } from "@/components/shell/wordmark";
 
 const ERROR_COPY: Record<string, string> = {
   access_denied: "You cancelled the Google sign-in. Try again when you're ready.",
   missing_code: "Google didn't send back a sign-in code. Try again.",
+  state_mismatch: "That sign-in link expired. Try again.",
   exchange_failed: "We couldn't complete sign-in. Try again.",
   auth: "Something went wrong signing you in. Try again.",
 };
@@ -19,43 +18,14 @@ const ERROR_COPY: Record<string, string> = {
 function LoginForm() {
   const searchParams = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
-  const [failure, setFailure] = useState<string | null>(null);
 
   const errorParam = searchParams.get("error");
-  const message =
-    failure ??
-    (errorParam ? ERROR_COPY[errorParam] ?? ERROR_COPY.auth : null);
+  const message = errorParam ? ERROR_COPY[errorParam] ?? ERROR_COPY.auth : null;
 
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(() => {
     if (submitting) return;
     setSubmitting(true);
-    setFailure(null);
-
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
-          scopes: GOOGLE_SCOPES,
-          queryParams: {
-            // Without both of these Google returns no refresh token, and
-            // calendar sync dies an hour after login with no visible cause.
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        setFailure(error.message);
-        setSubmitting(false);
-      }
-      // On success the browser navigates to Google — no need to reset state.
-    } catch {
-      setFailure("Couldn't reach Google. Check your connection and try again.");
-      setSubmitting(false);
-    }
+    window.location.href = "/api/auth/google";
   }, [submitting]);
 
   return (

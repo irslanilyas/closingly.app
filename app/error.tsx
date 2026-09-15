@@ -23,7 +23,7 @@ export default function ErrorPage({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    // console.error keeps a trace in Vercel's function logs even if Sentry
+    // console.error keeps a trace in the browser console even if Sentry
     // itself is misconfigured; Sentry.captureException is what actually
     // pages someone instead of waiting for a tester to report it.
     console.error("[error boundary]", error);

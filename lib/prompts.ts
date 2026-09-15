@@ -160,19 +160,6 @@ sells into — their own closed deals above are the strongest evidence of that
 market, stronger than any general assumption. Never recommend below their
 stated minimum. Round to clean numbers. Output JSON only.`;
 
-export const transcriptCleanPrompt = (raw: string) => `You are a meeting transcript cleaner.
-
-Raw transcript: ${raw}
-
-Clean this up:
-- Add speaker labels (Me: / [Name]:) if missing — infer from context
-- Remove all filler words: um, uh, like, you know, sort of, kind of
-- Remove timestamps if present
-- Add natural paragraph breaks
-- Mark logical sections with these headers (only if relevant): Introduction, Discovery, Pricing/Scope, Next Steps
-
-Return ONLY the cleaned transcript as plain text. No JSON wrapping, no explanation.`;
-
 /**
  * Runs once, when a deal is marked lost. Reads the discovery transcript plus
  * whatever the deal accumulated (pain point, budget signal, notes) and tries

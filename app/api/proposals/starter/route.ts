@@ -4,8 +4,6 @@ import { latestSpecification, latestFacts } from "@/lib/onboarding/persist";
 import { generateStarterProposal } from "@/lib/onboarding/starter-proposal";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "starter_proposal", limit: 10, windowMinutes: 60 };
 

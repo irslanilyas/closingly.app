@@ -1,7 +1,4 @@
 /**
- * Kept separate from `lib/google/auth.ts` so the login page can import it
- * without dragging the service-role Supabase client into the client bundle.
- *
  * Deliberately minimal:
  *   - `calendar.events.readonly` — we read events, never write to the calendar.
  *   - `gmail.send` — Google classes this as *sensitive*. The draft/read scopes
@@ -15,5 +12,3 @@ export const GOOGLE_SCOPE_LIST = [
   "https://www.googleapis.com/auth/calendar.events.readonly",
   "https://www.googleapis.com/auth/gmail.send",
 ] as const;
-
-export const GOOGLE_SCOPES = GOOGLE_SCOPE_LIST.join(" ");

@@ -15,14 +15,6 @@ export function formatCurrency(
   }
 }
 
-export function parseAmountFromString(s: string | null | undefined): number | null {
-  if (!s) return null;
-  const cleaned = s.replace(/[^\d.]/g, "");
-  if (!cleaned) return null;
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : null;
-}
-
 /**
  * Heuristic partial JSON parser — returns the largest valid JSON value parsable
  * from a possibly truncated string. Used for streaming AI output.

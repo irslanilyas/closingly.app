@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { computeCapacityWeeks } from "@/lib/capacity";
 import type { CapacityInsights } from "@/lib/types";
 
-export const runtime = "nodejs";
 
 export async function GET() {
   const supabase = await createClient();

@@ -28,8 +28,7 @@ const MAX_TOKENS = 4096;
  *
  * Same quality at every setting, because the prompt already enumerates every
  * legal value — there is nothing to deliberate about, so the deliberation was
- * pure cost. The fast one is also the only one that fits in a request: Vercel
- * caps a function at 60s and k2.6 took three times that.
+ * pure cost, and a 193s call would outlive any request.
  */
 const REASONING_EFFORT = "low";
 

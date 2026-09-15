@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { UNREAD_CAP } from "@/lib/notifications";
 
-export const runtime = "nodejs";
 
 /** The bell. Recent notifications plus the unread count for the badge. */
 export async function GET(request: NextRequest) {

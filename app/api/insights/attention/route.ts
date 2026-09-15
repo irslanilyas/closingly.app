@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { computeClientHealth, healthInputFromEvents } from "@/lib/client-health";
 import type { ClientHealth, DealEvent } from "@/lib/types";
 
-export const runtime = "nodejs";
 
 export interface AttentionDeal {
   id: string;

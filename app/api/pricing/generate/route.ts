@@ -5,8 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { latestFacts } from "@/lib/onboarding/persist";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "pricing_generate", limit: 20, windowMinutes: 60 };
 

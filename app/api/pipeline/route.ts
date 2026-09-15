@@ -4,7 +4,6 @@ import { buildSnapshots } from "@/lib/follow-ups/snapshot";
 import { raiseForDeal } from "@/lib/follow-ups/rules";
 import type { DealStage } from "@/lib/types";
 
-export const runtime = "nodejs";
 
 /**
  * The pipeline, with the reason each deal is where it is.

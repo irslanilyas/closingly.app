@@ -11,7 +11,6 @@ import { sweepFollowUps } from "@/lib/follow-ups/sweep";
 import { renderDigest } from "@/lib/email/digest";
 import { sendEmail } from "@/lib/email/resend";
 
-export const maxDuration = 60;
 
 /**
  * A non-terminal meeting whose row hasn't moved in this long gets checked
@@ -57,11 +56,8 @@ export async function GET(request: NextRequest) {
 
   const jobs = await claimJobs(5);
 
-  // Respond before doing the work. A transcript job takes 30-60s, but the
-  // schedulers that call this cap their request timeout well below that
-  // (cron-job.org's free tier stops at 30s) and disable jobs that keep
-  // "failing". The work is unaffected by the connection closing, so there is
-  // no reason to hold it open — the same reasoning as the Recall webhook.
+  // Respond before doing the work; it is unaffected by the connection
+  // closing, the same reasoning as the Recall webhook.
   // `after` work still counts against the host deadline, and the phases
   // below are not equally important. A transcript job can take most of the
   // budget on its own, so everything after it checks the clock first: the

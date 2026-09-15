@@ -4,8 +4,6 @@ import { followUpPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "followup_generate", limit: 30, windowMinutes: 60 };
 

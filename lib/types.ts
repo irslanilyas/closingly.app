@@ -133,16 +133,6 @@ export type MeetingStatus =
   | "failed"
   | "cancelled";
 
-export const MEETING_STATUS_LABELS: Record<MeetingStatus, string> = {
-  scheduled: "Scheduled",
-  bot_scheduled: "Agent ready",
-  recording: "Recording",
-  processing: "Processing",
-  completed: "Completed",
-  failed: "Failed",
-  cancelled: "Cancelled",
-};
-
 /** Set by the triage pass. Only `discovery` auto-drafts a proposal. */
 export type MeetingKind =
   | "discovery"

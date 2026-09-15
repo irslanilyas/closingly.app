@@ -5,8 +5,6 @@ import { followUpDraftPrompt } from "@/lib/prompts";
 import { KIND_LABELS, type FollowUpKind } from "@/lib/follow-ups/rules";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 /**
  * Write (or rewrite) the draft for one queue item.

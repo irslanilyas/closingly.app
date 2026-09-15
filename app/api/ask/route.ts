@@ -5,8 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { buildContext } from "@/lib/ask/retrieve";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "ask", limit: 60, windowMinutes: 60 };
 const MAX_QUESTION = 500;

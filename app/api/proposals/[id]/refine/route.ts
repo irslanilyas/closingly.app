@@ -5,7 +5,6 @@ import { refineProposalPrompt } from "@/lib/prompts";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { ProposalData } from "@/lib/types";
 
-export const maxDuration = 60;
 
 /** Iterative by design — a user refining one proposal several times in a
  * sitting is the normal case, not abuse. */

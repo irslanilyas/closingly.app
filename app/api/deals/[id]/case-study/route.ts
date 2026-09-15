@@ -4,8 +4,6 @@ import { caseStudyPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "deal_case_study", limit: 20, windowMinutes: 60 };
 

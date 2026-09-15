@@ -5,7 +5,6 @@ import { parseJsonResponse } from "@/lib/anthropic";
 import { templatePrompt } from "@/lib/prompts";
 import { coerceTheme } from "@/lib/proposal-theme";
 
-export const maxDuration = 60;
 
 /** Generations per user per hour. The only billable action in this feature. */
 const HOURLY_LIMIT = 8;

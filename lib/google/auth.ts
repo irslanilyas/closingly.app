@@ -127,8 +127,3 @@ export async function getValidAccessToken(
     return null;
   }
 }
-
-export async function isGoogleConnected(userId: string): Promise<boolean> {
-  const tokens = await getGoogleTokens(userId);
-  return Boolean(tokens?.refresh_token);
-}

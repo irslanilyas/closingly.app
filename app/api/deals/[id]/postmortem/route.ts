@@ -4,8 +4,6 @@ import { postmortemPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const RATE_LIMIT = { action: "deal_postmortem", limit: 20, windowMinutes: 60 };
 

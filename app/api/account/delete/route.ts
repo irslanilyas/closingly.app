@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cancelBot } from "@/lib/recall";
 
-export const maxDuration = 30;
 
 /**
  * Permanently delete the caller's own account and everything in it.

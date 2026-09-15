@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { sendGmail, GmailError } from "@/lib/google/gmail";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
-export const runtime = "nodejs";
 
 /**
  * Sending is the one irreversible action in the whole queue, so it is a
