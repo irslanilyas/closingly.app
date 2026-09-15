@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { saveGoogleTokens } from "@/lib/google/auth";
 import { OAUTH_NEXT_COOKIE, OAUTH_STATE_COOKIE } from "@/lib/google/oauth-cookies";
+import { DEMO_RESET_COOKIE, replayOnboarding } from "@/lib/demo";
+import { isFounder } from "@/lib/founders";
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -16,15 +18,19 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get("state");
   const expectedState = request.cookies.get(OAUTH_STATE_COOKIE)?.value;
   const next = request.cookies.get(OAUTH_NEXT_COOKIE)?.value ?? "/";
+  const wantsReplay = request.cookies.get(DEMO_RESET_COOKIE)?.value === "1";
 
-  const fail = (reason: string) => {
-    const response = NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent(reason)}`
-    );
+  const clearFlowCookies = (response: NextResponse) => {
     response.cookies.delete(OAUTH_STATE_COOKIE);
     response.cookies.delete(OAUTH_NEXT_COOKIE);
+    response.cookies.delete(DEMO_RESET_COOKIE);
     return response;
   };
+
+  const fail = (reason: string) =>
+    clearFlowCookies(
+      NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(reason)}`)
+    );
 
   // Google reports consent failures here rather than as a missing code.
   const oauthError = searchParams.get("error");
@@ -75,9 +81,17 @@ export async function GET(request: NextRequest) {
     console.error("[auth] failed to persist Google tokens:", err);
   }
 
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
-  const response = NextResponse.redirect(`${origin}${safeNext}`);
-  response.cookies.delete(OAUTH_STATE_COOKIE);
-  response.cookies.delete(OAUTH_NEXT_COOKIE);
-  return response;
+  let destination = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+
+  if (wantsReplay && isFounder(data.session.user.email)) {
+    try {
+      await replayOnboarding(data.session.user.id);
+      destination = "/onboarding";
+    } catch (err) {
+      // Signing in matters more than replaying setup — land them in the app.
+      console.error("[auth] demo reset failed:", err);
+    }
+  }
+
+  return clearFlowCookies(NextResponse.redirect(`${origin}${destination}`));
 }

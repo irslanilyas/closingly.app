@@ -61,6 +61,13 @@ function LoginForm() {
       <p className="mt-5 text-[12px] text-muted-foreground leading-relaxed">
         Signing in creates your workspace. It takes about two minutes to set up.
       </p>
+
+      <a
+        href="/api/demo/reset"
+        className="mt-6 inline-block text-[12px] text-muted-foreground underline underline-offset-4 decoration-border hover:text-foreground"
+      >
+        Sign in as a new visitor (replays setup)
+      </a>
     </div>
   );
 }

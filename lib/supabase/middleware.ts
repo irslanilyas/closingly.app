@@ -7,6 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PATHS = [
   "/login",
   "/api/auth/google",
+  "/api/demo/",
   "/api/auth/callback",
   "/api/recall/webhook",
   "/api/cron/",
