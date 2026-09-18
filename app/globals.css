@@ -336,13 +336,34 @@
     scrollbar-color: var(--border) transparent;
   }
 
-  /* Rows that scroll sideways under a thumb (tab strips, the board). The
-     swipe is the affordance; a scrollbar there is desktop chrome. */
+  /* Rows that scroll sideways under a thumb (tab strips). The swipe is the
+     affordance; a scrollbar there is desktop chrome. */
   .scrollbar-none {
     scrollbar-width: none;
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  /* The pipeline board, which scrolls sideways at every width: five columns
+     never fit the content column, even on a wide screen.
+
+     Hidden below the rail breakpoint, where the swipe says it for itself, and
+     visible above it, where a cut-off "Won" column with no scrollbar reads as
+     a broken layout rather than as more content. It cannot be written as
+     `scrollbar-none lg:scrollbar-thin`: `scrollbar-width` is the half that
+     responds to a breakpoint, while `display: none` on the WebKit pseudo
+     element keeps applying, so Chrome shows nothing at any width. */
+  .board-scroll {
+    overscroll-behavior-x: contain;
+  }
+  @media (width < 64rem) {
+    .board-scroll {
+      scrollbar-width: none;
+    }
+    .board-scroll::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 

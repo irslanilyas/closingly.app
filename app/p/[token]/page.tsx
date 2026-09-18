@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ProposalDocument } from "@/components/proposal/proposal-document";
 import { ViewTracker } from "@/app/p/[token]/tracker";
 import { coerceTheme, DEFAULT_THEME, themeVars } from "@/lib/proposal-theme";
-import type { ProposalData } from "@/lib/types";
+import { toProposalData } from "@/lib/proposal-data";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +61,7 @@ export default async function SharedProposalPage({
 
       <main className="mx-auto max-w-[760px] pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-16 md:py-24">
         <ProposalDocument
-          data={data.proposal_data as ProposalData}
+          data={toProposalData(data.proposal_data)}
           theme={theme}
           readOnly
           clientName={deal?.client_name}

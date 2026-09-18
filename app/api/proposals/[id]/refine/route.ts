@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CLAUDE_MODEL, complete, parseJsonResponse } from "@/lib/anthropic";
 import { refineProposalPrompt } from "@/lib/prompts";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { toProposalData } from "@/lib/proposal-data";
 import type { ProposalData } from "@/lib/types";
 
 
@@ -54,7 +55,9 @@ export async function POST(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const before = proposal.proposal_data as ProposalData;
+  // Refining a starter proposal reads the same normalised shape the editor
+  // shows, so the model is never handed a schema the prompt does not describe.
+  const before = toProposalData(proposal.proposal_data);
 
   try {
     const refined = parseJsonResponse<ProposalData>(

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
+import { toProposalData } from "@/lib/proposal-data";
 import type { ProposalData } from "@/lib/types";
 import { FileText, ArrowUpRight, Link2, Eye } from "lucide-react";
 
@@ -33,7 +34,15 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
       .eq("deal_id", dealId)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        if (data) setProposals(data as DealProposal[]);
+        // The starter proposal is stored in a different shape; normalise so a
+        // row summary reads the same fields whatever wrote the record.
+        if (data)
+          setProposals(
+            data.map((row) => ({
+              ...(row as unknown as DealProposal),
+              proposal_data: toProposalData(row.proposal_data),
+            }))
+          );
         setLoading(false);
       });
   }, [dealId]);
@@ -68,16 +77,16 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[13.5px] font-medium">
-                  {proposal.proposal_data?.investment_number ?? "Proposal"}
+                  {proposal.proposal_data.investment_number || "Proposal"}
                 </span>
                 <StatusPill status={proposal.status} />
               </div>
               <p className="mt-1.5 text-[12.5px] text-muted-foreground line-clamp-2 leading-relaxed">
-                {proposal.proposal_data?.challenge ?? "—"}
+                {proposal.proposal_data.challenge || "—"}
               </p>
               <div className="mt-2.5 flex items-center gap-3 text-[11.5px] text-muted-foreground">
                 <span>
-                  {proposal.proposal_data?.deliverables?.length ?? 0}{" "}
+                  {proposal.proposal_data.deliverables.length}{" "}
                   deliverables
                 </span>
                 {proposal.share_token && (

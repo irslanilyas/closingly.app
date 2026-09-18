@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { coerceTheme, DEFAULT_THEME } from "@/lib/proposal-theme";
+import { toProposalData } from "@/lib/proposal-data";
 import type { ProposalData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -62,7 +63,13 @@ export default function ProposalPage({
       .eq("id", id)
       .single();
 
-    if (data) setProposal(data as unknown as Loaded);
+    // Normalised on the way in: a starter proposal is stored in the generated
+    // section shape, and the document only speaks the fixed field shape.
+    if (data)
+      setProposal({
+        ...(data as unknown as Loaded),
+        proposal_data: toProposalData(data.proposal_data),
+      });
     setLoading(false);
   }, [id]);
 

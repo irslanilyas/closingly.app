@@ -255,7 +255,7 @@ export function PipelineView() {
         <EmptyPipeline filtered={!!q.trim() || needsAction} />
       ) : view === "board" ? (
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <div className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 scrollbar-none sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:-mx-8 lg:snap-none lg:px-8 lg:scrollbar-thin">
+          <div className="board-scroll -mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:-mx-8 lg:snap-none lg:px-8 lg:pb-3">
             <div className="flex min-w-max gap-3">
               {STAGE_ORDER.map((stage) => (
                 <Column
