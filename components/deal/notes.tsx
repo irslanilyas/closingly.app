@@ -26,7 +26,15 @@ interface Note {
   created_at: string;
 }
 
-export function DealNotes({ dealId }: { dealId: string }) {
+export function DealNotes({
+  dealId,
+  legacyNote,
+}: {
+  dealId: string;
+  /** The single free-text field notes lived in before this panel. Read-only. */
+  legacyNote?: string | null;
+}) {
+  const earlier = legacyNote?.trim() || null;
   const [notes, setNotes] = useState<Note[] | null>(null);
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -157,7 +165,7 @@ export function DealNotes({ dealId }: { dealId: string }) {
             placeholder="What you noticed that the recording didn't catch."
             className="min-h-[90px] text-[13px] leading-relaxed"
           />
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <Button
               variant="brand"
               size="sm"
@@ -179,7 +187,7 @@ export function DealNotes({ dealId }: { dealId: string }) {
               <X strokeWidth={1.8} />
               Cancel
             </Button>
-            <span className="ml-auto text-[11px] text-muted-foreground">
+            <span className="w-full text-[11px] text-muted-foreground sm:ml-auto sm:w-auto">
               Private unless you say otherwise
             </span>
           </div>
@@ -188,7 +196,7 @@ export function DealNotes({ dealId }: { dealId: string }) {
 
       {notes === null ? (
         <div className="h-16 rounded-lg bg-muted animate-pulse" aria-hidden />
-      ) : notes.length === 0 && !composing ? (
+      ) : notes.length === 0 && !composing && !earlier ? (
         <p className="text-[12.5px] leading-relaxed text-muted-foreground">
           Nothing yet. Notes are for what the transcript missed: the read on the
           room, who actually decides, what you would price differently.
@@ -216,7 +224,7 @@ export function DealNotes({ dealId }: { dealId: string }) {
                       : "Shareable. Closingly may draw on this when writing for the client."
                   }
                   className={cn(
-                    "inline-flex items-center gap-1 text-[11.5px] transition-colors",
+                    "-my-1 inline-flex items-center gap-1 py-1 text-[11.5px] transition-colors",
                     note.is_private
                       ? "text-muted-foreground hover:text-foreground"
                       : "text-brand"
@@ -230,13 +238,24 @@ export function DealNotes({ dealId }: { dealId: string }) {
                   type="button"
                   onClick={() => remove(note.id)}
                   aria-label="Delete note"
-                  className="ml-auto text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+                  className="-my-1.5 -mr-1.5 ml-auto rounded-md p-1.5 text-muted-foreground transition-opacity hover:text-destructive pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
                 >
                   <Trash2 className="size-3.5" strokeWidth={1.6} />
                 </button>
               </div>
             </li>
           ))}
+          {earlier && (
+            <li className="panel px-3.5 py-3">
+              <p className="whitespace-pre-wrap text-[13px] leading-relaxed">
+                {earlier}
+              </p>
+              <div className="mt-2 flex items-center gap-1 text-[11.5px] text-muted-foreground">
+                <Lock className="size-3" strokeWidth={1.8} />
+                Earlier note, kept private
+              </div>
+            </li>
+          )}
         </ol>
       )}
     </section>

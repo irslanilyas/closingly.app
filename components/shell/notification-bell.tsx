@@ -108,13 +108,13 @@ export function NotificationBell() {
           aria-label={
             unread > 0 ? `Notifications, ${unread} unread` : "Notifications"
           }
-          className="relative grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="relative grid size-10 lg:size-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         >
           <Bell className="size-4" strokeWidth={1.6} />
           {unread > 0 && (
             <span
               aria-hidden
-              className="absolute right-1 top-1 grid min-w-[15px] place-items-center rounded-full bg-brand-vivid px-1 text-[9.5px] font-semibold leading-[15px] text-white tabular-nums"
+              className="absolute right-1.5 top-1.5 lg:right-1 lg:top-1 grid min-w-[15px] place-items-center rounded-full bg-brand-vivid px-1 text-[9.5px] font-semibold leading-[15px] text-white tabular-nums"
             >
               {unread}
             </span>
@@ -122,7 +122,11 @@ export function NotificationBell() {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[340px] p-0">
+      <DropdownMenuContent
+        align="end"
+        collisionPadding={8}
+        className="w-[340px] max-w-[calc(100vw-16px)] p-0"
+      >
         <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
           <span className="text-[13px] font-medium tracking-tight">
             Notifications
@@ -139,7 +143,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        <div className="max-h-[380px] overflow-y-auto scrollbar-thin">
+        <div className="max-h-[min(380px,60dvh)] overflow-y-auto scrollbar-thin">
           {items.length === 0 ? (
             <p className="px-3 py-8 text-center text-[12.5px] text-muted-foreground leading-relaxed">
               Nothing yet. You&rsquo;ll hear from Closingly when a client opens

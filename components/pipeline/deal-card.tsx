@@ -95,7 +95,7 @@ export function DealCard({
           <button
             type="button"
             aria-label="Drag to another stage"
-            className="-ml-1 mt-px shrink-0 cursor-grab text-muted-foreground/40 opacity-0 transition-opacity group-hover/card:opacity-100 active:cursor-grabbing"
+            className="-ml-1 mt-px hidden shrink-0 cursor-grab text-muted-foreground/40 transition-opacity active:cursor-grabbing pointer-fine:block pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100"
             {...listeners}
             {...attributes}
           >
@@ -126,7 +126,7 @@ export function DealCard({
             <button
               type="button"
               aria-label={`Actions for ${name}`}
-              className="-mr-1 -mt-1 shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-secondary hover:text-foreground group-hover/card:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100"
+              className="-mr-1.5 -mt-1.5 shrink-0 rounded-md p-2 text-muted-foreground transition-opacity hover:bg-secondary hover:text-foreground pointer-fine:-mr-1 pointer-fine:-mt-1 pointer-fine:p-1 pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:focus-visible:opacity-100 pointer-fine:aria-expanded:opacity-100"
             >
               <MoreHorizontal className="size-3.5" strokeWidth={1.8} />
             </button>
@@ -185,7 +185,7 @@ export function DealCard({
           {deal.queued ? (
             <Link
               href="/follow-ups"
-              className="mt-1.5 inline-flex items-center gap-1 text-[11.5px] text-brand hover:underline"
+              className="mt-1.5 inline-flex items-center gap-1 py-1 text-[11.5px] text-brand hover:underline"
             >
               Waiting in follow-ups
               <ArrowRight className="size-3" strokeWidth={1.8} />
@@ -195,7 +195,7 @@ export function DealCard({
               type="button"
               onClick={chase}
               disabled={chasing}
-              className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
+              className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 pointer-coarse:px-3 pointer-coarse:py-2 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
             >
               <Send className="size-3" strokeWidth={1.8} />
               {chasing ? "Adding…" : "Write the follow-up"}

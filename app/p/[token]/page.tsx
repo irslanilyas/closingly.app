@@ -59,7 +59,7 @@ export default async function SharedProposalPage({
     >
       <ViewTracker token={token} />
 
-      <main className="mx-auto max-w-[760px] px-6 py-16 sm:py-24">
+      <main className="mx-auto max-w-[760px] pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-16 md:py-24">
         <ProposalDocument
           data={data.proposal_data as ProposalData}
           theme={theme}
@@ -69,7 +69,7 @@ export default async function SharedProposalPage({
           authorName={author?.full_name ?? author?.email}
         />
 
-        <footer className="mt-16 pt-8 border-t border-[var(--p-rule)] flex items-center justify-between gap-4">
+        <footer className="mt-12 pt-6 border-t border-[var(--p-rule)] flex flex-col items-start gap-3 sm:mt-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:pt-8">
           <p className="text-[12.5px] text-[color:var(--p-muted)]">
             Questions? Just reply to the email this came from.
           </p>

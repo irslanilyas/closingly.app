@@ -130,7 +130,7 @@ export function FollowUpQueue() {
             type="button"
             onClick={() => setTab(value)}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-[13px] transition-colors",
+              "px-3 py-1.5 pointer-coarse:py-2.5 rounded-lg text-[13px] transition-colors",
               tab === value
                 ? "bg-secondary text-foreground font-medium"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -271,7 +271,7 @@ function FollowUpCard({
       <button
         type="button"
         onClick={onToggle}
-        className="w-full text-left px-4 py-3.5 flex items-start gap-3 row-lift hover:bg-secondary/40"
+        className="w-full text-left px-4 py-3.5 pointer-coarse:py-4 flex items-start gap-3 row-lift hover:bg-secondary/40"
       >
         <span
           aria-hidden
@@ -328,7 +328,7 @@ function FollowUpCard({
       {expanded && (
         <div className="border-t border-border px-4 py-4 resolve">
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <span className="label">
                 {row.drafted_at ? "Drafted for you" : "No draft yet"}
               </span>
@@ -414,7 +414,7 @@ function FollowUpCard({
                   Not now
                 </Button>
                 {snoozeOpen && (
-                  <div className="absolute left-0 top-full z-20 mt-1 w-40 rounded-lg border border-border bg-popover p-1 shadow-[0_1px_2px_oklch(0.215_0.012_90/0.06),0_12px_28px_-8px_oklch(0.215_0.012_90/0.14)]">
+                  <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-border bg-popover p-1 shadow-[0_1px_2px_oklch(0.215_0.012_90/0.06),0_12px_28px_-8px_oklch(0.215_0.012_90/0.14)]">
                     {SNOOZE_OPTIONS.map((option) => (
                       <button
                         key={option.value}
@@ -425,7 +425,7 @@ function FollowUpCard({
                             `Back ${option.label.toLowerCase()}.`
                           )
                         }
-                        className="w-full rounded-md px-2 py-1.5 text-left text-[12.5px] hover:bg-secondary"
+                        className="w-full rounded-md px-2 py-1.5 pointer-coarse:py-2.5 text-left text-[12.5px] hover:bg-secondary"
                       >
                         {option.label}
                       </button>

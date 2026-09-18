@@ -66,7 +66,7 @@ export function ProposalPreview({
   ).slice(0, 6);
 
   return (
-    <div className="sticky top-8">
+    <div className="lg:sticky lg:top-8">
       <div className="label mb-3">Your proposal</div>
 
       <div
@@ -74,7 +74,7 @@ export function ProposalPreview({
         className="rounded-lg border border-border overflow-hidden shadow-[0_1px_2px_oklch(0.215_0.012_90/0.05),0_18px_36px_-16px_oklch(0.215_0.012_90/0.18)]"
         style={{ background: paper, color: ink }}
       >
-        <div className="px-6 pt-7 pb-6">
+        <div className="px-5 pt-6 pb-5 sm:px-6 sm:pt-7 sm:pb-6">
           <div
             style={{
               fontFamily: type.heading,

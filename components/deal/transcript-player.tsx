@@ -68,7 +68,7 @@ export function TranscriptPlayer({
   // Imported calls and anything recorded before timed transcripts existed.
   if (!segments || segments.length === 0) {
     return (
-      <pre className="rounded-lg border border-border bg-card p-5 text-[12.5px] leading-relaxed whitespace-pre-wrap font-mono text-foreground/80 max-h-[600px] overflow-y-auto">
+      <pre className="rounded-lg border border-border bg-card p-4 sm:p-5 text-[12.5px] leading-relaxed whitespace-pre-wrap break-words font-mono text-foreground/80 max-h-[65dvh] sm:max-h-[600px] overflow-y-auto">
         {text}
       </pre>
     );
@@ -178,7 +178,7 @@ function SyncedTranscript({
   return (
     <div className="space-y-4">
       {audioUrl && (
-        <div className="sticky top-[68px] z-10 rounded-lg border border-border bg-card/95 backdrop-blur px-4 py-3">
+        <div className="sticky top-[68px] z-10 rounded-lg border border-border bg-card/95 backdrop-blur px-3 py-3 sm:px-4">
           <audio
             ref={audioRef}
             src={audioUrl}
@@ -190,12 +190,12 @@ function SyncedTranscript({
             className="hidden"
           />
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:flex-nowrap">
             <button
               type="button"
               onClick={toggle}
               aria-label={playing ? "Pause" : "Play"}
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--brand)] text-[var(--brand-fg)] hover:opacity-90 transition-opacity cursor-pointer"
+              className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--brand)] text-[var(--brand-fg)] hover:opacity-90 transition-opacity cursor-pointer sm:size-9"
             >
               {playing ? (
                 <Pause className="size-4" strokeWidth={2} />
@@ -208,7 +208,7 @@ function SyncedTranscript({
               type="button"
               onClick={() => nudge(-10)}
               aria-label="Back 10 seconds"
-              className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="grid size-9 place-items-center rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer sm:size-auto"
             >
               <Rewind className="size-4" strokeWidth={1.75} />
             </button>
@@ -216,7 +216,7 @@ function SyncedTranscript({
               type="button"
               onClick={() => nudge(10)}
               aria-label="Forward 10 seconds"
-              className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="grid size-9 place-items-center rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer sm:size-auto"
             >
               <FastForward className="size-4" strokeWidth={1.75} />
             </button>
@@ -229,17 +229,17 @@ function SyncedTranscript({
               value={time}
               onChange={(e) => seekTo(parseFloat(e.target.value))}
               aria-label="Seek"
-              className="flex-1 h-1 accent-[var(--brand)] cursor-pointer"
+              className="order-last h-6 w-full basis-full accent-[var(--brand)] cursor-pointer sm:order-none sm:h-1 sm:w-auto sm:flex-1 sm:basis-auto"
             />
 
-            <span className="text-[11.5px] tabular-nums text-muted-foreground shrink-0">
+            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground shrink-0 sm:ml-0">
               {fmt(time)} / {fmt(duration)}
             </span>
 
             <button
               type="button"
               onClick={cycleSpeed}
-              className="text-[11.5px] tabular-nums text-muted-foreground hover:text-foreground transition-colors w-9 text-right cursor-pointer"
+              className="h-9 w-10 rounded-md text-right text-[11.5px] tabular-nums text-muted-foreground hover:text-foreground transition-colors cursor-pointer sm:h-auto sm:w-9"
             >
               {speed}×
             </button>
@@ -252,7 +252,7 @@ function SyncedTranscript({
         onScroll={() => {
           lastManualScroll.current = Date.now();
         }}
-        className="rounded-lg border border-border bg-card divide-y divide-border max-h-[560px] overflow-y-auto"
+        className="rounded-lg border border-border bg-card divide-y divide-border max-h-[65dvh] overflow-y-auto sm:max-h-[560px]"
       >
         {segments.map((s, i) => (
           <button

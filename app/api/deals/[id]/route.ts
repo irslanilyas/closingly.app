@@ -47,7 +47,6 @@ export async function PATCH(
       "decision_maker",
       "fit_score",
       "stage",
-      "notes",
       "proposed_amount",
       "estimated_hours",
       "start_date",

@@ -55,7 +55,7 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium mb-2">
           Headline
         </div>
@@ -126,8 +126,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <div className="flex items-center justify-between mb-2.5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-2.5">
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
           {title}
         </div>

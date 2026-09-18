@@ -16,6 +16,11 @@ export interface NavItem {
   Icon: LucideIcon;
   /** Read by the topbar so the page never has to repeat its own name. */
   section: string;
+  /**
+   * On the bottom bar below the rail breakpoint. Everything that is not lives
+   * in the account menu there, so the bar holds only the places work happens.
+   */
+  bar: boolean;
 }
 
 /**
@@ -24,22 +29,12 @@ export interface NavItem {
  * you, and settings sit at the end because they are visited once.
  */
 const DESTINATIONS: NavItem[] = [
-  { href: "/", label: "Dashboard", Icon: LayoutDashboard, section: "Dashboard" },
-  { href: "/meetings", label: "Meetings", Icon: Mic, section: "Meetings" },
-  { href: "/pipeline", label: "Pipeline", Icon: Columns3, section: "Pipeline" },
-  {
-    href: "/follow-ups",
-    label: "Follow-ups",
-    Icon: Send,
-    section: "Follow-ups",
-  },
-  {
-    href: "/intelligence",
-    label: "Intelligence",
-    Icon: LineChart,
-    section: "Intelligence",
-  },
-  { href: "/settings", label: "Account", Icon: Settings2, section: "Account" },
+  { href: "/", label: "Dashboard", Icon: LayoutDashboard, section: "Dashboard", bar: true },
+  { href: "/meetings", label: "Meetings", Icon: Mic, section: "Meetings", bar: true },
+  { href: "/pipeline", label: "Pipeline", Icon: Columns3, section: "Pipeline", bar: true },
+  { href: "/follow-ups", label: "Follow-ups", Icon: Send, section: "Follow-ups", bar: true },
+  { href: "/intelligence", label: "Intelligence", Icon: LineChart, section: "Intelligence", bar: true },
+  { href: "/settings", label: "Account", Icon: Settings2, section: "Account", bar: false },
 ];
 
 /** Internal build log. Founders only — not a beta tester's concern. */
@@ -48,6 +43,7 @@ const PROGRESS: NavItem = {
   label: "Progress",
   Icon: Hammer,
   section: "Progress",
+  bar: false,
 };
 
 export function navFor(email: string | null | undefined): NavItem[] {

@@ -185,8 +185,8 @@ function PriceCard({
   const currency = result.currency ?? "USD";
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
-      <div className="flex items-baseline justify-between mb-5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 sm:mb-5">
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
           Recommended price
         </div>
@@ -199,19 +199,28 @@ function PriceCard({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 sm:gap-6">
-        <PricePill label="Low" amount={result.price_low} currency={currency} />
-        <PricePill
-          label="Mid"
-          amount={result.price_mid}
-          currency={currency}
-          headline
-        />
-        <PricePill label="High" amount={result.price_high} currency={currency} />
+      {/* Mid first on a phone: the number to quote on its own line, the
+          range side by side beneath it. Three equal columns left ~90px for a
+          figure that can run to "PKR 1,250,000". */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
+        <div className="col-span-2 sm:order-2 sm:col-span-1">
+          <PricePill
+            label="Mid"
+            amount={result.price_mid}
+            currency={currency}
+            headline
+          />
+        </div>
+        <div className="sm:order-1">
+          <PricePill label="Low" amount={result.price_low} currency={currency} />
+        </div>
+        <div className="sm:order-3">
+          <PricePill label="High" amount={result.price_high} currency={currency} />
+        </div>
       </div>
 
       {result.confidence && (
-        <div className="mt-6 flex flex-wrap items-center gap-2">
+        <div className="mt-5 flex flex-wrap items-center gap-2 sm:mt-6">
           <span
             className={`text-[10.5px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full border font-medium ${
               result.confidence === "high"
@@ -253,7 +262,7 @@ function PricePill({
       <div
         className={`tabular-nums tracking-tight font-medium ${
           headline
-            ? "text-[24px] sm:text-[30px] text-[var(--brand)]"
+            ? "text-[28px] sm:text-[30px] text-[var(--brand)]"
             : "text-[17px] sm:text-[19px] text-foreground/80"
         }`}
       >
@@ -266,7 +275,7 @@ function PricePill({
 function ReasoningCard({ result }: { result: Partial<PricingResult> | null }) {
   if (!result?.reasoning?.length) return null;
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
       <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-4 font-medium">
         Reasoning
       </div>

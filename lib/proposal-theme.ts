@@ -147,8 +147,8 @@ function isLight(hex: string): boolean {
 const FONT_STACKS: Record<FontChoice, string> = {
   sans: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
   serif: "var(--font-serif), ui-serif, Georgia, serif",
-  display: "var(--font-display), var(--font-serif), ui-serif, Georgia, serif",
-  mono: "var(--font-geist-mono), ui-monospace, monospace",
+  display: "var(--font-proposal-display), var(--font-serif), ui-serif, Georgia, serif",
+  mono: "var(--font-mono), ui-monospace, monospace",
 };
 
 const DENSITY: Record<Density, { gap: string; body: string; lead: string }> = {

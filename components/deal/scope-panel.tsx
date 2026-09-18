@@ -45,7 +45,7 @@ export function ScopePanel({ dealId }: { dealId: string }) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <label className="text-[11.5px] uppercase tracking-[0.1em] font-medium text-muted-foreground">
             Agreed scope
           </label>
@@ -140,7 +140,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
 
   return (
     <div className="space-y-4">
-      <div className={`rounded-md border p-6 flex items-center gap-4 ${config.cls}`}>
+      <div className={`rounded-md border p-4 sm:p-6 flex items-center gap-3.5 sm:gap-4 ${config.cls}`}>
         <div className="size-10 rounded-full bg-background/60 flex items-center justify-center shrink-0">
           <config.Icon className="size-5" strokeWidth={1.5} />
         </div>
@@ -193,8 +193,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <div className="flex items-center justify-between mb-2.5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-2.5">
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
           {title}
         </div>

@@ -48,7 +48,7 @@ export default function InsightsPage() {
         description="Learned from your own closed deals and committed hours — not generic advice."
       />
 
-      <div className="space-y-12 max-w-[900px]">
+      <div className="space-y-10 sm:space-y-12 max-w-[900px]">
         <section>
           <SectionTitle>Needs attention</SectionTitle>
           {attention === null ? (
@@ -63,14 +63,14 @@ export default function InsightsPage() {
                 <Link
                   key={d.id}
                   href={`/pipeline/${d.id}`}
-                  className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-secondary/50 transition-colors group"
+                  className="flex items-center justify-between gap-3 px-4 py-3.5 sm:gap-4 sm:px-5 hover:bg-secondary/50 transition-colors group"
                 >
                   <div className="min-w-0">
                     <div className="text-[13px] font-medium truncate">
                       {d.client_name ?? "Unnamed"}
                       {d.client_company ? ` — ${d.client_company}` : ""}
                     </div>
-                    <div className="text-[11.5px] text-muted-foreground truncate mt-0.5">
+                    <div className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-muted-foreground sm:truncate">
                       {d.health.reasons[0]}
                     </div>
                   </div>
@@ -113,17 +113,17 @@ export default function InsightsPage() {
 
               {winLoss.by_template.length > 0 && (
                 <div className="rounded-lg border border-border bg-card overflow-hidden">
-                  <div className="px-5 py-3 border-b border-border text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
+                  <div className="px-4 py-3 sm:px-5 border-b border-border text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
                     Win rate by proposal template
                   </div>
                   <div className="divide-y divide-border">
                     {winLoss.by_template.map((t) => (
                       <div
                         key={t.template_id}
-                        className="flex items-center justify-between px-5 py-3"
+                        className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5"
                       >
-                        <div className="text-[13px]">{t.template_name}</div>
-                        <div className="flex items-center gap-3">
+                        <div className="min-w-0 text-[13px]">{t.template_name}</div>
+                        <div className="flex shrink-0 items-center gap-3">
                           <span className="text-[11.5px] text-muted-foreground tabular-nums">
                             {t.won}W / {t.lost}L
                           </span>
@@ -153,7 +153,7 @@ export default function InsightsPage() {
                   hours or dates — add them in Details to include here.
                 </p>
               )}
-              <div className="rounded-lg border border-border bg-card p-5 space-y-2.5">
+              <div className="rounded-lg border border-border bg-card p-4 sm:p-5 space-y-2.5">
                 {capacity.weeks.map((w) => {
                   const pct = Math.min(
                     100,
@@ -161,7 +161,7 @@ export default function InsightsPage() {
                   );
                   return (
                     <div key={w.week_start} className="flex items-center gap-3">
-                      <div className="w-16 shrink-0 text-[11px] text-muted-foreground tabular-nums">
+                      <div className="w-12 shrink-0 text-[11px] text-muted-foreground tabular-nums sm:w-16">
                         {format(parseISO(w.week_start), "MMM d")}
                       </div>
                       <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
@@ -177,7 +177,7 @@ export default function InsightsPage() {
                       </div>
                       <div
                         className={cn(
-                          "w-24 shrink-0 text-[11px] text-right tabular-nums",
+                          "w-[76px] shrink-0 text-[11px] text-right tabular-nums sm:w-24",
                           w.over_capacity
                             ? "text-destructive font-medium"
                             : "text-muted-foreground"
@@ -205,7 +205,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function EmptyCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card px-6 py-10 text-center">
+    <div className="rounded-lg border border-border bg-card px-5 py-8 sm:px-6 sm:py-10 text-center">
       <p className="text-[13px] text-muted-foreground max-w-[380px] mx-auto leading-relaxed">
         {children}
       </p>
@@ -228,7 +228,7 @@ function StageCard({
   };
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
       <div className="flex items-baseline justify-between mb-4">
         <span
           className={cn(
@@ -263,7 +263,7 @@ function StageCard({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-3">
       <span className="text-[12px] text-muted-foreground">{label}</span>
       <span className="text-[13px] font-medium tabular-nums">{value}</span>
     </div>

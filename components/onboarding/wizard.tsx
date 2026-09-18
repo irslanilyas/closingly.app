@@ -172,12 +172,12 @@ export function OnboardingWizard({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="h-[68px] shrink-0 flex items-center justify-between px-5 sm:px-8">
+      <header className="h-[64px] sm:h-[68px] shrink-0 flex items-center justify-between gap-4 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] sm:px-8">
         <Wordmark href={null} />
         <Progress step={step} />
       </header>
 
-      <main className="flex-1 px-5 sm:px-8 pb-16">
+      <main className="flex-1 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-8 sm:pb-16">
         <div className="mx-auto max-w-[1000px]">
           {step === 0 && <Promise onContinue={() => setStep(1)} />}
 
@@ -299,6 +299,14 @@ export function OnboardingWizard({
                     />
                   </Field>
 
+                  <div className="lg:hidden">
+                    <ProposalPreview
+                      sections={draft.sections}
+                      colorDirection={draft.color_direction}
+                      typographyDirection={draft.typography_direction}
+                    />
+                  </div>
+
                   <Field
                     label="How do you usually price?"
                     hint="A default and a boundary, not a quote. Closingly never prices a deal it hasn't heard."
@@ -317,7 +325,7 @@ export function OnboardingWizard({
                         id="currency"
                         value={draft.currency}
                         onChange={(e) => set("currency", e.target.value as Currency)}
-                        className="h-10 w-full rounded-lg border border-input bg-card px-3 text-[13.5px]"
+                        className="h-10 w-full rounded-lg border border-input bg-card px-3 text-[13.5px] pointer-coarse:h-11"
                       >
                         {CURRENCIES.map((c) => (
                           <option key={c.value} value={c.value}>
@@ -412,11 +420,11 @@ function Screen({
   children: React.ReactNode;
 }) {
   return (
-    <div className="warm-in pt-6 sm:pt-10">
-      <h1 className="text-[30px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
+    <div className="warm-in pt-4 sm:pt-10">
+      <h1 className="text-[28px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
         {title}
       </h1>
-      <p className="mt-3 mb-9 text-[14px] text-muted-foreground leading-relaxed max-w-[58ch] text-pretty">
+      <p className="mt-3 mb-7 sm:mb-9 text-[14px] text-muted-foreground leading-relaxed max-w-[58ch] text-pretty">
         {lede}
       </p>
       {children}
@@ -438,7 +446,7 @@ function Nav({
   busy?: boolean;
 }) {
   return (
-    <div className="mt-10 flex items-center gap-3">
+    <div className="mt-10 flex items-center justify-between gap-3 sm:justify-start">
       <Button variant="ghost" size="lg" onClick={onBack} className="text-[13px]">
         <ArrowLeft strokeWidth={1.6} />
         Back
@@ -485,8 +493,8 @@ const LOOP = [
 
 function Promise({ onContinue }: { onContinue: () => void }) {
   return (
-    <div className="warm-in pt-10 sm:pt-16 max-w-[720px]">
-      <h1 className="text-[34px] sm:text-[44px] leading-[1.06] tracking-[-0.025em]">
+    <div className="warm-in pt-6 sm:pt-16 max-w-[720px]">
+      <h1 className="text-[31px] sm:text-[44px] leading-[1.08] tracking-[-0.025em]">
         A call becomes a priced proposal, without you writing it
       </h1>
       <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed max-w-[54ch] text-pretty">
@@ -494,7 +502,7 @@ function Promise({ onContinue }: { onContinue: () => void }) {
         runs through it.
       </p>
 
-      <div className="mt-10 grid gap-3 sm:grid-cols-2">
+      <div className="mt-8 sm:mt-10 grid gap-2.5 sm:gap-3 sm:grid-cols-2">
         {LOOP.map(({ Icon, title, body }, i) => (
           <div
             key={title}
@@ -516,7 +524,7 @@ function Promise({ onContinue }: { onContinue: () => void }) {
         variant="brand"
         size="lg"
         onClick={onContinue}
-        className="mt-9 text-[13.5px] px-4"
+        className="mt-8 sm:mt-9 w-full text-[13.5px] px-4 sm:w-auto"
       >
         Set it up
         <ArrowRight strokeWidth={1.8} />
@@ -547,7 +555,7 @@ function Calls({
   onFinish: (status: "connected" | "skipped") => void;
 }) {
   return (
-    <div className="warm-in pt-6 sm:pt-10 max-w-[620px]">
+    <div className="warm-in pt-4 sm:pt-10 max-w-[620px]">
       {generating && (
         <div className="mb-8 flex items-start gap-3 rounded-lg wash border border-brand/25 px-4 py-3">
           <Loader2 className="size-4 mt-0.5 shrink-0 animate-spin text-brand" />
@@ -563,7 +571,7 @@ function Calls({
         </div>
       )}
 
-      <h1 className="text-[30px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
+      <h1 className="text-[28px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
         Last thing: your calls
       </h1>
       <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed text-pretty">
@@ -572,7 +580,7 @@ function Calls({
           : "Calendar access didn't come through at sign-in. You can reconnect from Account whenever you want. Nothing here depends on it."}
       </p>
 
-      <div className="mt-7 panel p-5">
+      <div className="mt-7 panel p-4 sm:p-5">
         <div className="flex items-start gap-3">
           {calendarConnected ? (
             <CalendarCheck className="size-4 mt-0.5 shrink-0 text-brand" strokeWidth={1.6} />
@@ -602,7 +610,7 @@ function Calls({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center gap-3">
+      <div className="mt-8 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <Button
           variant="brand"
           size="lg"

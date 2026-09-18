@@ -162,7 +162,7 @@ export function NotificationSettings() {
               disabled={saving}
               onClick={() => save({ ...prefs, email_digest: option.value })}
               className={cn(
-                "rounded-[7px] px-3 py-1.5 text-[12.5px] transition-colors",
+                "rounded-[7px] px-3 py-1.5 pointer-coarse:px-4 pointer-coarse:py-2 text-[12.5px] transition-colors",
                 prefs.email_digest === option.value
                   ? "bg-secondary text-foreground font-medium"
                   : "text-muted-foreground hover:text-foreground"

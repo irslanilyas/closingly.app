@@ -189,14 +189,14 @@ export function NeedsYou() {
   if (!state || state.rows.length === 0) return null;
 
   return (
-    <section className="mb-9">
+    <section className="mb-8 sm:mb-9">
       <div className="label mb-2.5">Needs you</div>
       <div className="panel divide-y divide-border overflow-hidden">
         {state.rows.map((row) => (
           <Link
             key={row.key}
             href={row.href}
-            className="group flex items-center gap-3 px-4 py-3 row-lift hover:bg-secondary/50"
+            className="group flex items-center gap-3 px-4 py-3 pointer-coarse:py-3.5 row-lift hover:bg-secondary/50"
           >
             <RowIcon icon={row.icon} urgent={row.urgent} />
 
@@ -215,6 +215,13 @@ export function NeedsYou() {
               {row.action}
               <ArrowRight className="size-3" strokeWidth={1.8} />
             </span>
+            {/* No room for the action's words on a phone; the arrow still
+                says the row goes somewhere. */}
+            <ArrowRight
+              aria-hidden
+              className="size-3.5 shrink-0 text-muted-foreground sm:hidden"
+              strokeWidth={1.8}
+            />
           </Link>
         ))}
       </div>

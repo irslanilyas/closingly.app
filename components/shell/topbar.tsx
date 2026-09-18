@@ -1,16 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,26 +13,30 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "./notification-bell";
 import { CommandSearch } from "./command-search";
-import { NavList } from "./sidebar";
 import { Wordmark } from "./wordmark";
 import { navFor, sectionFor } from "./nav";
-import { Menu, LogOut, Settings2 } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 /**
- * The bar above the work. It names where you are and carries the two controls
+ * The bar above the work. It names where you are and carries the controls
  * that belong to the person rather than the page.
  *
  * Search is a trigger rather than an inline field: an always-visible empty
  * input on every screen is the most reliable way to make a product look like a
  * template, and the modal is what the keyboard shortcut opens anyway.
+ *
+ * Below the rail breakpoint the bottom bar carries navigation, so this bar
+ * carries the wordmark instead of the section name, and everything that is
+ * not a destination (account, theme, the founders' build log) folds into the
+ * account menu rather than crowding a 375px row.
  */
 export function Topbar({ email }: { email: string }) {
   const path = usePathname();
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const items = navFor(email);
   const section = sectionFor(path, items);
+  const extras = items.filter((item) => !item.bar);
   const initial = (email.trim()[0] ?? "?").toUpperCase();
 
   const onLogout = async () => {
@@ -52,44 +48,35 @@ export function Topbar({ email }: { email: string }) {
 
   return (
     <header className="sticky top-0 z-20 h-[60px] shrink-0 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Mobile: the rail is hidden, so the wordmark and menu live here. */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Open navigation"
-            className="lg:hidden size-9"
-          >
-            <Menu className="size-5" strokeWidth={1.5} />
-          </Button>
+      <div className="h-full flex items-center justify-between gap-3 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:pl-[max(1.5rem,env(safe-area-inset-left))] sm:pr-[max(1.5rem,env(safe-area-inset-right))] lg:px-8">
+        <div className="flex items-center min-w-0">
           <div className="lg:hidden min-w-0">
             <Wordmark />
           </div>
-
           <span className="hidden lg:block text-[13px] font-medium tracking-tight truncate">
             {section}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <CommandSearch />
           <NotificationBell />
-          <ThemeToggle />
+          <ThemeToggle className="hidden lg:flex" />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
                 aria-label="Account menu"
-                className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-[12px] font-medium text-secondary-foreground transition-colors hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_7%)]"
+                className="grid size-10 shrink-0 place-items-center rounded-full lg:size-8"
               >
-                {initial}
+                <span className="grid size-8 place-items-center rounded-full bg-secondary text-[12px] font-medium text-secondary-foreground transition-colors hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_7%)]">
+                  {initial}
+                </span>
               </button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="min-w-[13rem]">
+            <DropdownMenuContent align="end" className="w-[15rem]">
               <div className="px-2 py-1.5">
                 <div className="text-[12.5px] truncate">{email}</div>
                 <div className="text-[11.5px] text-muted-foreground">
@@ -97,12 +84,31 @@ export function Topbar({ email }: { email: string }) {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  <Settings2 strokeWidth={1.6} />
-                  Account settings
-                </Link>
-              </DropdownMenuItem>
+
+              {extras.map(({ href, label, Icon }) => (
+                <DropdownMenuItem
+                  key={href}
+                  asChild
+                  // The rail already lists these on desktop; only the settings
+                  // shortcut has always lived here at every width.
+                  className={href === "/settings" ? undefined : "lg:hidden"}
+                >
+                  <Link href={href}>
+                    <Icon strokeWidth={1.6} />
+                    {href === "/settings" ? "Account settings" : label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+
+              <div className="lg:hidden">
+                <DropdownMenuSeparator />
+                <div className="flex items-center justify-between gap-3 px-2 py-1.5">
+                  <span className="text-[13px]">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+
+              <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={onLogout}>
                 <LogOut strokeWidth={1.6} />
                 Sign out
@@ -111,21 +117,6 @@ export function Topbar({ email }: { email: string }) {
           </DropdownMenu>
         </div>
       </div>
-
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="w-[272px] p-0 flex flex-col">
-          <SheetHeader className="h-[60px] justify-center border-b border-border">
-            <SheetTitle asChild>
-              <div>
-                <Wordmark href={null} />
-              </div>
-            </SheetTitle>
-          </SheetHeader>
-          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin p-3">
-            <NavList items={items} onNavigate={() => setMenuOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
     </header>
   );
 }

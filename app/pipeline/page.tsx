@@ -191,7 +191,7 @@ export function PipelineView() {
                 onClick={() => setView(v.value)}
                 aria-label={v.label}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1.5 text-[12.5px] transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1.5 pointer-coarse:px-3.5 pointer-coarse:py-2 text-[12.5px] transition-colors",
                   view === v.value
                     ? "bg-secondary font-medium text-foreground"
                     : "text-muted-foreground hover:text-foreground"
@@ -205,7 +205,7 @@ export function PipelineView() {
         }
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         <Stat label="Open deals" value={String(stats.count)} />
         <Stat label="In play" value={formatCurrency(stats.value)} />
         <Stat
@@ -221,7 +221,7 @@ export function PipelineView() {
       </div>
 
       <div className="mb-5 flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[220px] flex-1 sm:max-w-[320px]">
+        <div className="relative min-w-[170px] flex-1 sm:max-w-[320px]">
           <Search
             className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
             strokeWidth={1.7}
@@ -230,7 +230,7 @@ export function PipelineView() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Filter by client or what they need"
-            className="h-9 pl-8 text-[13px]"
+            className="h-9 pl-8 text-[13px] pointer-coarse:h-10"
           />
         </div>
 
@@ -238,7 +238,7 @@ export function PipelineView() {
           type="button"
           onClick={() => setNeedsAction((v) => !v)}
           className={cn(
-            "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-[12.5px] transition-colors",
+            "inline-flex h-9 pointer-coarse:h-10 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-[12.5px] transition-colors",
             needsAction
               ? "border-brand bg-brand-soft/60 text-foreground"
               : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -255,7 +255,7 @@ export function PipelineView() {
         <EmptyPipeline filtered={!!q.trim() || needsAction} />
       ) : view === "board" ? (
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          <div className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 scrollbar-none sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:-mx-8 lg:snap-none lg:px-8 lg:scrollbar-thin">
             <div className="flex min-w-max gap-3">
               {STAGE_ORDER.map((stage) => (
                 <Column
@@ -304,7 +304,7 @@ function Column({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex w-[288px] shrink-0 flex-col rounded-xl border p-2.5 transition-colors",
+        "flex w-[min(288px,calc(100vw-56px))] shrink-0 snap-start flex-col rounded-xl border p-2.5 transition-colors",
         isOver
           ? "border-brand bg-brand-soft/40"
           : "border-border bg-secondary/40"
@@ -382,18 +382,18 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className="panel p-3.5">
-      <div className="label">{label}</div>
+    <div className="panel min-w-0 p-3 sm:p-3.5">
+      <div className="label truncate">{label}</div>
       <div
         className={cn(
-          "mt-1.5 text-[22px] leading-none tabular-nums tracking-tight",
+          "mt-1.5 text-[19px] sm:text-[22px] leading-none tabular-nums tracking-tight",
           accent && "text-brand"
         )}
       >
         {value}
       </div>
       {hint && (
-        <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>
+        <div className="mt-1 hidden text-[11px] text-muted-foreground sm:block">{hint}</div>
       )}
     </div>
   );
@@ -403,7 +403,7 @@ function BoardSkeleton() {
   return (
     <div className="flex gap-3 overflow-hidden" aria-hidden>
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="w-[288px] shrink-0 space-y-2">
+        <div key={i} className="w-[min(288px,calc(100vw-56px))] shrink-0 space-y-2">
           <Skeleton className="h-5 w-28 rounded" />
           <Skeleton className="h-[104px] w-full rounded-xl" />
           <Skeleton className="h-[104px] w-full rounded-xl" />

@@ -229,7 +229,7 @@ export default function MeetingsPage() {
         title="Your calls"
         description="Switch the notetaker on for a meeting and it will join, record, and turn the conversation into a deal. Everything it has already read is kept in History."
         right={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ImportCallDialog onImported={load} />
             <Button
               onClick={sync}
@@ -256,7 +256,7 @@ export default function MeetingsPage() {
               type="button"
               onClick={() => setTab(t.value)}
               className={cn(
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] transition-colors",
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 pointer-coarse:py-2.5 text-[13px] transition-colors",
                 tab === t.value
                   ? "bg-secondary font-medium text-foreground"
                   : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
@@ -334,8 +334,8 @@ function MeetingRow({
   const canArm = hasLink && !started;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3.5">
-      <div className="w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground">
+    <div className="flex items-center gap-3 px-4 py-3.5 sm:gap-4">
+      <div className="hidden w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground sm:block">
         {formatTime(meeting.starts_at)}
       </div>
 
@@ -344,6 +344,9 @@ function MeetingRow({
           {meeting.title ?? "Untitled meeting"}
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted-foreground">
+          <span className="tabular-nums sm:hidden">
+            {formatTime(meeting.starts_at)}
+          </span>
           {hasLink ? (
             <span className="inline-flex items-center gap-1.5">
               <Video className="size-3" strokeWidth={1.5} />
@@ -401,8 +404,8 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
     : null;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3.5">
-      <div className="w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground">
+    <div className="flex items-center gap-3 px-4 py-3.5 sm:gap-4">
+      <div className="hidden w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground sm:block">
         {formatTime(meeting.starts_at)}
       </div>
 
@@ -412,6 +415,9 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
         </div>
 
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px]">
+          <span className="tabular-nums text-muted-foreground sm:hidden">
+            {formatTime(meeting.starts_at)}
+          </span>
           {processing ? (
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
               <Loader2 className="size-3 animate-spin" strokeWidth={1.75} />
@@ -452,14 +458,15 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
         {meeting.deal_id ? (
           <Link
             href={`/pipeline/${meeting.deal_id}`}
-            className="inline-flex items-center gap-1 text-[12.5px] text-muted-foreground transition-colors hover:text-brand"
+            aria-label="View deal"
+            className="-m-2 inline-flex items-center gap-1 rounded-md p-2 text-[12.5px] text-muted-foreground transition-colors hover:text-brand sm:m-0 sm:p-0"
           >
             <FileText className="size-3.5" strokeWidth={1.6} />
             <span className="hidden sm:inline">View deal</span>
             <ArrowRight className="size-3" strokeWidth={1.8} />
           </Link>
         ) : recorded ? (
-          <span className="text-[11.5px] text-muted-foreground">
+          <span className="hidden text-[11.5px] text-muted-foreground sm:inline">
             No deal from this one
           </span>
         ) : null}
@@ -488,15 +495,20 @@ function NotCallsList({ meetings }: { meetings: Meeting[] }) {
       <div className="panel divide-y divide-border overflow-hidden">
         {meetings.map((m) => (
           <div key={m.id} className="flex items-center gap-4 px-4 py-3">
-            <div className="w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground">
+            <div className="hidden w-[64px] shrink-0 text-[12.5px] tabular-nums text-muted-foreground sm:block">
               {formatTime(m.starts_at)}
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] text-muted-foreground">
                 {m.title ?? "Untitled"}
               </div>
+              <div className="mt-0.5 text-[11.5px] leading-relaxed text-muted-foreground/80 sm:hidden">
+                <span className="tabular-nums">{formatTime(m.starts_at)}</span>
+                {" · "}
+                {m.not_call_reason ?? "Not a call"}
+              </div>
             </div>
-            <div className="shrink-0 text-[11.5px] text-muted-foreground">
+            <div className="hidden max-w-[45%] shrink-0 text-right text-[11.5px] text-muted-foreground sm:block">
               {m.not_call_reason ?? "Not a call"}
             </div>
           </div>

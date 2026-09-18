@@ -39,11 +39,11 @@ export default function ProgressPage() {
         description="A running log, not a pitch — updated whenever something ships."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-[900px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 max-w-[900px]">
         {PROGRESS_LOG.map((section) => (
           <div
             key={section.title}
-            className="rounded-lg border border-border bg-card p-5"
+            className="rounded-lg border border-border bg-card p-4 sm:p-5"
           >
             <div className="flex items-center gap-2.5 mb-4">
               <section.Icon

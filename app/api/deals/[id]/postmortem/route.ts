@@ -3,6 +3,7 @@ import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { postmortemPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { notesForPrompt } from "@/lib/deal-notes";
 
 
 const RATE_LIMIT = { action: "deal_postmortem", limit: 20, windowMinutes: 60 };
@@ -32,7 +33,7 @@ export async function POST(
   if (deal.stage !== "lost")
     return new Response("Deal isn't marked lost", { status: 400 });
 
-  const dealContext = `Client: ${deal.client_name ?? "—"} at ${deal.client_company ?? "—"}. Pain: ${deal.pain_point ?? "n/a"}. Budget signal: ${deal.budget_signal ?? "n/a"}. Timeline: ${deal.timeline ?? "n/a"}. Proposed amount: ${deal.proposed_amount ?? "n/a"}. Notes: ${deal.notes ?? "n/a"}.`;
+  const dealContext = `Client: ${deal.client_name ?? "—"} at ${deal.client_company ?? "—"}. Pain: ${deal.pain_point ?? "n/a"}. Budget signal: ${deal.budget_signal ?? "n/a"}. Timeline: ${deal.timeline ?? "n/a"}. Proposed amount: ${deal.proposed_amount ?? "n/a"}. Notes: ${await notesForPrompt(supabase, id, deal.notes, "private")}.`;
 
   const encoder = new TextEncoder();
   let full = "";

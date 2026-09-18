@@ -87,7 +87,7 @@ export function ChoiceGrid<T extends string>({
             aria-checked={selected}
             onClick={() => onChange(option.value as T)}
             className={cn(
-              "text-left rounded-lg border px-3.5 py-3 row-lift",
+              "text-left rounded-lg border px-3.5 py-3 pointer-coarse:py-3.5 row-lift",
               selected
                 ? "border-brand bg-brand-soft/60 text-foreground"
                 : "border-border bg-card hover:border-foreground/25"
@@ -152,7 +152,7 @@ export function SectionPicker({
             aria-disabled={isLocked}
             onClick={() => toggle(option.value)}
             className={cn(
-              "text-left rounded-lg border px-3.5 py-3 row-lift",
+              "text-left rounded-lg border px-3.5 py-3 pointer-coarse:py-3.5 row-lift",
               checked
                 ? "border-brand bg-brand-soft/60"
                 : "border-border bg-card hover:border-foreground/25",

@@ -113,6 +113,18 @@ export default function DealDetailPage({
               <div className="mt-1 text-[14px] text-muted-foreground">
                 {deal.client_company ?? "—"}
               </div>
+              <div className="mt-2.5 flex items-baseline gap-2.5 lg:hidden">
+                <span className="text-[20px] font-medium tabular-nums tracking-tight text-[var(--brand)]">
+                  {deal.proposed_amount
+                    ? formatCurrency(deal.proposed_amount)
+                    : "No value yet"}
+                </span>
+                {deal.fit_score != null && (
+                  <span className="text-[12px] text-muted-foreground">
+                    Fit {deal.fit_score}/10
+                  </span>
+                )}
+              </div>
             </div>
             <Select
               value={deal.stage}
@@ -135,19 +147,19 @@ export default function DealDetailPage({
             </Select>
           </div>
 
-          <div className="text-[11.5px] text-muted-foreground tabular-nums mb-8">
+          <div className="text-[11.5px] text-muted-foreground tabular-nums mb-6 sm:mb-8">
             Created {format(new Date(deal.created_at), "MMM d, yyyy")}
           </div>
 
           <Tabs defaultValue="proposal">
-            <TabsList>
+            <div className="-mx-4 -my-1 overflow-x-auto px-4 py-1 scrollbar-none sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+            <TabsList className="min-w-max">
               <TabsTrigger value="proposal">Proposal</TabsTrigger>
               <TabsTrigger value="pricing">Pricing</TabsTrigger>
               <TabsTrigger value="followups">Follow-ups</TabsTrigger>
               <TabsTrigger value="scope">Scope</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="transcript">Transcript</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
               {deal.stage === "lost" && (
                 <TabsTrigger value="wrapup">Post-mortem</TabsTrigger>
               )}
@@ -155,6 +167,7 @@ export default function DealDetailPage({
                 <TabsTrigger value="wrapup">Case Study</TabsTrigger>
               )}
             </TabsList>
+            </div>
 
             <TabsContent value="proposal" className="mt-6">
               <ProposalPanel dealId={deal.id} />
@@ -183,15 +196,6 @@ export default function DealDetailPage({
               />
             </TabsContent>
 
-            <TabsContent value="notes" className="mt-6">
-              <AutosaveTextarea
-                value={deal.notes ?? ""}
-                onSave={(notes) => patch({ notes })}
-                placeholder="Private notes — saved when you click away."
-                className="min-h-[280px]"
-              />
-            </TabsContent>
-
             {deal.stage === "lost" && (
               <TabsContent value="wrapup" className="mt-6">
                 <PostmortemPanel dealId={deal.id} />
@@ -207,7 +211,7 @@ export default function DealDetailPage({
         </div>
 
         <aside className="space-y-8">
-          <section>
+          <section className="hidden lg:block">
             <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground mb-3 font-medium">
               Value
             </div>
@@ -225,7 +229,7 @@ export default function DealDetailPage({
 
           <ClientHealthCard dealId={deal.id} stage={deal.stage} />
 
-          <DealNotes dealId={deal.id} />
+          <DealNotes dealId={deal.id} legacyNote={deal.notes} />
 
           {deal.competitor_mentioned && (
             <section>
@@ -326,7 +330,7 @@ function DetailsPanel({
   onPatch: (p: Partial<Deal>) => void;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card px-5">
+    <div className="rounded-lg border border-border bg-card px-4 sm:px-5">
       {DETAIL_FIELDS.map((field) => (
         <Row key={field.key} label={field.label}>
           {field.multiline ? (

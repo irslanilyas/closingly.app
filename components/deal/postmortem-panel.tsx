@@ -89,7 +89,7 @@ function Result({ data }: { data: Partial<PostmortemResult> | null }) {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
       <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium mb-2.5">
         {title}
       </div>

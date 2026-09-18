@@ -81,7 +81,7 @@ export default function SettingsPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "ros-export.json";
+      a.download = "closingly-export.json";
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -135,7 +135,7 @@ export default function SettingsPage() {
         <section>
           <SectionLabel>Connected accounts</SectionLabel>
           <div className="rounded-md border border-border">
-            <div className="flex items-center justify-between gap-4 px-4 py-4">
+            <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="min-w-0">
                 <div className="text-[13.5px] font-medium">Google</div>
                 <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
@@ -180,7 +180,7 @@ export default function SettingsPage() {
           <SectionLabel>Recording allowance</SectionLabel>
           {usage && (
             <div className="rounded-md border border-border px-4 py-4">
-              <div className="flex items-baseline justify-between mb-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-3">
                 <span className="text-[13.5px] font-medium tabular-nums">
                   {formatHours(usage.used_seconds)} of{" "}
                   {formatHours(usage.limit_seconds)} used
@@ -216,7 +216,7 @@ export default function SettingsPage() {
         <section>
           <SectionLabel>Your data</SectionLabel>
           <div className="rounded-md border border-border px-4 py-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="min-w-0">
                 <div className="text-[13.5px] font-medium">Export everything</div>
                 <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
@@ -244,7 +244,7 @@ export default function SettingsPage() {
         <section>
           <SectionLabel>Danger zone</SectionLabel>
           <div className="rounded-md border border-destructive/30 px-4 py-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="min-w-0">
                 <div className="text-[13.5px] font-medium">Delete account</div>
                 <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">

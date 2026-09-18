@@ -9,7 +9,7 @@ import { Instrument_Serif, Source_Serif_4 } from "next/font/google";
  */
 
 export const displaySerif = Instrument_Serif({
-  variable: "--font-display",
+  variable: "--font-proposal-display",
   subsets: ["latin"],
   weight: "400",
   display: "swap",

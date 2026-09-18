@@ -202,10 +202,10 @@ export default function ProposalPage({
 
   return (
     <AppShellClient>
-      <div className="mx-auto max-w-[680px] mb-8 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-[680px] mb-6 flex items-center justify-between gap-4 sm:mb-8">
         <Link
           href={`/pipeline/${proposal.deal_id}`}
-          className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
+          className="-my-2 flex items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-3.5" strokeWidth={1.5} />
           Back to deal
@@ -217,14 +217,14 @@ export default function ProposalPage({
             setShowHistory((v) => !v);
             if (!showHistory) loadVersions();
           }}
-          className="flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
+          className="-my-2 flex items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
         >
           <History className="size-3.5" strokeWidth={1.5} />
           History
         </button>
       </div>
 
-      <div className="mx-auto max-w-[680px] mb-8">
+      <div className="mx-auto max-w-[680px] mb-6 sm:mb-8">
         <TemplatePicker
           selectedId={proposal.template_id}
           onSelect={applyTemplate}
@@ -285,7 +285,7 @@ export default function ProposalPage({
         authorName={proposal.profiles?.full_name ?? proposal.profiles?.email}
       />
 
-      <div className="mx-auto max-w-[680px] mt-14">
+      <div className="mx-auto max-w-[680px] mt-10 sm:mt-14">
         <SharePanel
           proposalId={proposal.id}
           shareToken={proposal.share_token}
@@ -296,7 +296,7 @@ export default function ProposalPage({
       </div>
 
       {/* Refine box — sticky so it stays reachable on a long proposal. */}
-      <div className="sticky bottom-0 mt-14 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pb-6 pt-4 bg-gradient-to-t from-background via-background to-transparent">
+      <div className="sticky bottom-[var(--mobile-nav-h)] mt-10 -mx-4 px-4 pb-3 pt-4 bg-gradient-to-t from-background via-background to-transparent sm:-mx-6 sm:mt-14 sm:px-6 lg:bottom-0 lg:-mx-8 lg:px-8 lg:pb-6">
         <div className="mx-auto max-w-[680px]">
           <div
             className={cn(
@@ -305,6 +305,7 @@ export default function ProposalPage({
             )}
           >
             <textarea
+              aria-label="Describe a change to the proposal"
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
               onKeyDown={(e) => {
@@ -321,13 +322,13 @@ export default function ProposalPage({
             <Button
               onClick={refine}
               disabled={refining || !instruction.trim()}
-              className="h-8 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0"
+              className="h-8 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0 pointer-coarse:h-10"
             >
               <Sparkles className="size-3.5" strokeWidth={1.5} />
               {refining ? "Working…" : "Refine"}
             </Button>
           </div>
-          <p className="mt-2 px-1 text-[11.5px] text-muted-foreground">
+          <p className="mt-2 hidden px-1 text-[11.5px] text-muted-foreground sm:block">
             Click any text to edit it directly, or describe a change here.
           </p>
         </div>

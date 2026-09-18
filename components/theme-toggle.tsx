@@ -1,7 +1,7 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,14 +11,24 @@ const MODES = [
   { value: "system", Icon: Monitor, label: "System" },
 ] as const;
 
+const noop = () => () => {};
+
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  // The stored theme only exists in the browser. Reading "mounted" from an
+  // external store keeps the server and first client render identical without
+  // a setState-in-effect round trip.
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
 
   if (!mounted) {
-    return <div className={cn("h-8 w-[88px]", className)} />;
+    return (
+      <div
+        className={cn(
+          "h-8 w-[88px] pointer-coarse:h-10 pointer-coarse:w-[112px]",
+          className
+        )}
+      />
+    );
   }
 
   return (
@@ -34,9 +44,10 @@ export function ThemeToggle({ className }: { className?: string }) {
           type="button"
           onClick={() => setTheme(value)}
           aria-label={`Switch to ${label} theme`}
+          aria-pressed={theme === value}
           title={label}
           className={cn(
-            "inline-flex items-center justify-center size-7 rounded transition-colors",
+            "inline-flex items-center justify-center size-7 pointer-coarse:size-9 rounded transition-colors",
             theme === value
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"

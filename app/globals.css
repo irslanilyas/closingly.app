@@ -120,6 +120,15 @@
      a shared export across that boundary becomes a client-reference stub. */
   --rail: 232px;
 
+  /* Bottom bar on phones and tablets. Carries the home-indicator inset so
+     everything that clears the bar clears the device edge too. */
+  --mobile-nav-h: calc(58px + env(safe-area-inset-bottom));
+
+  /* Toasts stack above the Ask button rather than on top of it: the bar plus
+     the button's own height and gap below the rail breakpoint, just the
+     button at desktop. */
+  --toast-bottom: calc(var(--mobile-nav-h) + 72px);
+
   --sidebar: oklch(0.972 0.004 90);
   --sidebar-foreground: oklch(0.215 0.012 90);
   --sidebar-primary: oklch(0.608 0.142 252);
@@ -254,6 +263,36 @@
     text-underline-offset: 0.2em;
     text-decoration-thickness: 1px;
   }
+
+  /* Touch: controls answer the first tap instead of waiting to rule out a
+     double-tap zoom, and the grey system flash is replaced by each control's
+     own pressed state. */
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a, button, [role="button"], label, summary {
+    touch-action: manipulation;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --toast-bottom: 76px;
+  }
+}
+
+/* Unlayered on purpose. Fields across the app set 12-14px through utility
+   classes, and iOS Safari zooms the whole page into any field smaller than
+   16px the moment it is focused, then leaves it zoomed. Cascade layers let an
+   unlayered rule beat every utility regardless of specificity, so this is the
+   one place that guarantees it on touch screens without touching desktop. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
 }
 
 @layer utilities {
@@ -269,7 +308,7 @@
                 0 4px 12px -4px oklch(0.215 0.012 90 / 0.06);
   }
 
-  /* Persimmon wash. Tint only — never a fill competing with the accent. */
+  /* Brand wash. Tint only — never a fill competing with the accent. */
   .wash {
     background: var(--brand-soft);
   }
@@ -295,6 +334,15 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
+  }
+
+  /* Rows that scroll sideways under a thumb (tab strips, the board). The
+     swipe is the affordance; a scrollbar there is desktop chrome. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
 

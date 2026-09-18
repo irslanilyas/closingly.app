@@ -116,7 +116,7 @@ export function SharePanel({
           <Button
             onClick={copy}
             variant="outline"
-            className="h-8 gap-1.5 text-[12px] shrink-0 cursor-pointer"
+            className="h-8 gap-1.5 text-[12px] shrink-0 cursor-pointer pointer-coarse:h-10"
           >
             {copied ? (
               <Check className="size-3" strokeWidth={2} />
@@ -130,7 +130,7 @@ export function SharePanel({
           type="button"
           onClick={revoke}
           disabled={working}
-          className="mt-3 text-[12px] text-muted-foreground hover:text-destructive transition-colors"
+          className="mt-2 py-1 text-[12px] text-muted-foreground hover:text-destructive transition-colors"
         >
           Revoke link
         </button>
@@ -148,7 +148,7 @@ export function SharePanel({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               <Stat label="Opened" value={`${analytics.total_views}×`} />
               <Stat
                 label="Readers"
@@ -183,7 +183,7 @@ export function SharePanel({
                       key={s.section}
                       className="flex items-center gap-3 text-[12.5px]"
                     >
-                      <span className="w-[110px] shrink-0 capitalize">
+                      <span className="w-[92px] shrink-0 truncate capitalize sm:w-[110px]">
                         {s.section.replace(/_/g, " ")}
                       </span>
                       <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">

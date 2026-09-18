@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Fraunces, DM_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
@@ -50,6 +50,22 @@ export const metadata: Metadata = {
   description: "Turn client calls into priced proposals, automatically.",
 };
 
+/**
+ * `viewport-fit: cover` lets the bottom bar paint behind the home indicator
+ * and then pad itself clear of it, instead of the browser leaving a dead band.
+ * The theme colours are the two `--background` tokens, so the browser chrome
+ * on a phone reads as part of the page rather than a grey frame around it.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf8" },
+    { media: "(prefers-color-scheme: dark)", color: "#121517" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +89,12 @@ export default function RootLayout({
             {children}
             <Toaster
               position="bottom-right"
+              offset={{ bottom: "var(--toast-bottom)", right: "20px" }}
+              mobileOffset={{
+                bottom: "var(--toast-bottom)",
+                left: "12px",
+                right: "12px",
+              }}
               toastOptions={{ className: "text-sm" }}
             />
           </QueryProvider>

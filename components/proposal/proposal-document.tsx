@@ -147,15 +147,15 @@ export function ProposalDocument({
         <div
           className={cn(
             theme.investment === "boxed" &&
-              "border border-[var(--p-rule)] rounded-[var(--p-radius)] px-5 py-4",
+              "border border-[var(--p-rule)] rounded-[var(--p-radius)] px-4 py-4 sm:px-5",
             theme.investment === "hero" &&
-              "bg-[var(--p-accent-soft)] rounded-[var(--p-radius)] px-6 py-6 text-center"
+              "bg-[var(--p-accent-soft)] rounded-[var(--p-radius)] px-4 py-5 text-center sm:px-6 sm:py-6"
           )}
         >
           <div
             className={cn(
               "font-medium tracking-tight tabular-nums text-[color:var(--p-accent)] font-[family-name:var(--p-heading-font)]",
-              theme.investment === "hero" ? "text-[40px]" : "text-[26px]"
+              theme.investment === "hero" ? "text-[34px] sm:text-[40px]" : "text-[26px]"
             )}
           >
             <Field
@@ -211,7 +211,7 @@ function Header({
         centered && "text-center",
         theme.header === "rule" && "border-b border-[var(--p-rule)] pb-6",
         theme.header === "block" &&
-          "bg-[var(--p-accent)] text-[color:var(--p-paper)] -mx-6 px-6 py-8 rounded-[var(--p-radius)]"
+          "bg-[var(--p-accent)] text-[color:var(--p-paper)] px-5 py-7 rounded-[var(--p-radius)] sm:-mx-6 sm:px-6 sm:py-8"
       )}
     >
       <div

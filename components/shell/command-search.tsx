@@ -196,11 +196,11 @@ export function CommandSearch() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Search"
-        className="flex h-8 items-center gap-2 rounded-lg border border-border bg-card pl-2.5 pr-2 text-[12.5px] text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+        className="flex size-10 items-center justify-center gap-2 rounded-lg text-[12.5px] text-muted-foreground transition-colors hover:text-foreground sm:h-8 sm:w-auto sm:justify-start sm:border sm:border-border sm:bg-card sm:pl-2.5 sm:pr-2 sm:hover:border-foreground/25 pointer-coarse:sm:h-10"
       >
-        <Search className="size-3.5" strokeWidth={1.7} />
+        <Search className="size-4 sm:size-3.5" strokeWidth={1.7} />
         <span className="hidden sm:inline">Search</span>
-        <kbd className="ml-1 hidden rounded border border-border bg-secondary px-1.5 py-px font-mono text-[10px] leading-[1.4] text-muted-foreground sm:inline">
+        <kbd className="ml-1 hidden rounded border border-border bg-secondary px-1.5 py-px font-mono text-[10px] leading-[1.4] text-muted-foreground sm:inline pointer-coarse:hidden">
           ⌘K
         </kbd>
       </button>
@@ -217,7 +217,7 @@ export function CommandSearch() {
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh] sm:pt-[14vh]"
+            className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[max(12px,env(safe-area-inset-top))] sm:px-4 sm:pt-[14vh]"
             role="dialog"
             aria-modal="true"
             aria-label="Search"
@@ -246,20 +246,29 @@ export function CommandSearch() {
                   }}
                   onKeyDown={onKeyDown}
                   placeholder="Search clients, calls and follow-ups"
-                  className="h-[46px] flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground"
+                  className="h-[52px] min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground sm:h-[46px]"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="shrink-0 rounded px-1 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
+                    className="shrink-0 rounded px-1 py-2 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Clear
                   </button>
                 )}
+                {/* Phones have no Escape key and the backdrop sits behind the
+                    keyboard, so the way out has to be on the panel itself. */}
+                <button
+                  type="button"
+                  onClick={close}
+                  className="-mr-1 shrink-0 rounded px-1.5 py-2 text-[12.5px] font-medium text-brand pointer-fine:hidden"
+                >
+                  Cancel
+                </button>
               </div>
 
-              <div className="max-h-[min(420px,52vh)] overflow-y-auto scrollbar-thin py-1.5">
+              <div className="max-h-[min(420px,52dvh)] overflow-y-auto scrollbar-thin py-1.5">
                 {tooShort ? (
                   <Jumps active={active} onPick={goTo} onHover={setActive} />
                 ) : hits.length === 0 && !loading ? (
@@ -280,7 +289,7 @@ export function CommandSearch() {
                 )}
               </div>
 
-              <div className="flex items-center gap-3.5 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-3.5 border-t border-border px-4 py-2 text-[11px] text-muted-foreground pointer-coarse:hidden">
                 <Hint
                   keys={<CornerDownLeft className="size-3" strokeWidth={1.8} />}
                 >
@@ -335,7 +344,7 @@ function Row({
       onMouseEnter={onHover}
       onClick={onPick}
       className={cn(
-        "mx-1.5 flex w-[calc(100%-12px)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors",
+        "mx-1.5 flex w-[calc(100%-12px)] items-center gap-2.5 rounded-lg px-2.5 py-2 pointer-coarse:py-3 text-left transition-colors",
         activeRow ? "bg-secondary" : "hover:bg-secondary/60",
       )}
     >

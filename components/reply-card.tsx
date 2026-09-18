@@ -10,8 +10,8 @@ export function ReplyCard({
   body: string;
 }) {
   return (
-    <div className="rounded-md border border-border bg-card p-5">
-      <div className="flex items-center justify-between mb-3">
+    <div className="rounded-md border border-border bg-card p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-3">
         <span className="text-[10.5px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
           {tone}
         </span>

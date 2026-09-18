@@ -62,11 +62,11 @@ export function ProposalPanel({ dealId }: { dealId: string }) {
         <Link
           key={proposal.id}
           href={`/proposals/${proposal.id}`}
-          className="group block rounded-lg border border-border bg-card px-5 py-4 hover:border-[var(--brand)]/40 transition-colors"
+          className="group block rounded-lg border border-border bg-card px-4 py-4 sm:px-5 hover:border-[var(--brand)]/40 transition-colors"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[13.5px] font-medium">
                   {proposal.proposal_data?.investment_number ?? "Proposal"}
                 </span>

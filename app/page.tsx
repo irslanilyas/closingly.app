@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
   return (
     <AppShellClient>
-      <div className="mb-8 animate-fade">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-[24px] sm:text-[28px] font-medium tracking-tight leading-tight">
           {greeting()}
         </h1>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
           <div className="space-y-10 min-w-0">
-            <section className="grid grid-cols-3 gap-3 sm:gap-4 stagger">
+            <section className="rounded-lg border border-border bg-card divide-y divide-border sm:grid sm:grid-cols-3 sm:gap-4 sm:divide-y-0 sm:rounded-none sm:border-0 sm:bg-transparent">
               <Stat label="Open deals" value={String(stats.open)} />
               <Stat label="Pipeline" value={formatCurrency(stats.total)} />
               <Stat
@@ -188,7 +188,7 @@ export default function DashboardPage() {
               />
             </section>
 
-            <section className="animate-rise" style={{ animationDelay: "80ms" }}>
+            <section>
               <SectionHead title="Pipeline" href="/pipeline" />
               {stats.open === 0 ? (
                 <EmptyPipeline />
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                         <Link
                           key={stage}
                           href="/pipeline"
-                          className="group flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors focus-visible:outline-none focus-visible:bg-secondary/50"
+                          className="group flex items-center gap-3 px-4 py-3 pointer-coarse:py-3.5 hover:bg-secondary/50 transition-colors focus-visible:outline-none focus-visible:bg-secondary/50"
                         >
                           <span
                             aria-hidden
@@ -231,10 +231,7 @@ export default function DashboardPage() {
             </section>
 
             {shared.length > 0 && (
-              <section
-                className="animate-rise"
-                style={{ animationDelay: "120ms" }}
-              >
+              <section>
                 <SectionHead title="Proposals out" />
                 <div className="rounded-lg border border-border bg-card">
                   <div className="flex items-center gap-5 px-4 py-3.5 border-b border-border">
@@ -261,7 +258,7 @@ export default function DashboardPage() {
                         <Link
                           key={proposal.id}
                           href={`/proposals/${proposal.id}`}
-                          className="group flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors"
+                          className="group flex items-center gap-3 px-4 py-3 pointer-coarse:py-3.5 hover:bg-secondary/50 transition-colors"
                         >
                           <span className="min-w-0 flex-1">
                             <span className="block text-[13px] truncate">
@@ -290,7 +287,7 @@ export default function DashboardPage() {
               </section>
             )}
 
-            <section className="animate-rise" style={{ animationDelay: "160ms" }}>
+            <section>
               <SectionHead title="Today" href="/meetings" />
               {meetings.length === 0 ? (
                 <p className="text-[12.5px] text-muted-foreground">
@@ -321,7 +318,7 @@ export default function DashboardPage() {
                             <span className="relative inline-flex size-1.5 rounded-full bg-[var(--brand)]" />
                           </span>
                           <Video className="size-3" strokeWidth={1.5} />
-                          Agent on
+                          <span className="sr-only sm:not-sr-only">Agent on</span>
                         </span>
                       )}
                     </div>
@@ -342,7 +339,7 @@ export default function DashboardPage() {
             {events.length === 0 ? (
               <p className="text-[12.5px] text-muted-foreground">Nothing yet.</p>
             ) : (
-              <ol className="relative stagger">
+              <ol className="relative">
                 {events.map((event, i) => {
                   const { Icon, label, tone } = describeDealEvent(
                     event,
@@ -422,14 +419,13 @@ function StageBar({
         .map((s) => `${s.count} ${STAGE_LABELS[s.stage]}`)
         .join(", ")}
     >
-      {segments.map(({ stage, count }, i) => (
+      {segments.map(({ stage, count }) => (
         <span
           key={stage}
-          className="animate-grow-x h-full"
+          className="h-full"
           style={{
             width: `${(count / total) * 100}%`,
             background: STAGE_FILL[stage] ?? "var(--muted-foreground)",
-            animationDelay: `${160 + i * 90}ms`,
           }}
         />
       ))}
@@ -449,16 +445,16 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card px-3.5 py-3.5 sm:px-4 lift hover:border-muted-foreground/25">
+    <div className="flex flex-row-reverse items-baseline justify-between gap-4 px-4 py-3 sm:block sm:rounded-lg sm:border sm:border-border sm:bg-card sm:py-3.5 sm:transition-colors sm:hover:border-muted-foreground/25">
       <div
         className={cn(
-          "text-[19px] sm:text-[22px] font-medium tabular-nums tracking-tight leading-none",
+          "text-[17px] sm:text-[22px] font-medium tabular-nums tracking-tight leading-none",
           accent && "text-[var(--brand)]"
         )}
       >
         {value}
       </div>
-      <div className="mt-2 text-[10.5px] uppercase tracking-[0.1em] text-muted-foreground">
+      <div className="text-[10.5px] uppercase tracking-[0.1em] text-muted-foreground sm:mt-2">
         {label}
       </div>
       {hint && (
@@ -552,7 +548,8 @@ function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
       <div className="space-y-10">
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <Skeleton className="h-[125px] rounded-lg sm:hidden" />
+        <div className="hidden sm:grid grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-[76px] rounded-lg" />
           ))}

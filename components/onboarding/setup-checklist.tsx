@@ -198,7 +198,7 @@ export function SetupChecklist() {
           type="button"
           onClick={() => setDismissed(true)}
           aria-label="Hide setup checklist"
-          className="shrink-0 rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          className="-m-1.5 shrink-0 rounded-md p-2.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors sm:m-0 sm:p-1"
         >
           <X className="size-3.5" strokeWidth={1.6} />
         </button>
@@ -236,7 +236,7 @@ export function SetupChecklist() {
                   type="button"
                   disabled={working}
                   onClick={generateStarter}
-                  className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
+                  className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 pointer-coarse:px-3 pointer-coarse:py-2 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
                 >
                   {working ? (
                     <Loader2 className="size-3 animate-spin" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Sheet,
   SheetContent,
@@ -40,6 +41,7 @@ const SUGGESTIONS = [
 ];
 
 export function AssistantDock() {
+  const path = usePathname();
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -127,15 +129,22 @@ export function AssistantDock() {
       {/* Floating rather than docked in the rail: the rail is hidden on
           mobile entirely, and an assistant you can only reach on a wide
           screen is an assistant nobody uses. Sits under the search modal in
-          the stack so it never covers a dialog. */}
+          the stack so it never covers a dialog.
+
+          Below the rail breakpoint it rides just above the bottom bar. On a
+          proposal it steps aside there: that page has its own composer pinned
+          to the same edge, and two AI inputs stacked on a phone is one too
+          many. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Ask Closingly"
         className={cn(
-          "group fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-brand py-2.5 pl-3 pr-3.5 text-brand-fg",
+          "group fixed z-30 flex items-center gap-2 rounded-full bg-brand py-2.5 pl-3 pr-3.5 text-brand-fg",
+          "bottom-[calc(var(--mobile-nav-h)+12px)] right-[max(1rem,env(safe-area-inset-right))] lg:bottom-5 lg:right-5",
           "shadow-[0_2px_6px_oklch(0.215_0.012_90/0.18),0_10px_28px_-8px_oklch(0.215_0.012_90/0.32)]",
-          "transition-transform duration-200 hover:-translate-y-0.5",
+          "transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.97]",
+          path.startsWith("/proposals/") && "max-lg:hidden",
           open && "pointer-events-none opacity-0"
         )}
       >
@@ -146,9 +155,12 @@ export function AssistantDock() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
-          className="w-full sm:w-[440px] sm:max-w-[440px] flex flex-col p-0"
+          // Written with the primitive's own `data-[side=right]` variants: its
+          // 3/4 width and 384px cap are attribute selectors, which out-rank a
+          // plain width utility. Full screen on a phone, 440px from sm up.
+          className="flex flex-col p-0 data-[side=right]:w-full data-[side=right]:sm:w-[440px] data-[side=right]:sm:max-w-[440px]"
         >
-          <SheetHeader className="gap-1.5 border-b border-border px-5 py-4">
+          <SheetHeader className="gap-1.5 border-b border-border py-4 pl-5 pr-14 pt-[max(1rem,env(safe-area-inset-top))]">
             <SheetTitle className="text-left text-[14px] leading-none tracking-tight">
               Ask Closingly
             </SheetTitle>
@@ -170,7 +182,7 @@ export function AssistantDock() {
                       key={s}
                       type="button"
                       onClick={() => ask(s)}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-left text-[12.5px] leading-relaxed row-lift hover:border-brand/40"
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2 pointer-coarse:py-3 text-left text-[12.5px] leading-relaxed row-lift hover:border-brand/40"
                     >
                       {s}
                     </button>
@@ -205,7 +217,7 @@ export function AssistantDock() {
             )}
           </div>
 
-          <div className="border-t border-border p-4">
+          <div className="border-t border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}

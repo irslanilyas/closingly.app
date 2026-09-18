@@ -41,7 +41,7 @@ export function ActivityPanel({ dealId }: { dealId: string }) {
   }
 
   return (
-    <ol className="relative space-y-5 stagger">
+    <ol className="relative space-y-5">
       {events.map((event, i) => {
         const { Icon, label, tone } = describeDealEvent(event);
         const isLast = i === events.length - 1;
