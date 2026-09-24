@@ -4,7 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, X, AlertTriangle, ListChecks, RefreshCw } from "lucide-react";
+import {
+  ArrowPathIcon,
+  CheckIcon,
+  ClipboardDocumentCheckIcon,
+  ExclamationTriangleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import type { GenerationState } from "@/lib/types";
 
@@ -174,7 +181,7 @@ export function SetupChecklist() {
         onClick={() => setDismissed(false)}
         className="mb-8 inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ListChecks className="size-3.5" strokeWidth={1.6} />
+        <ClipboardDocumentCheckIcon className="size-3.5" strokeWidth={1.6} />
         Show setup checklist
       </button>
     );
@@ -200,7 +207,7 @@ export function SetupChecklist() {
           aria-label="Hide setup checklist"
           className="-m-1.5 shrink-0 rounded-md p-2.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors sm:m-0 sm:p-1"
         >
-          <X className="size-3.5" strokeWidth={1.6} />
+          <XMarkIcon className="size-3.5" strokeWidth={1.6} />
         </button>
       </div>
 
@@ -239,9 +246,9 @@ export function SetupChecklist() {
                   className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 pointer-coarse:px-3 pointer-coarse:py-2 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
                 >
                   {working ? (
-                    <Loader2 className="size-3 animate-spin" />
+                    <Spinner className="size-3" />
                   ) : (
-                    <RefreshCw className="size-3" strokeWidth={1.8} />
+                    <ArrowPathIcon className="size-3" strokeWidth={1.8} />
                   )}
                   {working ? "Writing it…" : item.action.label}
                 </button>
@@ -259,12 +266,12 @@ type ItemStatus = "done" | "running" | "open" | "skipped" | "failed";
 function Marker({ status }: { status: ItemStatus }) {
   if (status === "running") {
     return (
-      <Loader2 className="mt-[3px] size-3.5 shrink-0 animate-spin text-brand" />
+      <Spinner className="mt-[3px] size-3.5 shrink-0 text-brand" />
     );
   }
   if (status === "failed") {
     return (
-      <AlertTriangle
+      <ExclamationTriangleIcon
         className="mt-[3px] size-3.5 shrink-0 text-destructive"
         strokeWidth={1.8}
       />
@@ -273,7 +280,7 @@ function Marker({ status }: { status: ItemStatus }) {
   if (status === "done") {
     return (
       <span className="mt-[3px] grid size-3.5 shrink-0 place-items-center rounded-full bg-brand text-brand-fg">
-        <Check className="size-2.5" strokeWidth={3} />
+        <CheckIcon className="size-2.5" strokeWidth={3} />
       </span>
     );
   }

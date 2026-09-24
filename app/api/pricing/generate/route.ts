@@ -4,13 +4,27 @@ import { pricingPrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { latestFacts } from "@/lib/onboarding/persist";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { z } from "zod";
+import { readJson } from "@/lib/validate";
+
+/** Every field lands in a model prompt, so every field is bounded. */
+const Body = z.object({
+  project_description: z.string().trim().max(8_000).default(""),
+  industry: z.string().trim().max(200).default(""),
+  scope: z.string().trim().max(40).default("Medium"),
+  budget_signal: z.string().trim().max(1_000).default(""),
+  timeline: z.string().trim().max(1_000).default(""),
+});
 
 
 const RATE_LIMIT = { action: "pricing_generate", limit: 20, windowMinutes: 60 };
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const parsed = await readJson(request, Body);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.data;
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -35,11 +49,11 @@ export async function POST(request: NextRequest) {
     const facts = await latestFacts(supabase, user.id);
 
     const prompt = pricingPrompt({
-      project_description: body.project_description ?? "",
-      industry: body.industry ?? "",
-      scope: body.scope ?? "Medium",
-      budget_signal: body.budget_signal ?? "",
-      timeline: body.timeline ?? "",
+      project_description: body.project_description,
+      industry: body.industry,
+      scope: body.scope,
+      budget_signal: body.budget_signal,
+      timeline: body.timeline,
       deals_json: JSON.stringify(pastDeals ?? []),
       currency: facts?.commercial.currency ?? "USD",
       pricing_model: facts?.commercial.pricing_model ?? "fixed_project",

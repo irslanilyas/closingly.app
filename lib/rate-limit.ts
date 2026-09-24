@@ -1,3 +1,4 @@
+import "server-only";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -51,12 +52,74 @@ export async function checkRateLimit(
   };
 }
 
+/**
+ * The caller's address.
+ *
+ * On Cloudflare, `cf-connecting-ip` is set by the edge and cannot be supplied
+ * by the client; `x-forwarded-for` can be, so it is only a fallback for local
+ * development and other hosts.
+ */
+export function clientIp(request: Request): string {
+  return (
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value)
+  );
+  return Array.from(new Uint8Array(digest), (b) =>
+    b.toString(16).padStart(2, "0")
+  ).join("");
+}
+
+/**
+ * The same fixed window for callers who are not signed in: sign-in, the OAuth
+ * callback, the public proposal tracker. Keyed by a hash of whatever
+ * identifies the caller (their IP, in practice), so the raw value is never
+ * stored. Fails open like the per-user limiter.
+ */
+export async function checkRateLimitByKey(
+  key: string,
+  config: RateLimitConfig
+): Promise<{ ok: boolean; remaining: number; retryAfterSeconds: number }> {
+  const supabase = createAdminClient();
+  const windowMs = config.windowMinutes * 60_000;
+  const windowStartMs = Math.floor(Date.now() / windowMs) * windowMs;
+
+  const { data: count, error } = await supabase.rpc(
+    "increment_keyed_rate_limit",
+    {
+      p_key: await sha256Hex(key),
+      p_action: config.action,
+      p_window_start: new Date(windowStartMs).toISOString(),
+    }
+  );
+
+  if (error) {
+    console.error(`[rate-limit] ${config.action} check failed:`, error.message);
+    return { ok: true, remaining: config.limit, retryAfterSeconds: 0 };
+  }
+
+  const used = count as number;
+  return {
+    ok: used <= config.limit,
+    remaining: Math.max(0, config.limit - used),
+    retryAfterSeconds: Math.ceil((windowStartMs + windowMs - Date.now()) / 1000),
+  };
+}
+
 /** Standard 429 body + Retry-After header, so every route returns the same shape. */
 export function rateLimitResponse(retryAfterSeconds: number) {
   return NextResponse.json(
     {
       error: "rate_limited",
-      message: "You're doing that a bit fast — try again shortly.",
+      message: "You're doing that a bit fast. Try again in a moment.",
     },
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );

@@ -15,7 +15,9 @@ import { NotificationBell } from "./notification-bell";
 import { CommandSearch } from "./command-search";
 import { Wordmark } from "./wordmark";
 import { navFor, sectionFor } from "./nav";
-import { LogOut } from "lucide-react";
+import {
+  ArrowRightStartOnRectangleIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * The bar above the work. It names where you are and carries the controls
@@ -110,7 +112,7 @@ export function Topbar({ email }: { email: string }) {
 
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={onLogout}>
-                <LogOut strokeWidth={1.6} />
+                <ArrowRightStartOnRectangleIcon strokeWidth={1.6} />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

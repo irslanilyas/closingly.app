@@ -114,14 +114,14 @@ export const PRICING_MODELS = [
 ] as const;
 
 export const CURRENCIES = [
-  { value: "USD", label: "USD — US dollar", symbol: "$" },
-  { value: "EUR", label: "EUR — Euro", symbol: "€" },
-  { value: "GBP", label: "GBP — Pound sterling", symbol: "£" },
-  { value: "AED", label: "AED — UAE dirham", symbol: "AED " },
-  { value: "PKR", label: "PKR — Pakistani rupee", symbol: "Rs " },
-  { value: "CAD", label: "CAD — Canadian dollar", symbol: "CA$" },
-  { value: "AUD", label: "AUD — Australian dollar", symbol: "A$" },
-  { value: "INR", label: "INR — Indian rupee", symbol: "₹" },
+  { value: "USD", label: "USD · US dollar", symbol: "$" },
+  { value: "EUR", label: "EUR · Euro", symbol: "€" },
+  { value: "GBP", label: "GBP · Pound sterling", symbol: "£" },
+  { value: "AED", label: "AED · UAE dirham", symbol: "AED " },
+  { value: "PKR", label: "PKR · Pakistani rupee", symbol: "Rs " },
+  { value: "CAD", label: "CAD · Canadian dollar", symbol: "CA$" },
+  { value: "AUD", label: "AUD · Australian dollar", symbol: "A$" },
+  { value: "INR", label: "INR · Indian rupee", symbol: "₹" },
 ] as const;
 
 type Value<T extends ReadonlyArray<{ value: string }>> = T[number]["value"];

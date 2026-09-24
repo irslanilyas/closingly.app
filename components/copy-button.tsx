@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import {
+  CheckIcon,
+  Square2StackIcon,
+} from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -36,11 +39,11 @@ export function CopyButton({
     >
       {copied ? (
         <>
-          <Check className="size-3.5" strokeWidth={2} /> Copied
+          <CheckIcon className="size-3.5" strokeWidth={2} /> Copied
         </>
       ) : (
         <>
-          <Copy className="size-3.5" strokeWidth={1.75} /> {label}
+          <Square2StackIcon className="size-3.5" strokeWidth={1.75} /> {label}
         </>
       )}
     </Button>

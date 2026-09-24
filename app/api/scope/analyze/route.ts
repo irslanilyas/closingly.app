@@ -3,15 +3,23 @@ import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { scopePrompt } from "@/lib/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { z } from "zod";
+import { readJson } from "@/lib/validate";
+
+/** Both go into a model prompt verbatim, so both are bounded. */
+const Body = z.object({
+  sow: z.string().trim().min(1).max(20_000),
+  message: z.string().trim().min(1).max(8_000),
+});
 
 
 const RATE_LIMIT = { action: "scope_analyze", limit: 30, windowMinutes: 60 };
 
 export async function POST(request: NextRequest) {
   try {
-    const { sow, message } = await request.json();
-    if (!sow || !message)
-      return new Response("Missing sow or message", { status: 400 });
+    const body = await readJson(request, Body);
+    if (!body.ok) return body.response;
+    const { sow, message } = body.data;
 
     const supabase = await createClient();
     const {

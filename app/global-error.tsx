@@ -50,7 +50,7 @@ export default function GlobalError({
               margin: "0 0 24px",
             }}
           >
-            The app hit a problem it couldn't recover from on its own.
+            The app hit a problem it couldn&rsquo;t recover from on its own.
           </p>
           <button
             onClick={() => unstable_retry()}

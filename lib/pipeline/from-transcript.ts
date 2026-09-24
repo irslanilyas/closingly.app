@@ -133,7 +133,6 @@ export async function dealFromTranscript(
       decision_maker: extracted.decision_maker ?? null,
       fit_score: clampScore(extracted.fit_score),
       transcript,
-      suggested_replies: extracted.suggested_replies ?? null,
       competitor_mentioned: extracted.competitor_mentioned ?? null,
       competitive_note: extracted.competitive_note ?? null,
       proposed_amount: parseAmount(extracted.proposal?.investment_number),

@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import {
+  CheckIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * Onboarding asks business questions, so its controls have to read like
@@ -96,7 +98,7 @@ export function ChoiceGrid<T extends string>({
             <div className="flex items-start justify-between gap-2">
               <span className="text-[13.5px] leading-snug">{option.label}</span>
               {selected && (
-                <Check className="size-3.5 shrink-0 mt-0.5 text-brand" strokeWidth={2.4} />
+                <CheckIcon className="size-3.5 shrink-0 mt-0.5 text-brand" strokeWidth={2.4} />
               )}
             </div>
             {option.hint && (
@@ -168,7 +170,7 @@ export function SectionPicker({
                     : "border-foreground/30"
                 )}
               >
-                {checked && <Check className="size-2.5" strokeWidth={3} />}
+                {checked && <CheckIcon className="size-2.5" strokeWidth={3} />}
               </span>
               <div className="min-w-0">
                 <div className="text-[13.5px] leading-snug">

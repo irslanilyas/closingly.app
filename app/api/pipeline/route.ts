@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildSnapshots } from "@/lib/follow-ups/snapshot";
-import { raiseForDeal } from "@/lib/follow-ups/rules";
+import {
+  daysSince,
+  engagementOf,
+  nextActionOf,
+  type EngagementLevel,
+  type NextAction,
+} from "@/lib/deal-signals";
 import type { DealStage } from "@/lib/types";
 
 
@@ -13,13 +19,6 @@ import type { DealStage } from "@/lib/types";
  * raise follow-ups — so the board and the queue can never contradict each
  * other about what to do next.
  */
-
-export type EngagementLevel =
-  | "no_proposal"
-  | "unsent"
-  | "unopened"
-  | "opened"
-  | "engaged";
 
 export interface PipelineDeal {
   id: string;
@@ -43,16 +42,9 @@ export interface PipelineDeal {
   last_viewed_at: string | null;
 
   /** What the follow-up rules say, if anything. */
-  next_action: { reason: string; priority: 1 | 2 | 3; kind: string } | null;
+  next_action: NextAction | null;
   /** Whether that action is already sitting in the queue. */
   queued: boolean;
-}
-
-const DAY_MS = 86_400_000;
-
-function daysSince(iso: string | null): number | null {
-  if (!iso) return null;
-  return Math.floor((Date.now() - new Date(iso).getTime()) / DAY_MS);
 }
 
 export async function GET() {
@@ -83,22 +75,6 @@ export async function GET() {
   const deals: PipelineDeal[] = snapshots.map((s) => {
     const proposal = s.proposal;
 
-    const engagement: EngagementLevel = !proposal
-      ? "no_proposal"
-      : !proposal.shared_at
-        ? "unsent"
-        : proposal.view_count === 0
-          ? "unopened"
-          : proposal.view_count > 2
-            ? "engaged"
-            : "opened";
-
-    // Closed deals get no next action. Telling someone to chase a deal they
-    // already won is how a product loses trust in one glance.
-    const raised =
-      s.stage === "won" || s.stage === "lost" ? [] : raiseForDeal(s, now);
-    const top = raised.sort((a, b) => a.priority - b.priority)[0] ?? null;
-
     return {
       id: s.id,
       client_name: s.client_name,
@@ -112,13 +88,11 @@ export async function GET() {
       updated_at: s.updated_at,
       days_in_stage: daysSince(s.stage_entered_at) ?? 0,
       days_since_activity: daysSince(s.last_activity_at),
-      engagement,
+      engagement: engagementOf(s),
       proposal_id: proposal?.id ?? null,
       view_count: proposal?.view_count ?? 0,
       last_viewed_at: proposal?.last_viewed_at ?? null,
-      next_action: top
-        ? { reason: top.reason, priority: top.priority, kind: top.kind }
-        : null,
+      next_action: nextActionOf(s, now),
       queued: queued.has(s.id),
     };
   });

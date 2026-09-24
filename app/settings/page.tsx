@@ -19,7 +19,10 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { toRecordingUsage } from "@/lib/types";
 import { toast } from "sonner";
-import { Download, Loader2 } from "lucide-react";
+import {
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 
 interface AccountStatus {
   email: string;
@@ -231,9 +234,9 @@ export default function SettingsPage() {
                 className="h-9 text-[12.5px] gap-1.5 shrink-0 cursor-pointer"
               >
                 {exporting ? (
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <Spinner className="size-3.5" />
                 ) : (
-                  <Download className="size-3.5" strokeWidth={1.75} />
+                  <ArrowDownTrayIcon className="size-3.5" strokeWidth={1.75} />
                 )}
                 Export
               </Button>
@@ -248,8 +251,8 @@ export default function SettingsPage() {
               <div className="min-w-0">
                 <div className="text-[13.5px] font-medium">Delete account</div>
                 <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
-                  Every deal, meeting, transcript, and proposal — gone
-                  permanently. This can&rsquo;t be undone.
+                  Every deal, meeting, transcript, and proposal, gone
+                  for good. This can&rsquo;t be undone.
                 </p>
               </div>
               <Dialog
@@ -274,7 +277,7 @@ export default function SettingsPage() {
                       <span className="font-medium text-foreground">
                         {status?.email}
                       </span>
-                      . Export your data first if you want a copy — there is
+                      . Export your data first if you want a copy. There is
                       no undo.
                     </DialogDescription>
                   </DialogHeader>
@@ -307,7 +310,7 @@ export default function SettingsPage() {
                       className="cursor-pointer"
                     >
                       {deleting ? (
-                        <Loader2 className="size-3.5 animate-spin" />
+                        <Spinner className="size-3.5" />
                       ) : (
                         "Permanently delete"
                       )}

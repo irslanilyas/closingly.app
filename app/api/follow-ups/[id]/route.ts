@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { field, readJson } from "@/lib/validate";
 
 
 const SNOOZE_PRESETS: Record<string, number> = {
@@ -8,6 +10,13 @@ const SNOOZE_PRESETS: Record<string, number> = {
   next_week: 7,
   two_weeks: 14,
 };
+
+const PatchBody = z.object({
+  action: z.enum(["snooze", "dismiss", "done", "reopen", "save_draft"]),
+  snooze: z.string().max(20).optional(),
+  draft_subject: z.string().max(300).optional(),
+  draft_body: z.string().max(20_000).optional(),
+});
 
 /**
  * Snooze, dismiss, complete, or edit the draft.
@@ -31,12 +40,12 @@ export async function PATCH(
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as {
-    action?: string;
-    snooze?: string;
-    draft_subject?: string;
-    draft_body?: string;
-  };
+  if (!field.id.safeParse(id).success) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+  const parsed = await readJson(request, PatchBody);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const patch: Record<string, unknown> = {};
 
@@ -66,8 +75,8 @@ export async function PATCH(
       if (typeof body.draft_body !== "string") {
         return NextResponse.json({ error: "invalid_draft" }, { status: 400 });
       }
-      patch.draft_subject = (body.draft_subject ?? "").slice(0, 300);
-      patch.draft_body = body.draft_body.slice(0, 20_000);
+      patch.draft_subject = body.draft_subject ?? "";
+      patch.draft_body = body.draft_body;
       patch.drafted_at = new Date().toISOString();
       break;
     }
@@ -96,6 +105,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!field.id.safeParse(id).success) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabase = await createClient();
   const {
     data: { user },

@@ -12,7 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/copy-button";
 import { cn } from "@/lib/utils";
-import { Sparkles, ArrowUp, Loader2 } from "lucide-react";
+import {
+  ArrowUpIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 interface Turn {
   question: string;
@@ -148,7 +153,7 @@ export function AssistantDock() {
           open && "pointer-events-none opacity-0"
         )}
       >
-        <Sparkles className="size-4 shrink-0" strokeWidth={1.8} />
+        <SparklesIcon className="size-4 shrink-0" strokeWidth={1.8} />
         <span className="text-[13px] font-medium tracking-tight">Ask</span>
       </button>
 
@@ -197,14 +202,12 @@ export function AssistantDock() {
                       {turn.question}
                     </p>
                     <div className="mt-2 flex items-start gap-2">
-                      <div
-                        className={cn(
-                          "min-w-0 flex-1 text-[13px] leading-relaxed whitespace-pre-wrap text-foreground/90",
-                          turn.pending && !turn.answer && "text-muted-foreground"
-                        )}
-                      >
-                        {turn.answer ||
-                          (turn.pending ? "Reading your workspace…" : "")}
+                      <div className="min-w-0 flex-1 text-[13px] leading-relaxed text-foreground/90">
+                        {turn.answer ? (
+                          <RevealText text={turn.answer} />
+                        ) : turn.pending ? (
+                          <span className="shimmer-text">Reading your workspace…</span>
+                        ) : null}
                       </div>
                       {!turn.pending && turn.answer && (
                         <CopyButton text={turn.answer} />
@@ -242,9 +245,9 @@ export function AssistantDock() {
                 aria-label="Ask"
               >
                 {busy ? (
-                  <Loader2 className="animate-spin" />
+                  <Spinner className="" />
                 ) : (
-                  <ArrowUp strokeWidth={2} />
+                  <ArrowUpIcon strokeWidth={2} />
                 )}
               </Button>
             </div>

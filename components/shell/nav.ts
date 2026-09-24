@@ -1,19 +1,19 @@
 import {
-  LayoutDashboard,
-  Mic,
-  Columns3,
-  Send,
-  LineChart,
-  Settings2,
-  Hammer,
-  type LucideIcon,
-} from "lucide-react";
+  Cog6ToothIcon,
+  PaperAirplaneIcon,
+  PresentationChartLineIcon,
+  Squares2X2Icon,
+  VideoCameraIcon,
+  ViewColumnsIcon,
+  WrenchScrewdriverIcon,
+} from "@heroicons/react/24/outline";
+import type { Icon } from "@/lib/icon";
 import { isFounder } from "@/lib/founders";
 
 export interface NavItem {
   href: string;
   label: string;
-  Icon: LucideIcon;
+  Icon: Icon;
   /** Read by the topbar so the page never has to repeat its own name. */
   section: string;
   /**
@@ -29,19 +29,19 @@ export interface NavItem {
  * you, and settings sit at the end because they are visited once.
  */
 const DESTINATIONS: NavItem[] = [
-  { href: "/", label: "Dashboard", Icon: LayoutDashboard, section: "Dashboard", bar: true },
-  { href: "/meetings", label: "Meetings", Icon: Mic, section: "Meetings", bar: true },
-  { href: "/pipeline", label: "Pipeline", Icon: Columns3, section: "Pipeline", bar: true },
-  { href: "/follow-ups", label: "Follow-ups", Icon: Send, section: "Follow-ups", bar: true },
-  { href: "/intelligence", label: "Intelligence", Icon: LineChart, section: "Intelligence", bar: true },
-  { href: "/settings", label: "Account", Icon: Settings2, section: "Account", bar: false },
+  { href: "/", label: "Dashboard", Icon: Squares2X2Icon, section: "Dashboard", bar: true },
+  { href: "/meetings", label: "Meetings", Icon: VideoCameraIcon, section: "Meetings", bar: true },
+  { href: "/pipeline", label: "Pipeline", Icon: ViewColumnsIcon, section: "Pipeline", bar: true },
+  { href: "/follow-ups", label: "Follow-ups", Icon: PaperAirplaneIcon, section: "Follow-ups", bar: true },
+  { href: "/intelligence", label: "Intelligence", Icon: PresentationChartLineIcon, section: "Intelligence", bar: true },
+  { href: "/settings", label: "Account", Icon: Cog6ToothIcon, section: "Account", bar: false },
 ];
 
 /** Internal build log. Founders only — not a beta tester's concern. */
 const PROGRESS: NavItem = {
   href: "/progress",
   label: "Progress",
-  Icon: Hammer,
+  Icon: WrenchScrewdriverIcon,
   section: "Progress",
   bar: false,
 };

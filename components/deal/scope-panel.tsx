@@ -1,46 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CopyButton } from "@/components/copy-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStreamingJson } from "@/lib/hooks/use-streaming-json";
-import { createClient } from "@/lib/supabase/client";
 import type { ProposalData, ScopeAnalysis } from "@/lib/types";
 import {
-  Loader2,
-  ShieldCheck,
-  ShieldAlert,
-  ShieldQuestion,
-} from "lucide-react";
+  QuestionMarkCircleIcon,
+  ShieldCheckIcon,
+  ShieldExclamationIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 /**
- * The standalone page made you paste the SOW by hand every time — even though
- * the system already had it. Here it's assembled from the deal's own proposal.
+ * Checks a new client request against what was agreed. The agreed scope is
+ * assembled from the deal's own proposal, so nobody pastes a SOW by hand.
  */
-export function ScopePanel({ dealId }: { dealId: string }) {
-  const [sow, setSow] = useState<string | null>(null);
+export function ScopePanel({ proposal }: { proposal: ProposalData | null }) {
+  const [sow, setSow] = useState(() => (proposal ? sowFromProposal(proposal) : ""));
   const [message, setMessage] = useState("");
   const { data, streaming, run } = useStreamingJson<ScopeAnalysis>(
     "/api/scope/analyze"
   );
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("proposals")
-      .select("proposal_data")
-      .eq("deal_id", dealId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .then(({ data }) => {
-        const proposal = data?.[0]?.proposal_data as ProposalData | undefined;
-        setSow(proposal ? sowFromProposal(proposal) : "");
-      });
-  }, [dealId]);
-
-  if (sow === null) return <Skeleton className="h-[200px] w-full rounded-md" />;
 
   return (
     <div className="space-y-6">
@@ -58,7 +42,7 @@ export function ScopePanel({ dealId }: { dealId: string }) {
         <Textarea
           value={sow}
           onChange={(e) => setSow(e.target.value)}
-          placeholder="No proposal on this deal yet — paste the agreed scope here."
+          placeholder="No proposal on this deal yet. Paste the agreed scope here."
           className="min-h-[160px] text-[12.5px] leading-relaxed font-mono"
         />
       </div>
@@ -78,15 +62,16 @@ export function ScopePanel({ dealId }: { dealId: string }) {
       <Button
         onClick={() => run({ sow, message })}
         disabled={!sow.trim() || !message.trim() || streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
+        variant="brand"
+        className="h-9 gap-2 px-4 text-[12.5px]"
       >
         {streaming ? (
           <>
-            <Loader2 className="size-3.5 animate-spin" /> Checking…
+            <Spinner className="size-3.5" /> <span className="shimmer-text">Checking against the agreement…</span>
           </>
         ) : (
           <>
-            <ShieldCheck className="size-3.5" strokeWidth={1.75} /> Check for
+            <ShieldCheckIcon className="size-3.5" strokeWidth={1.75} /> Check for
             scope creep
           </>
         )}
@@ -105,27 +90,27 @@ function sowFromProposal(proposal: ProposalData): string {
     "Deliverables:",
     ...(proposal.deliverables ?? []).map((d) => `- ${d}`),
     "",
-    `Timeline: ${proposal.timeline_phased ?? "—"}`,
-    `Investment: ${proposal.investment_number ?? "—"} (${proposal.investment_terms ?? "—"})`,
+    `Timeline: ${proposal.timeline_phased || "not set"}`,
+    `Investment: ${proposal.investment_number || "not set"}${proposal.investment_terms ? ` (${proposal.investment_terms})` : ""}`,
   ].join("\n");
 }
 
 const VERDICTS = {
   in_scope: {
     label: "In scope",
-    Icon: ShieldCheck,
+    Icon: ShieldCheckIcon,
     cls: "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/30",
     copy: "This falls within what was agreed. Proceed.",
   },
   scope_creep: {
     label: "Scope creep",
-    Icon: ShieldAlert,
+    Icon: ShieldExclamationIcon,
     cls: "bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900",
     copy: "This goes beyond the agreement. Bill for it or push back.",
   },
   grey_area: {
     label: "Grey area",
-    Icon: ShieldQuestion,
+    Icon: QuestionMarkCircleIcon,
     cls: "bg-secondary text-foreground/80 border-border",
     copy: "Borderline. Worth a conversation before you commit.",
   },
@@ -155,7 +140,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
       {result.reasoning && (
         <Card title="Reasoning">
           <p className="text-[13px] leading-relaxed text-foreground/85">
-            {result.reasoning}
+            <RevealText text={result.reasoning} />
           </p>
         </Card>
       )}
@@ -166,7 +151,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
           action={<CopyButton text={result.suggested_response} />}
         >
           <p className="text-[13px] leading-relaxed whitespace-pre-wrap text-foreground/85">
-            {result.suggested_response}
+            <RevealText text={result.suggested_response} />
           </p>
         </Card>
       )}

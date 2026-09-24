@@ -1,5 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { field, readJson } from "@/lib/validate";
+
+const CreateBody = z.object({
+  deal_id: field.id.nullish(),
+  // The rules name the kind when the page raises one they suggested; anything
+  // typed by hand is "custom".
+  kind: z
+    .enum(["nudge", "proposal_chase", "unanswered_question", "check_in", "scope_risk", "custom"])
+    .default("custom"),
+  reason: z.string().trim().min(3).max(400),
+  due_at: z.iso.datetime({ offset: true }).optional(),
+  priority: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(2),
+});
 
 
 /**
@@ -73,29 +87,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as {
-    deal_id?: string;
-    reason?: string;
-    due_at?: string;
-    priority?: number;
-  };
+  const parsed = await readJson(request, CreateBody);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
+  const { reason, priority } = body;
 
-  const reason = typeof body.reason === "string" ? body.reason.trim() : "";
-  if (reason.length < 3 || reason.length > 400) {
-    return NextResponse.json({ error: "invalid_reason" }, { status: 400 });
+  // A foreign key only proves the deal exists, not whose it is. Read it through
+  // the caller's session first, so a follow-up can only ever hang off their
+  // own deal.
+  if (body.deal_id) {
+    const { data: deal } = await supabase
+      .from("deals")
+      .select("id")
+      .eq("id", body.deal_id)
+      .maybeSingle();
+    if (!deal) {
+      return NextResponse.json({ error: "deal_not_found" }, { status: 404 });
+    }
   }
-
-  const priority =
-    body.priority === 1 || body.priority === 2 || body.priority === 3
-      ? body.priority
-      : 2;
 
   const { data, error } = await supabase
     .from("follow_ups")
     .insert({
       user_id: user.id,
       deal_id: body.deal_id ?? null,
-      kind: "custom",
+      kind: body.kind,
       reason,
       priority,
       due_at: body.due_at ?? new Date().toISOString(),

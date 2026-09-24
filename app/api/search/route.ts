@@ -26,11 +26,18 @@ export interface SearchHit {
 }
 
 /**
- * `%` and `_` are wildcards inside ilike, and a comma terminates a PostgREST
- * `or` filter. All three are escaped so a query can only ever be a search.
+ * The query is interpolated into a PostgREST `or` filter string, so anything
+ * with meaning there is removed: `%`, `_` and `*` are ilike wildcards (PostgREST
+ * accepts `*` as an alias for `%`), a comma separates conditions, parentheses
+ * group them, and quotes, backslashes and colons change how a value is parsed.
+ * What is left can only ever be a literal search term.
  */
 function sanitise(raw: string): string {
-  return raw.replace(/[%_,()]/g, " ").trim().slice(0, 80);
+  return raw
+    .replace(/[%_*,()"'\\:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
 }
 
 export async function GET(request: NextRequest) {

@@ -7,7 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
-import { Lock, Trash2, Plus, X } from "lucide-react";
+import { HubCard } from "@/components/deal/hub/primitives";
+import {
+  LockClosedIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * The things a transcript cannot hold.
@@ -29,8 +36,11 @@ interface Note {
 export function DealNotes({
   dealId,
   legacyNote,
+  onChange,
 }: {
   dealId: string;
+  /** Called after a note is added, so the deal's activity can pick it up. */
+  onChange?: () => void;
   /** The single free-text field notes lived in before this panel. Read-only. */
   legacyNote?: string | null;
 }) {
@@ -67,7 +77,11 @@ export function DealNotes({
     setSaving(true);
     const supabase = createClient();
     const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) return;
+    if (!auth.user) {
+      setSaving(false);
+      toast.error("Your session ended. Sign in again to save notes.");
+      return;
+    }
 
     const { data, error } = await supabase
       .from("deal_notes")
@@ -93,6 +107,7 @@ export function DealNotes({
       user_id: auth.user.id,
       kind: "note_added",
     });
+    onChange?.();
   };
 
   const remove = async (id: string) => {
@@ -133,22 +148,25 @@ export function DealNotes({
   };
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="label">Your notes</div>
-        {!composing && (
+    <HubCard
+      eyebrow="Private workspace"
+      icon={PencilIcon}
+      title="Your notes"
+      action={
+        !composing && (
           <Button
             variant="ghost"
             size="xs"
             onClick={() => setComposing(true)}
-            className="text-[12px] gap-1"
+            className="gap-1 text-[12px]"
           >
-            <Plus strokeWidth={2} />
+            <PlusIcon strokeWidth={2} />
             Add
           </Button>
-        )}
-      </div>
-
+        )
+      }
+    >
+      <div className="mt-3" />
       {composing && (
         <div className="mb-3 resolve">
           <Textarea
@@ -184,7 +202,7 @@ export function DealNotes({
               }}
               className="text-[12.5px] text-muted-foreground gap-1"
             >
-              <X strokeWidth={1.8} />
+              <XMarkIcon strokeWidth={1.8} />
               Cancel
             </Button>
             <span className="w-full text-[11px] text-muted-foreground sm:ml-auto sm:w-auto">
@@ -204,7 +222,7 @@ export function DealNotes({
       ) : (
         <ol className="space-y-2">
           {notes.map((note) => (
-            <li key={note.id} className="panel group px-3.5 py-3">
+            <li key={note.id} className="group rounded-lg border border-border bg-background/60 px-3.5 py-3">
               <p className="whitespace-pre-wrap text-[13px] leading-relaxed">
                 {note.body}
               </p>
@@ -230,7 +248,7 @@ export function DealNotes({
                       : "text-brand"
                   )}
                 >
-                  <Lock className="size-3" strokeWidth={1.8} />
+                  <LockClosedIcon className="size-3" strokeWidth={1.8} />
                   {note.is_private ? "Private" : "Usable in drafts"}
                 </button>
 
@@ -240,24 +258,24 @@ export function DealNotes({
                   aria-label="Delete note"
                   className="-my-1.5 -mr-1.5 ml-auto rounded-md p-1.5 text-muted-foreground transition-opacity hover:text-destructive pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
                 >
-                  <Trash2 className="size-3.5" strokeWidth={1.6} />
+                  <TrashIcon className="size-3.5" strokeWidth={1.6} />
                 </button>
               </div>
             </li>
           ))}
           {earlier && (
-            <li className="panel px-3.5 py-3">
+            <li className="rounded-lg border border-border bg-background/60 px-3.5 py-3">
               <p className="whitespace-pre-wrap text-[13px] leading-relaxed">
                 {earlier}
               </p>
               <div className="mt-2 flex items-center gap-1 text-[11.5px] text-muted-foreground">
-                <Lock className="size-3" strokeWidth={1.8} />
+                <LockClosedIcon className="size-3" strokeWidth={1.8} />
                 Earlier note, kept private
               </div>
             </li>
           )}
         </ol>
       )}
-    </section>
+    </HubCard>
   );
 }

@@ -1,3 +1,4 @@
+import "server-only";
 const BASE = () =>
   `https://${process.env.RECALL_REGION ?? "us-east-1"}.recall.ai/api/v1`;
 

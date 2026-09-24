@@ -1,5 +1,6 @@
 "use client";
 
+import type { Icon } from "@/lib/icon";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShellClient } from "@/components/app-shell-client";
@@ -21,13 +22,13 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
-  ArrowRight,
-  ArrowUpRight,
-  CalendarClock,
-  Eye,
-  Link2,
-  Video,
-} from "lucide-react";
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  CalendarDateRangeIcon,
+  EyeIcon,
+  LinkIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
 
 /** Open stages only — won/lost aren't "in flight" and shouldn't colour the bar. */
 const OPEN_STAGES: DealStage[] = ["lead", "proposal_sent", "negotiating"];
@@ -161,7 +162,7 @@ export default function DashboardPage() {
           {loading ? (
             <span className="inline-block h-[1em] w-[240px] align-middle rounded bg-muted animate-pulse" />
           ) : stats.open === 0 ? (
-            "Nothing in the pipeline yet — switch the agent on for a call and it fills itself."
+            "Nothing in the pipeline yet. Switch the agent on for a call and it fills itself."
           ) : (
             `${stats.open} open ${stats.open === 1 ? "deal" : "deals"} worth ${formatCurrency(stats.total)}.`
           )}
@@ -236,12 +237,12 @@ export default function DashboardPage() {
                 <div className="rounded-lg border border-border bg-card">
                   <div className="flex items-center gap-5 px-4 py-3.5 border-b border-border">
                     <MiniStat
-                      icon={Link2}
+                      icon={LinkIcon}
                       value={shared.length}
                       label={`shared`}
                     />
                     <MiniStat
-                      icon={Eye}
+                      icon={EyeIcon}
                       value={openedCount}
                       label="opened"
                       accent={openedCount > 0}
@@ -275,7 +276,7 @@ export default function DashboardPage() {
                               · not opened yet
                             </span>
                           </span>
-                          <ArrowUpRight
+                          <ArrowUpRightIcon
                             className="size-3.5 shrink-0 text-muted-foreground group-hover:text-foreground transition-colors"
                             strokeWidth={1.5}
                           />
@@ -317,7 +318,7 @@ export default function DashboardPage() {
                             <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--brand)] opacity-60 animate-ping" />
                             <span className="relative inline-flex size-1.5 rounded-full bg-[var(--brand)]" />
                           </span>
-                          <Video className="size-3" strokeWidth={1.5} />
+                          <VideoCameraIcon className="size-3" strokeWidth={1.5} />
                           <span className="sr-only sm:not-sr-only">Agent on</span>
                         </span>
                       )}
@@ -472,7 +473,7 @@ function MiniStat({
   label,
   accent,
 }: {
-  icon: typeof Eye;
+  icon: Icon;
   value: number;
   label: string;
   accent?: boolean;
@@ -504,7 +505,7 @@ function SectionHead({ title, href }: { title: string; href?: string }) {
           className="group flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
         >
           View all
-          <ArrowRight
+          <ArrowRightIcon
             className="size-3 transition-transform group-hover:translate-x-0.5"
             strokeWidth={1.5}
           />
@@ -517,7 +518,7 @@ function SectionHead({ title, href }: { title: string; href?: string }) {
 function EmptyPipeline() {
   return (
     <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center">
-      <CalendarClock
+      <CalendarDateRangeIcon
         className="size-5 mx-auto text-muted-foreground mb-3"
         strokeWidth={1.5}
       />
@@ -531,7 +532,7 @@ function EmptyPipeline() {
         className="group mt-4 inline-flex items-center gap-1 text-[12.5px] text-[var(--brand)] hover:underline underline-offset-4"
       >
         Go to meetings
-        <ArrowRight
+        <ArrowRightIcon
           className="size-3 transition-transform group-hover:translate-x-0.5"
           strokeWidth={1.5}
         />

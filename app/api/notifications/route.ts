@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { field, readJson } from "@/lib/validate";
 import { UNREAD_CAP } from "@/lib/notifications";
 
 
@@ -57,10 +59,12 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as {
-    id?: string;
-    all?: boolean;
-  };
+  const parsed = await readJson(
+    request,
+    z.object({ id: field.id.optional(), all: z.boolean().optional() })
+  );
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const now = new Date().toISOString();
 

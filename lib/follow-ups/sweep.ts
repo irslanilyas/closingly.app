@@ -126,7 +126,7 @@ async function draftFor(
   deal: Record<string, unknown>
 ): Promise<{ subject: string; body: string }> {
   const prompt = followUpDraftPrompt({
-    situation: `${KIND_LABELS[item.kind]} — ${item.reason}`,
+    situation: `${KIND_LABELS[item.kind]}: ${item.reason}`,
     client_name: (deal.client_name as string) ?? "there",
     client_company: (deal.client_company as string) ?? "",
     pain_point: (deal.pain_point as string) ?? "",

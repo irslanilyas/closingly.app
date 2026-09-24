@@ -30,9 +30,13 @@ export function EditableField({
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (!editing) setDraft(value);
-  }, [value, editing]);
+  // Follow the saved value while not editing (a refine can rewrite it), but
+  // never yank text out from under someone typing.
+  const [synced, setSynced] = useState(value);
+  if (value !== synced && !editing) {
+    setSynced(value);
+    setDraft(value);
+  }
 
   useEffect(() => {
     if (!editing || !ref.current) return;

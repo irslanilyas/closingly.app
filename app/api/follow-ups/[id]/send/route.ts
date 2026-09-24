@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { field, readJson } from "@/lib/validate";
 import { sendGmail, GmailError } from "@/lib/google/gmail";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
@@ -11,6 +13,12 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
  * person may have edited it in the composer and not saved), and it records
  * what was actually sent.
  */
+const SendBody = z.object({
+  to: z.string().trim().max(320).optional(),
+  subject: z.string().max(300).optional(),
+  body: z.string().max(20_000).optional(),
+});
+
 const RATE_LIMIT = { action: "follow_up_send", limit: 40, windowMinutes: 60 };
 
 export async function POST(
@@ -18,6 +26,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!field.id.safeParse(id).success) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,11 +41,9 @@ export async function POST(
   const limit = await checkRateLimit(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
-  const body = (await request.json().catch(() => ({}))) as {
-    subject?: string;
-    body?: string;
-    to?: string;
-  };
+  const parsed = await readJson(request, SendBody);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const { data: item } = await supabase
     .from("follow_ups")
@@ -68,6 +77,9 @@ export async function POST(
   }
   if (!subject || !text) {
     return NextResponse.json({ error: "empty_message" }, { status: 400 });
+  }
+  if (to.length > 320 || subject.length > 300 || text.length > 20_000) {
+    return NextResponse.json({ error: "message_too_long" }, { status: 400 });
   }
 
   const { data: profile } = await supabase

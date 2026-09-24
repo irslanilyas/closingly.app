@@ -1,18 +1,18 @@
 import type { DealEvent, DealEventKind } from "@/lib/types";
 import {
-  ArrowRight,
-  Award,
-  CircleDot,
-  Eye,
-  FileText,
-  Link2,
-  Mail,
-  Mic,
-  Search,
-  StickyNote,
-  Swords,
-  type LucideIcon,
-} from "lucide-react";
+  ArrowRightIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  EyeIcon,
+  LinkIcon,
+  MagnifyingGlassIcon,
+  PencilSquareIcon,
+  ScaleIcon,
+  StopCircleIcon,
+  TrophyIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
+import type { Icon } from "@/lib/icon";
 
 /**
  * Single source of truth for how a deal event is presented.
@@ -33,23 +33,23 @@ import {
 export type EventTone = "accent" | "neutral";
 
 interface EventPresentation {
-  Icon: LucideIcon;
+  Icon: Icon;
   label: React.ReactNode;
   tone: EventTone;
 }
 
-const ICONS: Record<DealEventKind, LucideIcon> = {
-  created: CircleDot,
-  stage_changed: ArrowRight,
-  meeting_recorded: Mic,
-  proposal_drafted: FileText,
-  proposal_shared: Link2,
-  proposal_viewed: Eye,
-  followup_generated: Mail,
-  note_added: StickyNote,
-  postmortem_generated: Search,
-  case_study_generated: Award,
-  competitor_flagged: Swords,
+const ICONS: Record<DealEventKind, Icon> = {
+  created: StopCircleIcon,
+  stage_changed: ArrowRightIcon,
+  meeting_recorded: VideoCameraIcon,
+  proposal_drafted: DocumentTextIcon,
+  proposal_shared: LinkIcon,
+  proposal_viewed: EyeIcon,
+  followup_generated: EnvelopeIcon,
+  note_added: PencilSquareIcon,
+  postmortem_generated: MagnifyingGlassIcon,
+  case_study_generated: TrophyIcon,
+  competitor_flagged: ScaleIcon,
 };
 
 /**
@@ -61,7 +61,7 @@ export function describeDealEvent(
   event: DealEvent,
   emphasis: "rich" | "plain" = "rich"
 ): EventPresentation {
-  const Icon = ICONS[event.kind] ?? CircleDot;
+  const Icon = ICONS[event.kind] ?? StopCircleIcon;
   const strong = (text: string) =>
     emphasis === "rich" ? <strong className="font-medium">{text}</strong> : text;
 
@@ -79,7 +79,7 @@ export function describeDealEvent(
         label: (
           <>
             Proposal drafted
-            {event.to_value ? <> — {strong(event.to_value)}</> : null}
+            {event.to_value ? <>: {strong(event.to_value)}</> : null}
           </>
         ),
       };

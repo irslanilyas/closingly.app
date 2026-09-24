@@ -12,6 +12,7 @@ const ERROR_COPY: Record<string, string> = {
   missing_code: "Google didn't send back a sign-in code. Try again.",
   state_mismatch: "That sign-in link expired. Try again.",
   exchange_failed: "We couldn't complete sign-in. Try again.",
+  too_many_attempts: "Too many sign-in attempts from this network. Wait a few minutes, then try again.",
   auth: "Something went wrong signing you in. Try again.",
 };
 

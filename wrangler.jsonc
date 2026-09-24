@@ -33,11 +33,10 @@
   "keep_vars": true,
 
   // The app's own origin, declared here rather than typed into the dashboard.
-  // It is read by the scheduled handler below to build the cron request, and a
-  // malformed value there is silent: the tick throws before it reaches a route,
-  // so transcript processing, the follow-up sweep and the digest all stop with
-  // nothing in the app to show for it. Deploying rewrites whatever is in the
-  // dashboard, which is the point — this is the one that is correct.
+  // The scheduled handler sends each cron tick to this origin. A malformed
+  // value once made every tick throw for two days; custom-worker.ts now falls
+  // back to production when it cannot parse it, but deploying rewrites the
+  // dashboard value with this one anyway, which is the point.
   //
   // Not a secret: it also ships inside the client bundle. Note that every
   // NEXT_PUBLIC_ read inside the Next app is inlined at build time instead, so
@@ -46,8 +45,9 @@
     "NEXT_PUBLIC_APP_URL": "https://app.closingly.app"
   },
 
-  // Every minute, replacing the external pinger. This one trigger drives
-  // transcript processing, the follow-up sweep and the email digest.
+  // Every minute. This one trigger drives transcript processing, the starter
+  // proposal, stale-meeting reconciliation and the follow-up sweep. Each tick
+  // is forwarded to the app as a fetch request: see custom-worker.ts for why.
   "triggers": {
     "crons": ["* * * * *"]
   },

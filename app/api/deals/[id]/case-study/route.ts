@@ -33,7 +33,7 @@ export async function POST(
   if (deal.stage !== "won")
     return new Response("Deal isn't marked won", { status: 400 });
 
-  const dealContext = `Client: ${deal.client_name ?? "—"} at ${deal.client_company ?? "—"}. Pain: ${deal.pain_point ?? "n/a"}. Timeline: ${deal.timeline ?? "n/a"}. Proposed amount: ${deal.proposed_amount ?? "n/a"}. Notes: ${await notesForPrompt(supabase, id, deal.notes, "client")}.`;
+  const dealContext = `Client: ${deal.client_name ?? "unknown"} at ${deal.client_company ?? "unknown"}. Pain: ${deal.pain_point ?? "n/a"}. Timeline: ${deal.timeline ?? "n/a"}. Proposed amount: ${deal.proposed_amount ?? "n/a"}. Notes: ${await notesForPrompt(supabase, id, deal.notes, "client")}.`;
 
   const encoder = new TextEncoder();
   let full = "";

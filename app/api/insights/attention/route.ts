@@ -28,7 +28,10 @@ export async function GET() {
     .select("id, client_name, client_company")
     .eq("user_id", user.id)
     .in("stage", ["lead", "proposal_sent", "negotiating"]);
-  if (error) return new Response(error.message, { status: 500 });
+  if (error) {
+    console.error("[insights/attention] read failed:", error.message);
+    return NextResponse.json({ error: "read_failed" }, { status: 500 });
+  }
 
   const active = deals ?? [];
   if (active.length === 0) {

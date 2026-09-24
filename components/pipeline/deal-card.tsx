@@ -1,12 +1,14 @@
 "use client";
 
+import type { Icon } from "@/lib/icon";
 import { useState } from "react";
 import Link from "next/link";
 import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/format";
 import { STAGE_LABELS, STAGE_ORDER, type DealStage } from "@/lib/types";
-import type { PipelineDeal, EngagementLevel } from "@/app/api/pipeline/route";
+import type { PipelineDeal } from "@/app/api/pipeline/route";
+import type { EngagementLevel } from "@/lib/deal-signals";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,16 +18,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreHorizontal,
-  Eye,
-  EyeOff,
-  FileX2,
-  Flame,
-  ArrowRight,
-  Send,
-  GripVertical,
-  Check,
-} from "lucide-react";
+  ArrowRightIcon,
+  CheckIcon,
+  DocumentIcon,
+  EllipsisHorizontalIcon,
+  EllipsisVerticalIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  FireIcon,
+  PaperAirplaneIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * A deal, as a thing you act on.
@@ -38,13 +40,13 @@ import {
 
 const ENGAGEMENT: Record<
   EngagementLevel,
-  { label: string; Icon: typeof Eye; tone: "brand" | "warn" | "muted" }
+  { label: string; Icon: Icon; tone: "brand" | "warn" | "muted" }
 > = {
-  no_proposal: { label: "No proposal yet", Icon: FileX2, tone: "muted" },
-  unsent: { label: "Drafted, not sent", Icon: FileX2, tone: "warn" },
-  unopened: { label: "Sent, never opened", Icon: EyeOff, tone: "warn" },
-  opened: { label: "Opened", Icon: Eye, tone: "brand" },
-  engaged: { label: "Reading it repeatedly", Icon: Flame, tone: "brand" },
+  no_proposal: { label: "No proposal yet", Icon: DocumentIcon, tone: "muted" },
+  unsent: { label: "Drafted, not sent", Icon: DocumentIcon, tone: "warn" },
+  unopened: { label: "Sent, never opened", Icon: EyeSlashIcon, tone: "warn" },
+  opened: { label: "Opened", Icon: EyeIcon, tone: "brand" },
+  engaged: { label: "Reading it repeatedly", Icon: FireIcon, tone: "brand" },
 };
 
 export function DealCard({
@@ -99,7 +101,7 @@ export function DealCard({
             {...listeners}
             {...attributes}
           >
-            <GripVertical className="size-3.5" strokeWidth={1.6} />
+            <EllipsisVerticalIcon className="size-3.5" strokeWidth={1.6} />
           </button>
         )}
 
@@ -128,7 +130,7 @@ export function DealCard({
               aria-label={`Actions for ${name}`}
               className="-mr-1.5 -mt-1.5 shrink-0 rounded-md p-2 text-muted-foreground transition-opacity hover:bg-secondary hover:text-foreground pointer-fine:-mr-1 pointer-fine:-mt-1 pointer-fine:p-1 pointer-fine:opacity-0 pointer-fine:group-hover/card:opacity-100 pointer-fine:focus-visible:opacity-100 pointer-fine:aria-expanded:opacity-100"
             >
-              <MoreHorizontal className="size-3.5" strokeWidth={1.8} />
+              <EllipsisHorizontalIcon className="size-3.5" strokeWidth={1.8} />
             </button>
           </DropdownMenuTrigger>
 
@@ -143,7 +145,7 @@ export function DealCard({
                 className={cn(stage === deal.stage && "text-muted-foreground")}
               >
                 {stage === deal.stage ? (
-                  <Check strokeWidth={2.2} />
+                  <CheckIcon strokeWidth={2.2} />
                 ) : (
                   <span className="size-3.5" />
                 )}
@@ -153,7 +155,7 @@ export function DealCard({
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href={`/pipeline/${deal.id}`}>
-                <ArrowRight strokeWidth={1.7} />
+                <ArrowRightIcon strokeWidth={1.7} />
                 Open deal
               </Link>
             </DropdownMenuItem>
@@ -188,7 +190,7 @@ export function DealCard({
               className="mt-1.5 inline-flex items-center gap-1 py-1 text-[11.5px] text-brand hover:underline"
             >
               Waiting in follow-ups
-              <ArrowRight className="size-3" strokeWidth={1.8} />
+              <ArrowRightIcon className="size-3" strokeWidth={1.8} />
             </Link>
           ) : (
             <button
@@ -197,7 +199,7 @@ export function DealCard({
               disabled={chasing}
               className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 pointer-coarse:px-3 pointer-coarse:py-2 text-[11.5px] transition-colors hover:border-brand/50 hover:text-brand disabled:opacity-60"
             >
-              <Send className="size-3" strokeWidth={1.8} />
+              <PaperAirplaneIcon className="size-3" strokeWidth={1.8} />
               {chasing ? "Adding…" : "Write the follow-up"}
             </button>
           )}

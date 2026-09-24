@@ -4,6 +4,10 @@ import { saveGoogleTokens } from "@/lib/google/auth";
 import { OAUTH_NEXT_COOKIE, OAUTH_STATE_COOKIE } from "@/lib/google/oauth-cookies";
 import { DEMO_RESET_COOKIE, replayOnboarding } from "@/lib/demo";
 import { isFounder } from "@/lib/founders";
+import { checkRateLimitByKey, clientIp } from "@/lib/rate-limit";
+
+/** Each attempt costs a token exchange with Google, so it is capped per network. */
+const CALLBACK_LIMIT = { action: "oauth_callback", limit: 20, windowMinutes: 10 };
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -31,6 +35,9 @@ export async function GET(request: NextRequest) {
     clearFlowCookies(
       NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(reason)}`)
     );
+
+  const limit = await checkRateLimitByKey(clientIp(request), CALLBACK_LIMIT);
+  if (!limit.ok) return fail("too_many_attempts");
 
   // Google reports consent failures here rather than as a missing code.
   const oauthError = searchParams.get("error");

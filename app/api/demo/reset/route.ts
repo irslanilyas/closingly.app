@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { DEMO_RESET_COOKIE } from "@/lib/demo";
+import { checkRateLimitByKey, clientIp } from "@/lib/rate-limit";
+
+const RESET_LIMIT = { action: "demo_reset", limit: 10, windowMinutes: 10 };
 
 /**
  * Demo helper: drops the session and flags the next sign-in as a replay, so
@@ -11,6 +14,12 @@ import { DEMO_RESET_COOKIE } from "@/lib/demo";
  */
 export async function GET(request: NextRequest) {
   const { origin } = new URL(request.url);
+
+  const limit = await checkRateLimitByKey(clientIp(request), RESET_LIMIT);
+  if (!limit.ok) {
+    return NextResponse.redirect(`${origin}/login?error=too_many_attempts`);
+  }
+
   const response = NextResponse.redirect(`${origin}/api/auth/google`);
 
   for (const cookie of request.cookies.getAll()) {

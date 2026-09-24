@@ -17,7 +17,12 @@ import { toProposalData } from "@/lib/proposal-data";
 import type { ProposalData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Sparkles, History, ArrowLeft, RotateCcw } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowUturnLeftIcon,
+  ClockIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
 interface Loaded {
   id: string;
@@ -53,7 +58,7 @@ export default function ProposalPage({
   const [versions, setVersions] = useState<Version[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  const load = useCallback(async () => {
+  const fetchProposal = useCallback(async (): Promise<Loaded | null> => {
     const supabase = createClient();
     const { data } = await supabase
       .from("proposals")
@@ -65,13 +70,17 @@ export default function ProposalPage({
 
     // Normalised on the way in: a starter proposal is stored in the generated
     // section shape, and the document only speaks the fixed field shape.
-    if (data)
-      setProposal({
-        ...(data as unknown as Loaded),
-        proposal_data: toProposalData(data.proposal_data),
-      });
-    setLoading(false);
+    return data
+      ? { ...(data as unknown as Loaded), proposal_data: toProposalData(data.proposal_data) }
+      : null;
   }, [id]);
+
+  const apply = useCallback((next: Loaded | null) => {
+    if (next) setProposal(next);
+    setLoading(false);
+  }, []);
+
+  const load = useCallback(() => fetchProposal().then(apply), [fetchProposal, apply]);
 
   const loadVersions = useCallback(async () => {
     const res = await fetch(`/api/proposals/${id}/versions`);
@@ -79,8 +88,8 @@ export default function ProposalPage({
   }, [id]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    fetchProposal().then(apply);
+  }, [fetchProposal, apply]);
 
   // Highlighting a refined field is a nudge, not a permanent state.
   useEffect(() => {
@@ -214,7 +223,7 @@ export default function ProposalPage({
           href={`/pipeline/${proposal.deal_id}`}
           className="-my-2 flex items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="size-3.5" strokeWidth={1.5} />
+          <ArrowLeftIcon className="size-3.5" strokeWidth={1.5} />
           Back to deal
         </Link>
 
@@ -226,7 +235,7 @@ export default function ProposalPage({
           }}
           className="-my-2 flex items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
         >
-          <History className="size-3.5" strokeWidth={1.5} />
+          <ClockIcon className="size-3.5" strokeWidth={1.5} />
           History
         </button>
       </div>
@@ -269,7 +278,7 @@ export default function ProposalPage({
                   variant="outline"
                   className="h-8 text-[12px] gap-1.5 shrink-0 cursor-pointer"
                 >
-                  <RotateCcw className="size-3" strokeWidth={1.5} />
+                  <ArrowUturnLeftIcon className="size-3" strokeWidth={1.5} />
                   Restore
                 </Button>
               </div>
@@ -331,7 +340,7 @@ export default function ProposalPage({
               disabled={refining || !instruction.trim()}
               className="h-8 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0 pointer-coarse:h-10"
             >
-              <Sparkles className="size-3.5" strokeWidth={1.5} />
+              <SparklesIcon className="size-3.5" strokeWidth={1.5} />
               {refining ? "Working…" : "Refine"}
             </Button>
           </div>

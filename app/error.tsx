@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import {
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * Route-segment error boundary.
@@ -33,7 +35,7 @@ export default function ErrorPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
       <div className="max-w-[420px] text-center">
-        <AlertTriangle
+        <ExclamationTriangleIcon
           className="size-6 mx-auto text-muted-foreground mb-4"
           strokeWidth={1.5}
         />
@@ -41,8 +43,8 @@ export default function ErrorPage({
           Something went wrong
         </h1>
         <p className="mt-2.5 text-[13.5px] text-muted-foreground leading-relaxed">
-          That's on us, not you. Try again, or head back to the dashboard —
-          nothing you were working on should be lost.
+          That&rsquo;s on us, not you. Try again, or head back to the dashboard.
+          Nothing you were working on should be lost.
         </p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <Button

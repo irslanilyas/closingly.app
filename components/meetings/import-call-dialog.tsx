@@ -14,7 +14,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileUp, Loader2 } from "lucide-react";
+import {
+  DocumentArrowUpIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 
 /** Mirrors the server's floor so the button disables before a wasted round trip. */
 const MIN_CHARS = 200;
@@ -66,13 +69,13 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
         const messages: Record<string, string> = {
           transcript_too_short: `Needs at least ${MIN_CHARS} characters to be worth reading.`,
           transcript_too_long: "That's larger than a transcript should be.",
-          rate_limited: "That's a lot of imports at once — try again shortly.",
+          rate_limited: "That's a lot of imports at once. Try again shortly.",
         };
         throw new Error(messages[body.error] ?? "Couldn't import that call.");
       }
 
       toast.success(
-        "Reading the transcript — the deal appears here in about a minute."
+        "Reading the transcript. The deal appears here in about a minute."
       );
       reset();
       setOpen(false);
@@ -99,7 +102,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
           variant="outline"
           className="h-9 text-[12.5px] gap-2 cursor-pointer"
         >
-          <FileUp className="size-3.5" strokeWidth={1.5} />
+          <DocumentArrowUpIcon className="size-3.5" strokeWidth={1.5} />
           Import a call
         </Button>
       </DialogTrigger>
@@ -111,7 +114,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
         <DialogHeader>
           <DialogTitle>Import a call</DialogTitle>
           <DialogDescription>
-            Paste a transcript from Otter, Fireflies, Zoom — or any call the
+            Paste a transcript from Otter, Fireflies, Zoom, or any call the
             agent wasn&rsquo;t on. It goes through exactly the same read as a
             recorded call: if it&rsquo;s a discovery conversation, you get a
             deal and a drafted proposal.
@@ -165,7 +168,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
               className="min-h-[180px] max-h-[40vh] text-[12.5px] leading-relaxed font-mono"
             />
             <p className="text-[11.5px] text-muted-foreground leading-relaxed">
-              Speaker labels help but aren&rsquo;t required — paste it as it
+              Speaker labels help but aren&rsquo;t required. Paste it as it
               comes out of the other tool.
             </p>
           </div>
@@ -179,7 +182,7 @@ export function ImportCallDialog({ onImported }: { onImported: () => void }) {
           >
             {submitting ? (
               <>
-                <Loader2 className="size-3.5 animate-spin" />
+                <Spinner className="size-3.5" />
                 Importing…
               </>
             ) : (

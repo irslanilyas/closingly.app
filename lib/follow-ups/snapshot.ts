@@ -29,7 +29,7 @@ const DEAL_LIMIT = 300;
 export async function buildSnapshots(
   supabase: SupabaseClient,
   userId: string,
-  opts: { includeClosed?: boolean } = {}
+  opts: { includeClosed?: boolean; dealId?: string } = {}
 ): Promise<EnrichedSnapshot[]> {
   let dealQuery = supabase
     .from("deals")
@@ -41,6 +41,8 @@ export async function buildSnapshots(
     .limit(DEAL_LIMIT);
 
   if (!opts.includeClosed) dealQuery = dealQuery.neq("stage", "lost");
+  // The deal page needs exactly one snapshot, built by the same code.
+  if (opts.dealId) dealQuery = dealQuery.eq("id", opts.dealId);
 
   const { data: deals } = await dealQuery;
   if (!deals || deals.length === 0) return [];

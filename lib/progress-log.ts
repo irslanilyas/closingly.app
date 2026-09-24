@@ -1,17 +1,17 @@
 import {
-  Mic,
-  Kanban,
-  FileText,
-  DollarSign,
-  Sparkles,
-  UserCog,
-  ShieldCheck,
-  type LucideIcon,
-} from "lucide-react";
+  CurrencyDollarIcon,
+  DocumentTextIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+  UserCircleIcon,
+  VideoCameraIcon,
+  ViewColumnsIcon,
+} from "@heroicons/react/24/outline";
+import type { Icon } from "@/lib/icon";
 
 export interface ProgressSection {
   title: string;
-  Icon: LucideIcon;
+  Icon: Icon;
   items: string[];
 }
 
@@ -23,7 +23,7 @@ export interface ProgressSection {
 export const PROGRESS_LOG: ProgressSection[] = [
   {
     title: "Meetings",
-    Icon: Mic,
+    Icon: VideoCameraIcon,
     items: [
       "Bot joins scheduled calls and transcribes automatically",
       "Play the recording back with the transcript following along",
@@ -31,12 +31,12 @@ export const PROGRESS_LOG: ProgressSection[] = [
       "Or paste any transcript to import manually",
       "Auto-detects discovery calls vs internal syncs",
       "Self-heals if a bot's status gets stuck",
-      "Hard cap on recording minutes — no runaway usage",
+      "Hard cap on recording minutes, so usage never runs away",
     ],
   },
   {
     title: "Pipeline",
-    Icon: Kanban,
+    Icon: ViewColumnsIcon,
     items: [
       "Kanban, list, and forecast views",
       "Full activity timeline on every deal",
@@ -45,7 +45,7 @@ export const PROGRESS_LOG: ProgressSection[] = [
   },
   {
     title: "Proposals",
-    Icon: FileText,
+    Icon: DocumentTextIcon,
     items: [
       "AI drafts a proposal straight from the call",
       "Refine with a plain-language instruction",
@@ -58,7 +58,7 @@ export const PROGRESS_LOG: ProgressSection[] = [
   },
   {
     title: "Pricing & scope",
-    Icon: DollarSign,
+    Icon: CurrencyDollarIcon,
     items: [
       "Price recommendations from your own deal history",
       "Scope-creep detector for new client requests",
@@ -67,20 +67,20 @@ export const PROGRESS_LOG: ProgressSection[] = [
   },
   {
     title: "Deal intelligence",
-    Icon: Sparkles,
+    Icon: SparklesIcon,
     items: [
       "Client health flags deals going quiet",
       "Needs-attention list, worst deals first, across the whole pipeline",
       "Win/loss stats by proposal template",
       "Capacity forecast warns before you overcommit",
-      "Loss post-mortems — private, no sugarcoating",
+      "Loss post-mortems: private, no sugarcoating",
       "Case-study drafts from deals you win",
       "Competitor mentions auto-flagged with a positioning note",
     ],
   },
   {
     title: "Account",
-    Icon: UserCog,
+    Icon: UserCircleIcon,
     items: [
       "Google Calendar + Gmail sign-in",
       "Full data export, one file",
@@ -89,10 +89,10 @@ export const PROGRESS_LOG: ProgressSection[] = [
   },
   {
     title: "Security & reliability",
-    Icon: ShieldCheck,
+    Icon: ShieldCheckIcon,
     items: [
       "Every user's data isolated at the database level (Row-Level Security)",
-      "Rate limits on every AI feature — no runaway spend",
+      "Rate limits on every AI feature, so spend never runs away",
       "Webhook signatures verified, replay attacks rejected",
       "OAuth tokens never leave the server",
       "AI proposal designs are a fixed set of choices, never executable code",

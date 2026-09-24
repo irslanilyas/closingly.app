@@ -1,15 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { CopyButton } from "@/components/copy-button";
 import { useStreamingJson } from "@/lib/hooks/use-streaming-json";
 import type { CaseStudyResult } from "@/lib/types";
-import { Loader2, Award } from "lucide-react";
+import {
+  TrophyIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 /**
  * Only ever shown on a deal marked "won". Turns the same transcript that fed
- * the proposal into marketing material — real language from the call, not
+ * the proposal into marketing material: real language from the call, not
  * invented praise.
  */
 export function CaseStudyPanel({ dealId }: { dealId: string }) {
@@ -20,24 +23,24 @@ export function CaseStudyPanel({ dealId }: { dealId: string }) {
   return (
     <div className="space-y-6">
       <p className="text-[12.5px] text-muted-foreground leading-relaxed max-w-[520px]">
-        Drafts a case study and a testimonial-request email from this deal
-        &rsquo;s discovery call. Review before you send anything — the quote
-        is grounded in the transcript, not invented, but it&rsquo;s still a
-        draft.
+        Drafts a case study and a testimonial request from this deal&rsquo;s
+        calls. The quote comes from the transcript, not invention, but read it
+        before you send anything.
       </p>
 
       <Button
         onClick={() => run({})}
         disabled={streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
+        variant="brand"
+        className="h-9 gap-2 px-4 text-[12.5px]"
       >
         {streaming ? (
           <>
-            <Loader2 className="size-3.5 animate-spin" /> Drafting…
+            <Spinner className="size-3.5" /> Drafting
           </>
         ) : (
           <>
-            <Award className="size-3.5" strokeWidth={1.75} /> Generate case
+            <TrophyIcon className="size-3.5" strokeWidth={1.75} /> Generate case
             study
           </>
         )}
@@ -50,7 +53,7 @@ export function CaseStudyPanel({ dealId }: { dealId: string }) {
 
 function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
   if (!data?.headline) {
-    return <Skeleton className="h-[260px] w-full rounded-md" />;
+    return <p className="shimmer-text py-6 text-[13px]">Going back through the calls for what actually changed…</p>;
   }
 
   return (
@@ -60,14 +63,14 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
           Headline
         </div>
         <div className="text-[18px] font-medium tracking-tight leading-snug">
-          {data.headline}
+          <RevealText text={data.headline} />
         </div>
       </div>
 
       {data.summary && (
         <Card title="Summary">
           <p className="text-[13px] leading-relaxed text-foreground/85">
-            {data.summary}
+            <RevealText text={data.summary} />
           </p>
         </Card>
       )}
@@ -75,7 +78,7 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
       {data.client_quote && (
         <Card title="Client quote">
           <p className="text-[13.5px] leading-relaxed italic text-foreground/85">
-            &ldquo;{data.client_quote}&rdquo;
+            <RevealText text={`“${data.client_quote}”`} />
           </p>
         </Card>
       )}
@@ -85,8 +88,8 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
           <ul className="space-y-1.5">
             {data.results.map((r, i) => (
               <li key={i} className="text-[13px] leading-relaxed flex gap-2.5">
-                <span className="text-[var(--brand)]">—</span>
-                <span>{r}</span>
+                <span className="mt-[9px] size-1 shrink-0 rounded-full bg-brand" />
+                <RevealText text={r} />
               </li>
             ))}
           </ul>
@@ -107,8 +110,8 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
               {data.testimonial_request_email.subject}
             </div>
           )}
-          <p className="text-[13px] leading-relaxed whitespace-pre-wrap text-foreground/85">
-            {data.testimonial_request_email.body}
+          <p className="text-[13px] leading-relaxed text-foreground/85">
+            <RevealText text={data.testimonial_request_email.body} />
           </p>
         </Card>
       )}

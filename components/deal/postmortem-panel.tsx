@@ -1,14 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useStreamingJson } from "@/lib/hooks/use-streaming-json";
 import type { PostmortemResult } from "@/lib/types";
-import { Loader2, Search } from "lucide-react";
+import {
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 /**
  * Only ever shown on a deal marked "lost". Turns a loss into a private
- * reflection instead of letting it just disappear from the pipeline — the
+ * reflection instead of letting it just disappear from the pipeline: the
  * same transcript that would have fed a proposal now feeds a diagnosis.
  */
 export function PostmortemPanel({ dealId }: { dealId: string }) {
@@ -19,9 +22,8 @@ export function PostmortemPanel({ dealId }: { dealId: string }) {
   return (
     <div className="space-y-6">
       <p className="text-[12.5px] text-muted-foreground leading-relaxed max-w-[520px]">
-        A blunt, private read on why this one didn&rsquo;t close — pulled from
-        the discovery call and whatever this deal accumulated. Only you see
-        this.
+        A blunt, private read on why this one didn&rsquo;t close, pulled from
+        the calls and everything this deal collected. Only you see it.
       </p>
 
       <Button
@@ -32,11 +34,11 @@ export function PostmortemPanel({ dealId }: { dealId: string }) {
       >
         {streaming ? (
           <>
-            <Loader2 className="size-3.5 animate-spin" /> Analyzing…
+            <Spinner className="size-3.5" /> Analyzing
           </>
         ) : (
           <>
-            <Search className="size-3.5" strokeWidth={1.75} /> Generate
+            <MagnifyingGlassIcon className="size-3.5" strokeWidth={1.75} /> Generate
             post-mortem
           </>
         )}
@@ -49,21 +51,21 @@ export function PostmortemPanel({ dealId }: { dealId: string }) {
 
 function Result({ data }: { data: Partial<PostmortemResult> | null }) {
   if (!data?.what_went_wrong) {
-    return <Skeleton className="h-[220px] w-full rounded-md" />;
+    return <p className="shimmer-text py-6 text-[13px]">Reading back through the deal for where it turned…</p>;
   }
 
   return (
     <div className="space-y-4">
       <Card title="What went wrong">
         <p className="text-[13px] leading-relaxed text-foreground/85">
-          {data.what_went_wrong}
+          <RevealText text={data.what_went_wrong} />
         </p>
       </Card>
 
       {data.earliest_warning_sign && (
         <Card title="Earliest warning sign">
           <p className="text-[13px] leading-relaxed text-foreground/85">
-            {data.earliest_warning_sign}
+            <RevealText text={data.earliest_warning_sign} />
           </p>
         </Card>
       )}
@@ -71,7 +73,7 @@ function Result({ data }: { data: Partial<PostmortemResult> | null }) {
       {data.price_or_scope_factor && (
         <Card title="Price or scope factor">
           <p className="text-[13px] leading-relaxed text-foreground/85">
-            {data.price_or_scope_factor}
+            <RevealText text={data.price_or_scope_factor} />
           </p>
         </Card>
       )}
@@ -79,7 +81,7 @@ function Result({ data }: { data: Partial<PostmortemResult> | null }) {
       {data.what_to_try_next_time && (
         <Card title="Next time">
           <p className="text-[13px] leading-relaxed text-foreground/85">
-            {data.what_to_try_next_time}
+            <RevealText text={data.what_to_try_next_time} />
           </p>
         </Card>
       )}

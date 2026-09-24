@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { coerceTheme, type ProposalTheme } from "@/lib/proposal-theme";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Check, Sparkles, Trash2 } from "lucide-react";
+import {
+  CheckIcon,
+  SparklesIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 
 export interface TemplateOption {
   id: string;
@@ -108,7 +112,7 @@ export function TemplatePicker({
         onClick={() => setOpen(true)}
         className="-my-2 flex items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground transition-colors"
       >
-        <Sparkles className="size-3.5" strokeWidth={1.5} />
+        <SparklesIcon className="size-3.5" strokeWidth={1.5} />
         Change design
       </button>
     );
@@ -171,7 +175,7 @@ export function TemplatePicker({
           disabled={generating || !brief.trim()}
           className="h-9 gap-1.5 text-[12.5px] bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer shrink-0 pointer-coarse:h-10"
         >
-          <Sparkles className="size-3.5" strokeWidth={1.5} />
+          <SparklesIcon className="size-3.5" strokeWidth={1.5} />
           {generating ? "Designing…" : "Design one"}
         </Button>
       </div>
@@ -251,7 +255,7 @@ function Swatch({
 
       {selected && (
         <span className="absolute top-1.5 right-1.5 grid place-items-center size-4 rounded-full bg-[var(--brand)] text-[var(--brand-fg)]">
-          <Check className="size-2.5" strokeWidth={3} />
+          <CheckIcon className="size-2.5" strokeWidth={3} />
         </span>
       )}
 
@@ -262,7 +266,7 @@ function Swatch({
           aria-label={`Delete ${template.name}`}
           className="absolute top-1 right-1 grid place-items-center size-7 rounded-full bg-background/85 text-muted-foreground hover:text-foreground transition-opacity pointer-fine:top-1.5 pointer-fine:right-1.5 pointer-fine:size-5 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
         >
-          <Trash2 className="size-3" strokeWidth={1.5} />
+          <TrashIcon className="size-3" strokeWidth={1.5} />
         </button>
       )}
     </div>

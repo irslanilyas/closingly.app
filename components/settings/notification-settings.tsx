@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 /**
@@ -15,21 +14,19 @@ import { toast } from "sonner";
  */
 
 interface Prefs {
-  email_digest: "off" | "daily" | "weekly";
   proposal_opened: boolean;
   follow_up_due: boolean;
   meeting_processed: boolean;
 }
 
 const DEFAULTS: Prefs = {
-  email_digest: "daily",
   proposal_opened: true,
   follow_up_due: true,
   meeting_processed: true,
 };
 
 const TOGGLES: Array<{
-  key: keyof Omit<Prefs, "email_digest">;
+  key: keyof Prefs;
   label: string;
   hint: string;
 }> = [
@@ -48,12 +45,6 @@ const TOGGLES: Array<{
     label: "A call has been read",
     hint: "When a recorded call becomes a deal and a drafted proposal.",
   },
-];
-
-const DIGEST_OPTIONS: Array<{ value: Prefs["email_digest"]; label: string }> = [
-  { value: "daily", label: "Daily" },
-  { value: "weekly", label: "Weekly" },
-  { value: "off", label: "Never" },
 ];
 
 export function NotificationSettings() {
@@ -146,33 +137,6 @@ export function NotificationSettings() {
         ))}
       </div>
 
-      <div className="panel px-4 py-3.5">
-        <div className="text-[13.5px] font-medium tracking-tight">
-          Email summary
-        </div>
-        <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
-          One email covering anything you haven&rsquo;t already seen in the app.
-          Nothing is ever emailed twice.
-        </p>
-        <div className="mt-3 inline-flex rounded-lg border border-border p-0.5">
-          {DIGEST_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              disabled={saving}
-              onClick={() => save({ ...prefs, email_digest: option.value })}
-              className={cn(
-                "rounded-[7px] px-3 py-1.5 pointer-coarse:px-4 pointer-coarse:py-2 text-[12.5px] transition-colors",
-                prefs.email_digest === option.value
-                  ? "bg-secondary text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

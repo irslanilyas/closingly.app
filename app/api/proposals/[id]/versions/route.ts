@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { field, readJson } from "@/lib/validate";
 import type { ProposalData } from "@/lib/types";
 
 /** Edit history, newest first. */
@@ -49,10 +51,9 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { version_id } = (await request.json()) as { version_id?: string };
-  if (!version_id) {
-    return NextResponse.json({ error: "missing_version_id" }, { status: 400 });
-  }
+  const body = await readJson(request, z.object({ version_id: field.id }));
+  if (!body.ok) return body.response;
+  const { version_id } = body.data;
 
   const [{ data: version }, { data: current }] = await Promise.all([
     supabase

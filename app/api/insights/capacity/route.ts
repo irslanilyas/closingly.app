@@ -23,7 +23,10 @@ export async function GET() {
     .select("id, estimated_hours, start_date, target_end_date")
     .eq("user_id", user.id)
     .eq("stage", "won");
-  if (error) return new Response(error.message, { status: 500 });
+  if (error) {
+    console.error("[insights/capacity] read failed:", error.message);
+    return NextResponse.json({ error: "read_failed" }, { status: 500 });
+  }
 
   const all = deals ?? [];
   const scheduled = all.filter(

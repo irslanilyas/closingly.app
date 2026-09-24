@@ -20,7 +20,10 @@ export async function GET() {
     .select("id, stage, proposed_amount, created_at")
     .eq("user_id", user.id)
     .in("stage", ["won", "lost"]);
-  if (error) return new Response(error.message, { status: 500 });
+  if (error) {
+    console.error("[insights/win-loss] read failed:", error.message);
+    return NextResponse.json({ error: "read_failed" }, { status: 500 });
+  }
 
   const closed = deals ?? [];
   if (closed.length < WIN_LOSS_MIN_SAMPLE) {

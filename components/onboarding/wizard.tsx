@@ -32,17 +32,17 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  ArrowRight,
-  ArrowLeft,
-  Loader2,
-  Mic,
-  FileText,
-  Send,
-  TrendingUp,
-  CalendarCheck,
-  CalendarX,
-  Check,
-} from "lucide-react";
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowTrendingUpIcon,
+  CalendarDaysIcon,
+  CalendarIcon,
+  CheckIcon,
+  DocumentTextIcon,
+  PaperAirplaneIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 
 const STEPS = ["The promise", "Your practice", "Your proposal", "Your calls"];
 
@@ -448,7 +448,7 @@ function Nav({
   return (
     <div className="mt-10 flex items-center justify-between gap-3 sm:justify-start">
       <Button variant="ghost" size="lg" onClick={onBack} className="text-[13px]">
-        <ArrowLeft strokeWidth={1.6} />
+        <ArrowLeftIcon strokeWidth={1.6} />
         Back
       </Button>
       <Button
@@ -458,9 +458,9 @@ function Nav({
         disabled={nextDisabled}
         className="text-[13.5px] px-4"
       >
-        {busy ? <Loader2 className="animate-spin" /> : null}
+        {busy ? <Spinner className="" /> : null}
         {nextLabel}
-        {!busy && <ArrowRight strokeWidth={1.8} />}
+        {!busy && <ArrowRightIcon strokeWidth={1.8} />}
       </Button>
     </div>
   );
@@ -470,22 +470,22 @@ function Nav({
 
 const LOOP = [
   {
-    Icon: Mic,
+    Icon: VideoCameraIcon,
     title: "It sits in the call",
     body: "Only the meetings you switch it on for. Everyone can see it there.",
   },
   {
-    Icon: FileText,
+    Icon: DocumentTextIcon,
     title: "It writes the proposal",
     body: "From what was actually said, in your sections and your voice.",
   },
   {
-    Icon: Send,
+    Icon: PaperAirplaneIcon,
     title: "You read it, then send it",
     body: "Nothing reaches a client until you have read it. That never changes.",
   },
   {
-    Icon: TrendingUp,
+    Icon: ArrowTrendingUpIcon,
     title: "It tracks what happens next",
     body: "Which sections they read, what they replied, what that means for the month.",
   },
@@ -527,7 +527,7 @@ function Promise({ onContinue }: { onContinue: () => void }) {
         className="mt-8 sm:mt-9 w-full text-[13.5px] px-4 sm:w-auto"
       >
         Set it up
-        <ArrowRight strokeWidth={1.8} />
+        <ArrowRightIcon strokeWidth={1.8} />
       </Button>
     </div>
   );
@@ -558,7 +558,7 @@ function Calls({
     <div className="warm-in pt-4 sm:pt-10 max-w-[620px]">
       {generating && (
         <div className="mb-8 flex items-start gap-3 rounded-lg wash border border-brand/25 px-4 py-3">
-          <Loader2 className="size-4 mt-0.5 shrink-0 animate-spin text-brand" />
+          <Spinner className="size-4 mt-0.5 shrink-0 text-brand" />
           <div>
             <div className="text-[13.5px] font-medium tracking-tight">
               Your proposal is being written
@@ -583,9 +583,9 @@ function Calls({
       <div className="mt-7 panel p-4 sm:p-5">
         <div className="flex items-start gap-3">
           {calendarConnected ? (
-            <CalendarCheck className="size-4 mt-0.5 shrink-0 text-brand" strokeWidth={1.6} />
+            <CalendarDaysIcon className="size-4 mt-0.5 shrink-0 text-brand" strokeWidth={1.6} />
           ) : (
-            <CalendarX className="size-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={1.6} />
+            <CalendarIcon className="size-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={1.6} />
           )}
           <div>
             <div className="text-[13.5px] font-medium tracking-tight">
@@ -601,7 +601,7 @@ function Calls({
                   key={line}
                   className="flex items-start gap-2 text-[12.5px] text-muted-foreground leading-relaxed"
                 >
-                  <Check className="size-3 mt-1 shrink-0 text-brand" strokeWidth={2.4} />
+                  <CheckIcon className="size-3 mt-1 shrink-0 text-brand" strokeWidth={2.4} />
                   {line}
                 </li>
               ))}
@@ -618,9 +618,9 @@ function Calls({
           onClick={() => onFinish(calendarConnected ? "connected" : "skipped")}
           className="text-[13.5px] px-4"
         >
-          {finishing && <Loader2 className="animate-spin" />}
+          {finishing && <Spinner className="" />}
           Go to my workspace
-          {!finishing && <ArrowRight strokeWidth={1.8} />}
+          {!finishing && <ArrowRightIcon strokeWidth={1.8} />}
         </Button>
 
         {calendarConnected && (

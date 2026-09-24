@@ -53,6 +53,14 @@ export async function PATCH(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
+  // Ownership is proven by the read above. Every write below goes through the
+  // service client instead of the caller's session, because the columns it
+  // sets (the bot id and the recording status) are not the user's to set: the
+  // database refuses them from a browser session. A bot id is global across
+  // every customer's Recall bots, so a user able to write one onto their own
+  // meeting could have the worker fetch someone else's call into it.
+  const admin = createAdminClient();
+
   // ── Disabling ──────────────────────────────────────────────────────────
   if (!enabled) {
     if (meeting.recall_bot_id) {
@@ -65,7 +73,7 @@ export async function PATCH(
       }
     }
 
-    await supabase
+    await admin
       .from("meetings")
       .update({
         agent_enabled: false,
@@ -73,7 +81,8 @@ export async function PATCH(
         status: "scheduled",
         error: null,
       })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     return NextResponse.json({ id, agent_enabled: false });
   }
@@ -88,7 +97,6 @@ export async function PATCH(
   }
 
   // Check the allowance before creating anything billable.
-  const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
     .select("recording_seconds_used, recording_seconds_limit")
@@ -119,10 +127,11 @@ export async function PATCH(
 
   // Already scheduled — nothing to do, and re-scheduling would orphan a bot.
   if (meeting.recall_bot_id) {
-    await supabase
+    await admin
       .from("meetings")
       .update({ agent_enabled: true })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
     return NextResponse.json({ id, agent_enabled: true });
   }
 
@@ -144,7 +153,7 @@ export async function PATCH(
       maxRecordingSeconds: remainingSeconds ?? undefined,
     });
 
-    const { error } = await supabase
+    const { error } = await admin
       .from("meetings")
       .update({
         agent_enabled: true,
@@ -152,7 +161,8 @@ export async function PATCH(
         status: "bot_scheduled",
         error: null,
       })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       // The bot exists but we couldn't record it, so nothing would ever match

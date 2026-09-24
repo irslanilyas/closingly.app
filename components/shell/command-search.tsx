@@ -5,17 +5,17 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Search,
-  Columns3,
-  Mic,
-  Send,
-  Loader2,
-  CornerDownLeft,
-  LayoutDashboard,
-  LineChart,
-  Settings2,
-  ArrowRight,
-} from "lucide-react";
+  ArrowRightIcon,
+  ArrowTurnDownLeftIcon,
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+  PaperAirplaneIcon,
+  PresentationChartLineIcon,
+  Squares2X2Icon,
+  VideoCameraIcon,
+  ViewColumnsIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Hit {
   type: "deal" | "meeting" | "proposal" | "follow_up";
@@ -26,10 +26,10 @@ interface Hit {
 }
 
 const ICONS = {
-  deal: Columns3,
-  meeting: Mic,
-  proposal: Columns3,
-  follow_up: Send,
+  deal: ViewColumnsIcon,
+  meeting: VideoCameraIcon,
+  proposal: ViewColumnsIcon,
+  follow_up: PaperAirplaneIcon,
 } as const;
 
 const GROUP_LABELS: Record<Hit["type"], string> = {
@@ -48,12 +48,12 @@ const GROUP_LABELS: Record<Hit["type"], string> = {
  * than only a way to look things up.
  */
 const JUMPS = [
-  { label: "Dashboard", href: "/", Icon: LayoutDashboard },
-  { label: "Calls", href: "/meetings", Icon: Mic },
-  { label: "Pipeline", href: "/pipeline", Icon: Columns3 },
-  { label: "Follow-ups", href: "/follow-ups", Icon: Send },
-  { label: "Intelligence", href: "/intelligence", Icon: LineChart },
-  { label: "Account", href: "/settings", Icon: Settings2 },
+  { label: "Dashboard", href: "/", Icon: Squares2X2Icon },
+  { label: "Calls", href: "/meetings", Icon: VideoCameraIcon },
+  { label: "Pipeline", href: "/pipeline", Icon: ViewColumnsIcon },
+  { label: "Follow-ups", href: "/follow-ups", Icon: PaperAirplaneIcon },
+  { label: "Intelligence", href: "/intelligence", Icon: PresentationChartLineIcon },
+  { label: "Account", href: "/settings", Icon: Cog6ToothIcon },
 ];
 
 /** Long enough that typing a client name doesn't fire six queries. */
@@ -198,7 +198,7 @@ export function CommandSearch() {
         aria-label="Search"
         className="flex size-10 items-center justify-center gap-2 rounded-lg text-[12.5px] text-muted-foreground transition-colors hover:text-foreground sm:h-8 sm:w-auto sm:justify-start sm:border sm:border-border sm:bg-card sm:pl-2.5 sm:pr-2 sm:hover:border-foreground/25 pointer-coarse:sm:h-10"
       >
-        <Search className="size-4 sm:size-3.5" strokeWidth={1.7} />
+        <MagnifyingGlassIcon className="size-4 sm:size-3.5" strokeWidth={1.7} />
         <span className="hidden sm:inline">Search</span>
         <kbd className="ml-1 hidden rounded border border-border bg-secondary px-1.5 py-px font-mono text-[10px] leading-[1.4] text-muted-foreground sm:inline pointer-coarse:hidden">
           ⌘K
@@ -230,9 +230,9 @@ export function CommandSearch() {
             <div className="relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-[0_2px_4px_oklch(0.215_0.012_90/0.06),0_24px_56px_-12px_oklch(0.215_0.012_90/0.28)] warm-in">
               <div className="flex items-center gap-2.5 border-b border-border px-4">
                 {loading ? (
-                  <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
+                  <Spinner className="size-4 shrink-0 text-muted-foreground" />
                 ) : (
-                  <Search
+                  <MagnifyingGlassIcon
                     className="size-4 shrink-0 text-muted-foreground"
                     strokeWidth={1.7}
                   />
@@ -291,7 +291,7 @@ export function CommandSearch() {
 
               <div className="flex items-center gap-3.5 border-t border-border px-4 py-2 text-[11px] text-muted-foreground pointer-coarse:hidden">
                 <Hint
-                  keys={<CornerDownLeft className="size-3" strokeWidth={1.8} />}
+                  keys={<ArrowTurnDownLeftIcon className="size-3" strokeWidth={1.8} />}
                 >
                   open
                 </Hint>
@@ -364,7 +364,7 @@ function Row({
         )}
       </span>
       {activeRow && (
-        <ArrowRight
+        <ArrowRightIcon
           className="size-3 shrink-0 text-muted-foreground"
           strokeWidth={1.8}
         />

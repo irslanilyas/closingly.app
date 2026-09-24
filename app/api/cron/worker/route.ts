@@ -1,4 +1,4 @@
-import { after, NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enqueue, claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
 import { getBotStatus, getTranscript } from "@/lib/recall";
@@ -8,8 +8,6 @@ import { latestSpecification, latestFacts } from "@/lib/onboarding/persist";
 import { generateStarterProposal } from "@/lib/onboarding/starter-proposal";
 import type { GenerationState } from "@/lib/types";
 import { sweepFollowUps } from "@/lib/follow-ups/sweep";
-import { renderDigest } from "@/lib/email/digest";
-import { sendEmail } from "@/lib/email/resend";
 
 
 /**
@@ -20,33 +18,45 @@ import { sendEmail } from "@/lib/email/resend";
  */
 const STALE_MINUTES = 5;
 
-/** How many stale meetings to reconcile per tick — keep each request cheap. */
-const RECONCILE_LIMIT = 10;
+/** How many stale meetings to reconcile per tick: two Recall calls each. */
+const RECONCILE_LIMIT = 5;
+
+/**
+ * Jobs claimed per tick.
+ *
+ * Sized against the Workers Free plan cap of 50 outbound requests per
+ * invocation, not against time. A transcript job makes roughly fifteen
+ * (Supabase reads and writes, two model calls, Recall), so two leave headroom,
+ * and a tick that ran jobs skips the periodic phases entirely rather than
+ * risk being cut off by the cap halfway through a write.
+ */
+const JOBS_PER_TICK = 2;
 
 /**
  * The clock the phases below run against.
  *
- * The host ends the invocation at a deadline that includes anything still
- * running in `after`. On Cloudflare Workers `after` becomes `ctx.waitUntil`,
- * bounded by the Cron Trigger duration limit; the budget keeps every tick well
- * inside it, so a phase is never severed halfway. Each phase declares roughly what it needs; a
- * phase that cannot finish is skipped rather than started and severed, which
- * matters most for the sweep — a half-written queue is worse than no queue.
+ * The tick arrives as its own fetch invocation (see custom-worker.ts), and the
+ * scheduled handler stays connected until this responds, so the work runs
+ * inline before the response rather than in `after`: on Workers, work queued
+ * behind a sent response is capped at 30 seconds, which a transcript job can
+ * outlast. The budget keeps one tick inside the minute before the next one, so
+ * ticks never overlap. Each phase declares roughly what it needs and is
+ * skipped rather than started when the clock cannot cover it, which matters
+ * most for the sweep: a half-written queue is worse than no queue.
  */
 const BUDGET_MS = 52_000;
 const RECONCILE_BUDGET_MS = 8_000;
 /** Up to four model-written drafts, at a few seconds each. */
 const SWEEP_BUDGET_MS = 25_000;
-const DIGEST_BUDGET_MS = 6_000;
 
 /**
- * Drains the job queue.
+ * Drains the job queue, then runs the periodic sweeps.
  *
- * Claims due jobs, acknowledges immediately, then processes them after the
- * response is sent. Called every minute by the Cloudflare Cron Trigger in
- * wrangler.jsonc, which custom-worker.ts turns into an authenticated request.
+ * Called once a minute by the Cron Trigger in wrangler.jsonc, which
+ * custom-worker.ts turns into an authenticated POST. POST because it changes
+ * state; a GET could be triggered by a prefetch or a crawler holding the URL.
  */
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   const auth = request.headers.get("authorization");
 
@@ -54,39 +64,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const jobs = await claimJobs(5);
-
-  // Respond before doing the work; it is unaffected by the connection
-  // closing, the same reasoning as the Recall webhook.
-  // `after` work still counts against the host deadline, and the phases
-  // below are not equally important. A transcript job can take most of the
-  // budget on its own, so everything after it checks the clock first: the
-  // periodic sweeps run every minute anyway and lose nothing by skipping a
-  // tick, whereas being killed mid-sweep leaves a half-written queue.
   const deadline = Date.now() + BUDGET_MS;
   const timeLeft = () => deadline - Date.now();
 
-  after(async () => {
-    for (const job of jobs) {
-      await runJob(job);
-    }
-
-    // Run every tick, not just when jobs were claimed — a dropped webhook
-    // leaves nothing in the queue to claim in the first place, and nothing
-    // ever emits an event saying a deal has gone quiet.
-    if (timeLeft() > RECONCILE_BUDGET_MS) await reconcileStaleMeetings();
-    if (timeLeft() > SWEEP_BUDGET_MS) await runFollowUpSweeps();
-    if (timeLeft() > DIGEST_BUDGET_MS) await sendDueDigests();
-  });
-
-  if (jobs.length === 0) {
-    return NextResponse.json({ processed: 0 });
+  const jobs = await claimJobs(JOBS_PER_TICK);
+  for (const job of jobs) {
+    await runJob(job);
   }
 
-  return NextResponse.json({
-    accepted: jobs.length,
-    ids: jobs.map((j) => j.id),
-  });
+  // Only on ticks with nothing queued, which is nearly all of them: a dropped
+  // webhook leaves nothing in the queue to claim, and nothing ever emits an
+  // event saying a deal has gone quiet, so something still has to look. A
+  // one-minute delay costs neither phase anything.
+  if (jobs.length === 0) {
+    if (timeLeft() > RECONCILE_BUDGET_MS) await reconcileStaleMeetings();
+    if (timeLeft() > SWEEP_BUDGET_MS) await runFollowUpSweeps();
+  }
+
+  return NextResponse.json({ processed: jobs.length });
 }
 
 /**
@@ -395,18 +390,20 @@ async function runStarterProposal(job: ClaimedJob) {
   }
 }
 
-/* ── Follow-up sweep and digest ───────────────────────────────────────────
-   Both are periodic rather than queued: there is no external event that says
-   "this deal has now been quiet for ten days", so something has to look.   */
+/* ── Follow-up sweep ──────────────────────────────────────────────────────
+   Periodic rather than queued: there is no external event that says "this
+   deal has now been quiet for ten days", so something has to look.         */
 
 /** Accounts whose rules have not run in this long are due another sweep. */
 const SWEEP_INTERVAL_HOURS = 6;
 
-/** Per tick. The sweep costs model calls, so it is deliberately unhurried. */
-const SWEEP_BATCH = 3;
+/**
+ * Accounts per tick. One sweep makes a dozen or so outbound requests including
+ * up to four model drafts, so one per tick stays well inside the free plan's
+ * request cap, and still reaches 360 accounts in each six-hour window.
+ */
+const SWEEP_BATCH = 1;
 
-/** A digest more often than this is a notification, not a digest. */
-const DIGEST_INTERVAL_HOURS = 20;
 
 async function runFollowUpSweeps() {
   const supabase = createAdminClient();
@@ -443,111 +440,6 @@ async function runFollowUpSweeps() {
         .from("profiles")
         .update({ follow_ups_swept_at: new Date().toISOString() })
         .eq("id", userId);
-    }
-  }
-}
-
-async function sendDueDigests() {
-  const supabase = createAdminClient();
-  const cutoff = new Date(
-    Date.now() - DIGEST_INTERVAL_HOURS * 3_600_000
-  ).toISOString();
-
-  const { data: due } = await supabase
-    .from("profiles")
-    .select("id, email, full_name, notification_prefs")
-    .not("onboarding_completed_at", "is", null)
-    .or(`digest_sent_at.is.null,digest_sent_at.lt.${cutoff}`)
-    .limit(SWEEP_BATCH);
-
-  if (!due || due.length === 0) return;
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.closingly.app";
-
-  for (const profile of due) {
-    const userId = profile.id as string;
-    const prefs = (profile.notification_prefs ?? {}) as Record<string, unknown>;
-
-    if (prefs.email_digest === "off") {
-      // Stamp anyway so this row stops being selected on every tick.
-      await supabase
-        .from("profiles")
-        .update({ digest_sent_at: new Date().toISOString() })
-        .eq("id", userId);
-      continue;
-    }
-
-    try {
-      // Only what they have not already been emailed and have not already read
-      // in the app. A digest that repeats what you just saw teaches you to
-      // ignore digests.
-      const { data: pending } = await supabase
-        .from("notifications")
-        .select("id, title, body, href")
-        .eq("user_id", userId)
-        .is("emailed_at", null)
-        .is("read_at", null)
-        .order("created_at", { ascending: false })
-        .limit(8);
-
-      const { data: openItems } = await supabase
-        .from("follow_ups")
-        .select("id, reason, priority")
-        .eq("user_id", userId)
-        .eq("status", "open")
-        .lte("due_at", new Date().toISOString())
-        .order("priority", { ascending: true })
-        .limit(5);
-
-      const items = (pending ?? []).map((n) => ({
-        title: n.title as string,
-        body: (n.body as string | null) ?? null,
-        href: (n.href as string | null) ?? null,
-      }));
-
-      const followUps = (openItems ?? []).map((f) => ({
-        title: f.reason as string,
-        href: "/follow-ups",
-      }));
-
-      // Nothing to say is a valid outcome. Stamp and stay silent.
-      if (items.length === 0 && followUps.length === 0) {
-        await supabase
-          .from("profiles")
-          .update({ digest_sent_at: new Date().toISOString() })
-          .eq("id", userId);
-        continue;
-      }
-
-      const rendered = renderDigest({
-        name: ((profile.full_name as string | null) ?? "").split(" ")[0] || null,
-        appUrl,
-        items,
-        followUps,
-      });
-
-      await sendEmail({
-        to: profile.email as string,
-        subject: rendered.subject,
-        html: rendered.html,
-        text: rendered.text,
-      });
-
-      const now = new Date().toISOString();
-      if (pending && pending.length > 0) {
-        await supabase
-          .from("notifications")
-          .update({ emailed_at: now })
-          .in("id", pending.map((n) => n.id as string));
-      }
-      await supabase
-        .from("profiles")
-        .update({ digest_sent_at: now })
-        .eq("id", userId);
-    } catch (err) {
-      console.error(`[cron/worker] digest failed for ${userId}:`, err);
-      // Not stamped: a transient Resend failure should be retried on the next
-      // tick rather than costing the user a day of digest.
     }
   }
 }

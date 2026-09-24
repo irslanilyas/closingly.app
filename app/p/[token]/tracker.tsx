@@ -14,12 +14,15 @@ const HEARTBEAT_MS = 15_000;
  */
 export function ViewTracker({ token }: { token: string }) {
   const viewId = useRef<string | null>(null);
-  const startedAt = useRef(Date.now());
+  // Set when the effect starts: reading the clock during render is impure.
+  const startedAt = useRef(0);
   const visibleMs = useRef(0);
-  const lastTick = useRef(Date.now());
+  const lastTick = useRef(0);
   const sections = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    startedAt.current = Date.now();
+    lastTick.current = startedAt.current;
     let cancelled = false;
     let heartbeat: ReturnType<typeof setInterval> | undefined;
 

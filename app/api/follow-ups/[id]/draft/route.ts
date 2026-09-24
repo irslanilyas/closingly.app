@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { field, readJson } from "@/lib/validate";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { followUpDraftPrompt } from "@/lib/prompts";
 import { KIND_LABELS, type FollowUpKind } from "@/lib/follow-ups/rules";
@@ -13,6 +15,8 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
  * everything else, and for "write me a different one" when the first attempt
  * did not land.
  */
+const DraftBody = z.object({ instruction: z.string().max(300).optional() });
+
 const RATE_LIMIT = { action: "follow_up_draft", limit: 40, windowMinutes: 60 };
 
 export async function POST(
@@ -20,6 +24,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!field.id.safeParse(id).success) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,9 +39,10 @@ export async function POST(
   const limit = await checkRateLimit(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
-  const body = (await request.json().catch(() => ({}))) as {
-    instruction?: string;
-  };
+  // An empty body is the common case: "write it", with no steer.
+  const parsed = await readJson(request, DraftBody);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const { data: item } = await supabase
     .from("follow_ups")
@@ -62,7 +70,7 @@ export async function POST(
       : "";
 
   const prompt = followUpDraftPrompt({
-    situation: `${KIND_LABELS[item.kind as FollowUpKind]} — ${item.reason}${steer}`,
+    situation: `${KIND_LABELS[item.kind as FollowUpKind]}: ${item.reason}${steer}`,
     client_name: deal?.client_name ?? "there",
     client_company: deal?.client_company ?? "",
     pain_point: deal?.pain_point ?? "",

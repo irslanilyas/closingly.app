@@ -2,13 +2,17 @@
 
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Monitor } from "lucide-react";
+import {
+  ComputerDesktopIcon,
+  MoonIcon,
+  SunIcon,
+} from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 
 const MODES = [
-  { value: "light", Icon: Sun, label: "Light" },
-  { value: "dark", Icon: Moon, label: "Dark" },
-  { value: "system", Icon: Monitor, label: "System" },
+  { value: "light", Icon: SunIcon, label: "Light" },
+  { value: "dark", Icon: MoonIcon, label: "Dark" },
+  { value: "system", Icon: ComputerDesktopIcon, label: "System" },
 ] as const;
 
 const noop = () => () => {};

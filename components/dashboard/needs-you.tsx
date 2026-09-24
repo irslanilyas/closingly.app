@@ -7,14 +7,14 @@ import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { KIND_LABELS, type FollowUpKind } from "@/lib/follow-ups/rules";
 import {
-  CalendarClock,
-  Eye,
-  Send,
-  ArrowRight,
-  Video,
-  MicOff,
-  Sparkles,
-} from "lucide-react";
+  ArrowRightIcon,
+  CalendarDateRangeIcon,
+  EyeIcon,
+  PaperAirplaneIcon,
+  SparklesIcon,
+  VideoCameraIcon,
+  VideoCameraSlashIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * The one band on the dashboard that answers "what do I do now".
@@ -213,11 +213,11 @@ export function NeedsYou() {
 
             <span className="hidden shrink-0 items-center gap-1 text-[12px] text-muted-foreground transition-colors group-hover:text-brand sm:inline-flex">
               {row.action}
-              <ArrowRight className="size-3" strokeWidth={1.8} />
+              <ArrowRightIcon className="size-3" strokeWidth={1.8} />
             </span>
             {/* No room for the action's words on a phone; the arrow still
                 says the row goes somewhere. */}
-            <ArrowRight
+            <ArrowRightIcon
               aria-hidden
               className="size-3.5 shrink-0 text-muted-foreground sm:hidden"
               strokeWidth={1.8}
@@ -231,7 +231,7 @@ export function NeedsYou() {
 
 function RowIcon({ icon, urgent }: { icon: Row["icon"]; urgent: boolean }) {
   const Icon =
-    icon === "call" ? CalendarClock : icon === "read" ? Eye : Send;
+    icon === "call" ? CalendarDateRangeIcon : icon === "read" ? EyeIcon : PaperAirplaneIcon;
 
   return (
     <span
@@ -307,7 +307,7 @@ export function NextCallCard() {
           className="mt-3 inline-flex items-center gap-1 text-[12.5px] text-brand hover:underline"
         >
           Go to meetings
-          <ArrowRight className="size-3" strokeWidth={1.8} />
+          <ArrowRightIcon className="size-3" strokeWidth={1.8} />
         </Link>
       </div>
     );
@@ -338,9 +338,9 @@ export function NextCallCard() {
         )}
       >
         {call.agentEnabled ? (
-          <Video className="size-3.5 shrink-0 text-brand" strokeWidth={1.7} />
+          <VideoCameraIcon className="size-3.5 shrink-0 text-brand" strokeWidth={1.7} />
         ) : (
-          <MicOff className="size-3.5 shrink-0" strokeWidth={1.7} />
+          <VideoCameraSlashIcon className="size-3.5 shrink-0" strokeWidth={1.7} />
         )}
         {call.agentEnabled
           ? "Notetaker will join and everyone will see it there."
@@ -352,7 +352,7 @@ export function NextCallCard() {
         className="mt-3 inline-flex items-center gap-1 text-[12.5px] text-brand hover:underline"
       >
         {call.agentEnabled ? "Manage" : "Switch it on"}
-        <ArrowRight className="size-3" strokeWidth={1.8} />
+        <ArrowRightIcon className="size-3" strokeWidth={1.8} />
       </Link>
     </div>
   );
@@ -363,7 +363,7 @@ export function AskPrompt() {
   return (
     <div className="panel p-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="size-3.5 text-brand" strokeWidth={1.7} />
+        <SparklesIcon className="size-3.5 text-brand" strokeWidth={1.7} />
         <span className="text-[13px] font-medium tracking-tight">
           Ask Closingly
         </span>

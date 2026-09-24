@@ -41,12 +41,6 @@ export interface ProposalData {
   next_steps: string;
 }
 
-export interface SuggestedReply {
-  tone: string;
-  subject: string;
-  body: string;
-}
-
 export interface Deal {
   id: string;
   user_id: string;
@@ -59,7 +53,6 @@ export interface Deal {
   timeline: string | null;
   decision_maker: string | null;
   fit_score: number | null;
-  suggested_replies: SuggestedReply[] | null;
   stage: DealStage;
   source: string;
   notes: string | null;
@@ -84,7 +77,6 @@ export interface ProposalGeneration {
   competitor_mentioned: string | null;
   competitive_note: string | null;
   proposal: ProposalData;
-  suggested_replies: SuggestedReply[];
 }
 
 export interface PostmortemResult {

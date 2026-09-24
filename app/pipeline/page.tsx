@@ -26,7 +26,13 @@ import {
   type DealStage,
 } from "@/lib/types";
 import type { PipelineDeal } from "@/app/api/pipeline/route";
-import { Search, Columns3, Rows3, Inbox, AlertCircle } from "lucide-react";
+import {
+  ExclamationCircleIcon,
+  InboxIcon,
+  MagnifyingGlassIcon,
+  QueueListIcon,
+  ViewColumnsIcon,
+} from "@heroicons/react/24/outline";
 
 type View = "board" | "list";
 
@@ -119,6 +125,8 @@ export function PipelineView() {
         body: JSON.stringify({ stage: dest }),
       });
       if (!r.ok) throw new Error();
+      // The deal page caches its own copy; drop it so it opens on the new stage.
+      qc.invalidateQueries({ queryKey: ["deal", dealId] });
       toast.success(`Moved to ${STAGE_LABELS[dest]}`);
     } catch {
       toast.error("Couldn't update the stage.");
@@ -144,6 +152,7 @@ export function PipelineView() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deal_id: deal.id,
+          kind: deal.next_action.kind,
           reason: deal.next_action.reason,
           priority: deal.next_action.priority,
         }),
@@ -159,6 +168,7 @@ export function PipelineView() {
         body: JSON.stringify({}),
       }).catch(() => {});
 
+      qc.invalidateQueries({ queryKey: ["deal", deal.id] });
       toast.success("Added to follow-ups. The message is being written.");
     } catch {
       toast.error("Couldn't add that.");
@@ -181,8 +191,8 @@ export function PipelineView() {
           <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
             {(
               [
-                { value: "board", Icon: Columns3, label: "Board" },
-                { value: "list", Icon: Rows3, label: "List" },
+                { value: "board", Icon: ViewColumnsIcon, label: "Board" },
+                { value: "list", Icon: QueueListIcon, label: "List" },
               ] as const
             ).map((v) => (
               <button
@@ -222,7 +232,7 @@ export function PipelineView() {
 
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[170px] flex-1 sm:max-w-[320px]">
-          <Search
+          <MagnifyingGlassIcon
             className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
             strokeWidth={1.7}
           />
@@ -244,7 +254,7 @@ export function PipelineView() {
               : "border-border bg-card text-muted-foreground hover:text-foreground"
           )}
         >
-          <AlertCircle className="size-3.5" strokeWidth={1.7} />
+          <ExclamationCircleIcon className="size-3.5" strokeWidth={1.7} />
           Needs action
         </button>
       </div>
@@ -417,7 +427,7 @@ function EmptyPipeline({ filtered }: { filtered: boolean }) {
   return (
     <div className="panel px-6 py-12 text-center">
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
-        <Inbox className="size-4 text-muted-foreground" strokeWidth={1.6} />
+        <InboxIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
       <p className="mt-4 text-[14px] font-medium tracking-tight">
         {filtered ? "Nothing matches that" : "No deals yet"}

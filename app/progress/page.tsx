@@ -7,7 +7,9 @@ import { PageHeader } from "@/components/page-header";
 import { createClient } from "@/lib/supabase/client";
 import { isFounder } from "@/lib/founders";
 import { PROGRESS_LOG } from "@/lib/progress-log";
-import { Check } from "lucide-react";
+import {
+  CheckIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * A build log for the two people building this, not a customer-facing
@@ -36,7 +38,7 @@ export default function ProgressPage() {
     <AppShellClient>
       <PageHeader
         title="What's built so far"
-        description="A running log, not a pitch — updated whenever something ships."
+        description="A running log, not a pitch. Updated whenever something ships."
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 max-w-[900px]">
@@ -55,7 +57,7 @@ export default function ProgressPage() {
             <ul className="space-y-2">
               {section.items.map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <Check
+                  <CheckIcon
                     className="size-3.5 mt-[3px] shrink-0 text-muted-foreground/50"
                     strokeWidth={2}
                   />

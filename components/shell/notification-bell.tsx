@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Bell, Check } from "lucide-react";
+import {
+  BellIcon,
+  CheckIcon,
+} from "@heroicons/react/24/outline";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -110,7 +113,7 @@ export function NotificationBell() {
           }
           className="relative grid size-10 lg:size-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         >
-          <Bell className="size-4" strokeWidth={1.6} />
+          <BellIcon className="size-4" strokeWidth={1.6} />
           {unread > 0 && (
             <span
               aria-hidden
@@ -137,7 +140,7 @@ export function NotificationBell() {
               onClick={markAll}
               className="inline-flex items-center gap-1 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Check className="size-3" strokeWidth={2.2} />
+              <CheckIcon className="size-3" strokeWidth={2.2} />
               Mark all read
             </button>
           )}

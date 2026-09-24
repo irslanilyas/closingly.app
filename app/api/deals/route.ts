@@ -19,6 +19,9 @@ export async function GET() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) return new Response(error.message, { status: 500 });
+  if (error) {
+    console.error("[deals] read failed:", error.message);
+    return NextResponse.json({ error: "read_failed" }, { status: 500 });
+  }
   return NextResponse.json({ deals: data ?? [] });
 }

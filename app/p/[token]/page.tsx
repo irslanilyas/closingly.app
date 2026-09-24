@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProposalDocument } from "@/components/proposal/proposal-document";
 import { ViewTracker } from "@/app/p/[token]/tracker";
@@ -75,12 +76,12 @@ export default async function SharedProposalPage({
           </p>
           {/* Deliberately quiet — same muted color as the page, no logo, no
               brand accent. The point is findable, not promoted. */}
-          <a
+          <Link
             href="/"
             className="text-[11px] text-[color:var(--p-muted)]/70 hover:text-[color:var(--p-muted)] transition-colors shrink-0"
           >
             Proposal built with Closingly
-          </a>
+          </Link>
         </footer>
       </main>
     </div>

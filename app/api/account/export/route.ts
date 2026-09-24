@@ -71,7 +71,11 @@ export async function GET() {
   ]);
 
   const strip = <T extends { proposals?: unknown }>(rows: T[] | null) =>
-    (rows ?? []).map(({ proposals: _proposals, ...rest }) => rest);
+    (rows ?? []).map((row) => {
+      const rest = { ...row };
+      delete rest.proposals;
+      return rest;
+    });
 
   const payload = {
     exported_at: new Date().toISOString(),

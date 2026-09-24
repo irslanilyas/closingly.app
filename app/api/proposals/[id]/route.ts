@@ -1,6 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import type { ProposalData } from "@/lib/types";
+import { z } from "zod";
+import { field, readJson } from "@/lib/validate";
+
+/**
+ * The document's seven fields, bounded. What is saved here is what a client
+ * later reads on the public page, so it is checked as carefully as anything
+ * that arrives from outside.
+ */
+const ProposalDataSchema = z.object({
+  challenge: z.string().max(10_000),
+  approach: z.string().max(20_000),
+  deliverables: z.array(z.string().max(2_000)).max(50),
+  timeline_phased: z.string().max(10_000),
+  investment_number: z.string().max(200),
+  investment_terms: z.string().max(10_000),
+  next_steps: z.string().max(10_000),
+});
+
+const Body = z.object({
+  proposal_data: ProposalDataSchema.optional(),
+  change_summary: z.string().trim().max(200).optional(),
+  template_id: field.id.nullable().optional(),
+});
 
 /** Save an edited proposal, snapshotting the previous version first. */
 export async function PATCH(
@@ -18,11 +40,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json()) as {
-    proposal_data?: ProposalData;
-    change_summary?: string;
-    template_id?: string | null;
-  };
+  const parsed = await readJson(request, Body);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   // Switching template changes how the proposal looks, not what it says, so it
   // skips the version snapshot below — design churn in the history panel would

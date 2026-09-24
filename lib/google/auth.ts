@@ -1,4 +1,6 @@
+import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hasSealingKey, isSealed, open, seal } from "@/lib/crypto/sealed";
 
 export interface GoogleTokens {
   access_token: string;
@@ -24,7 +26,22 @@ export async function getGoogleTokens(
     .single();
 
   if (error || !data?.google_tokens) return null;
-  return data.google_tokens as GoogleTokens;
+
+  const stored = data.google_tokens as unknown;
+  if (isSealed(stored)) {
+    try {
+      return await open<GoogleTokens>(stored);
+    } catch (err) {
+      // A rotated or missing key. The honest outcome is "not connected", which
+      // the UI already turns into a reconnect prompt, not a crash.
+      console.error("[google] stored tokens could not be opened:", err);
+      return null;
+    }
+  }
+
+  // Written before tokens were encrypted. Still valid; the next save (a sign-in
+  // or an access-token refresh, at most an hour away) seals it.
+  return stored as GoogleTokens;
 }
 
 /**
@@ -48,10 +65,21 @@ export async function saveGoogleTokens(
       (incoming.expires_in ? incoming.expires_in * 1000 : DEFAULT_TTL_MS),
   };
 
+  // Sealed at rest: the refresh token is standing access to someone's Gmail
+  // and calendar, and the profile row is readable through their own session.
+  // Without a key configured it still saves, loudly, rather than breaking
+  // Google sign-in for everyone over a missing secret.
+  let stored: unknown = tokens;
+  if (hasSealingKey()) {
+    stored = await seal(tokens);
+  } else {
+    console.error("[google] TOKEN_ENCRYPTION_KEY is not set; tokens stored unencrypted");
+  }
+
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("profiles")
-    .update({ google_tokens: tokens })
+    .update({ google_tokens: stored })
     .eq("id", userId);
 
   if (error) throw new Error(`Failed to save Google tokens: ${error.message}`);

@@ -11,7 +11,9 @@ import type { CapacityInsights, WinLossInsights } from "@/lib/types";
 import type { AttentionDeal } from "@/app/api/insights/attention/route";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
 
 const HEALTH_STYLE = {
   cooling:
@@ -45,7 +47,7 @@ export default function InsightsPage() {
     <AppShellClient>
       <PageHeader
         title="What your pipeline is telling you"
-        description="Learned from your own closed deals and committed hours — not generic advice."
+        description="Learned from your own closed deals and committed hours, not generic advice."
       />
 
       <div className="space-y-10 sm:space-y-12 max-w-[900px]">
@@ -55,7 +57,7 @@ export default function InsightsPage() {
             <Skeleton className="h-[100px] w-full rounded-lg" />
           ) : attention.length === 0 ? (
             <EmptyCard>
-              Every active deal looks healthy — nothing&rsquo;s gone quiet.
+              Every active deal looks healthy. Nothing&rsquo;s gone quiet.
             </EmptyCard>
           ) : (
             <div className="rounded-lg border border-border bg-card overflow-hidden divide-y divide-border">
@@ -68,7 +70,7 @@ export default function InsightsPage() {
                   <div className="min-w-0">
                     <div className="text-[13px] font-medium truncate">
                       {d.client_name ?? "Unnamed"}
-                      {d.client_company ? ` — ${d.client_company}` : ""}
+                      {d.client_company ? ` · ${d.client_company}` : ""}
                     </div>
                     <div className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-muted-foreground sm:truncate">
                       {d.health.reasons[0]}
@@ -83,7 +85,7 @@ export default function InsightsPage() {
                     >
                       {HEALTH_LABEL[d.health.level as "cooling" | "at_risk"]}
                     </span>
-                    <ArrowRight
+                    <ArrowRightIcon
                       className="size-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors"
                       strokeWidth={1.75}
                     />
@@ -100,7 +102,7 @@ export default function InsightsPage() {
             <Skeleton className="h-[200px] w-full rounded-lg" />
           ) : winLoss.insufficient_data ? (
             <EmptyCard>
-              Not enough closed deals yet — {winLoss.closed_count} of{" "}
+              Not enough closed deals yet: {winLoss.closed_count} of{" "}
               {winLoss.needed} needed. Once you&rsquo;ve won or lost a few
               more, this fills in on its own.
             </EmptyCard>
@@ -150,7 +152,7 @@ export default function InsightsPage() {
                 <p className="text-[12px] text-muted-foreground">
                   {capacity.unscheduled_deal_count} won deal
                   {capacity.unscheduled_deal_count === 1 ? "" : "s"} missing
-                  hours or dates — add them in Details to include here.
+                  hours or dates. Add them in the deal details to include here.
                 </p>
               )}
               <div className="rounded-lg border border-border bg-card p-4 sm:p-5 space-y-2.5">

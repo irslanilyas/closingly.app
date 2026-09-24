@@ -18,6 +18,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(dirname, "."),
+      // The real package throws outside a React Server Components build, which
+      // is its whole job. Tests import server modules directly, so it is a
+      // no-op here.
+      "server-only": path.resolve(dirname, "test/server-only-stub.ts"),
     },
   },
 });

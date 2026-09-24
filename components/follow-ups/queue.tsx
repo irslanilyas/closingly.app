@@ -12,16 +12,17 @@ import { formatCurrency } from "@/lib/format";
 import { PRIORITY_LABELS, KIND_LABELS, type FollowUpKind } from "@/lib/follow-ups/rules";
 import { STAGE_LABELS, type DealStage } from "@/lib/types";
 import {
-  Send,
-  Clock,
-  X,
-  Check,
-  Sparkles,
-  Loader2,
-  ChevronDown,
-  Inbox,
-  RotateCcw,
-} from "lucide-react";
+  ArrowUturnLeftIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ClockIcon,
+  InboxIcon,
+  PaperAirplaneIcon,
+  SparklesIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 interface DealSummary {
   id: string;
@@ -194,6 +195,8 @@ function FollowUpCard({
   const [body, setBody] = useState(row.draft_body ?? "");
   const [busy, setBusy] = useState<null | "draft" | "send" | "action">(null);
   const [snoozeOpen, setSnoozeOpen] = useState(false);
+  // A fresh draft plays in for a moment, then becomes the editor.
+  const [revealing, setRevealing] = useState(false);
 
   const handled = row.status !== "open" && row.status !== "snoozed";
 
@@ -231,6 +234,8 @@ function FollowUpCard({
       };
       setSubject(next.draft_subject);
       setBody(next.draft_body);
+      setRevealing(true);
+      setTimeout(() => setRevealing(false), 1600);
     } catch {
       toast.error("Couldn't write that one. Try again.");
     } finally {
@@ -316,7 +321,7 @@ function FollowUpCard({
           )}
         </div>
 
-        <ChevronDown
+        <ChevronDownIcon
           className={cn(
             "mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform",
             expanded && "rotate-180"
@@ -341,9 +346,9 @@ function FollowUpCard({
                   className="text-[12px] gap-1.5"
                 >
                   {busy === "draft" ? (
-                    <Loader2 className="animate-spin" />
+                    <Spinner className="" />
                   ) : (
-                    <Sparkles strokeWidth={1.6} />
+                    <SparklesIcon strokeWidth={1.6} />
                   )}
                   {row.drafted_at ? "Rewrite" : "Write it"}
                 </Button>
@@ -357,12 +362,26 @@ function FollowUpCard({
               placeholder="Subject"
               className="h-9 text-[13px]"
             />
-            <Textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Write the message, or let Closingly draft it from the deal."
-              className="min-h-[150px] text-[13px] leading-relaxed"
-            />
+            {busy === "draft" ? (
+              <div className="grid min-h-[150px] place-items-center rounded-lg border border-dashed border-border">
+                <span className="shimmer-text text-[13px]">Writing it from the deal…</span>
+              </div>
+            ) : revealing ? (
+              <button
+                type="button"
+                onClick={() => setRevealing(false)}
+                className="block min-h-[150px] w-full rounded-lg border border-input px-3 py-2 text-left text-[13px] leading-relaxed"
+              >
+                <RevealText text={body} ripple />
+              </button>
+            ) : (
+              <Textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                placeholder="Write the message, or let Closingly draft it from the deal."
+                className="min-h-[150px] text-[13px] leading-relaxed"
+              />
+            )}
 
             {deal?.client_email ? (
               <p className="text-[11.5px] text-muted-foreground">
@@ -395,9 +414,9 @@ function FollowUpCard({
                 className="text-[12.5px] gap-1.5"
               >
                 {busy === "send" ? (
-                  <Loader2 className="animate-spin" />
+                  <Spinner className="" />
                 ) : (
-                  <Send strokeWidth={1.7} />
+                  <PaperAirplaneIcon strokeWidth={1.7} />
                 )}
                 Send it
               </Button>
@@ -410,7 +429,7 @@ function FollowUpCard({
                   disabled={busy !== null}
                   className="text-[12.5px] gap-1.5"
                 >
-                  <Clock strokeWidth={1.7} />
+                  <ClockIcon strokeWidth={1.7} />
                   Not now
                 </Button>
                 {snoozeOpen && (
@@ -441,7 +460,7 @@ function FollowUpCard({
                 disabled={busy !== null}
                 className="text-[12.5px] gap-1.5 text-muted-foreground"
               >
-                <Check strokeWidth={1.8} />
+                <CheckIcon strokeWidth={1.8} />
                 Handled elsewhere
               </Button>
 
@@ -452,7 +471,7 @@ function FollowUpCard({
                 disabled={busy !== null}
                 className="text-[12.5px] gap-1.5 text-muted-foreground"
               >
-                <X strokeWidth={1.8} />
+                <XMarkIcon strokeWidth={1.8} />
                 Not worth it
               </Button>
             </div>
@@ -467,7 +486,7 @@ function FollowUpCard({
                 disabled={busy !== null}
                 className="text-[12.5px] gap-1.5"
               >
-                <RotateCcw strokeWidth={1.7} />
+                <ArrowUturnLeftIcon strokeWidth={1.7} />
                 Put it back
               </Button>
             </div>
@@ -495,7 +514,7 @@ function EmptyQueue({ tab }: { tab: "open" | "done" }) {
   return (
     <div className="panel px-6 py-12 text-center">
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
-        <Inbox className="size-4 text-muted-foreground" strokeWidth={1.6} />
+        <InboxIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
       <p className="mt-4 text-[14px] font-medium tracking-tight">
         {tab === "open" ? "Nothing needs chasing" : "Nothing handled yet"}

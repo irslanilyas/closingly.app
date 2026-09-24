@@ -5,7 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { TranscriptSegment } from "@/lib/types";
-import { Pause, Play, Rewind, FastForward } from "lucide-react";
+import {
+  BackwardIcon,
+  ForwardIcon,
+  PauseIcon,
+  PlayIcon,
+} from "@heroicons/react/24/outline";
 
 interface MeetingRow {
   id: string;
@@ -198,9 +203,9 @@ function SyncedTranscript({
               className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--brand)] text-[var(--brand-fg)] hover:opacity-90 transition-opacity cursor-pointer sm:size-9"
             >
               {playing ? (
-                <Pause className="size-4" strokeWidth={2} />
+                <PauseIcon className="size-4" strokeWidth={2} />
               ) : (
-                <Play className="size-4 ml-0.5" strokeWidth={2} />
+                <PlayIcon className="size-4 ml-0.5" strokeWidth={2} />
               )}
             </button>
 
@@ -210,7 +215,7 @@ function SyncedTranscript({
               aria-label="Back 10 seconds"
               className="grid size-9 place-items-center rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer sm:size-auto"
             >
-              <Rewind className="size-4" strokeWidth={1.75} />
+              <BackwardIcon className="size-4" strokeWidth={1.75} />
             </button>
             <button
               type="button"
@@ -218,7 +223,7 @@ function SyncedTranscript({
               aria-label="Forward 10 seconds"
               className="grid size-9 place-items-center rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer sm:size-auto"
             >
-              <FastForward className="size-4" strokeWidth={1.75} />
+              <ForwardIcon className="size-4" strokeWidth={1.75} />
             </button>
 
             <input

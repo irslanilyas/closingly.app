@@ -8,7 +8,10 @@ import {
 } from "@/lib/proposal-theme";
 import type { ProposalData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check, Plus } from "lucide-react";
+import {
+  CheckIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 
 /**
  * Renders proposal_data as a document.
@@ -108,7 +111,7 @@ export function ProposalDocument({
                   value={item}
                   onSave={(v) => setDeliverable(i, v)}
                   readOnly={readOnly}
-                  placeholder="Empty — clear to remove"
+                  placeholder="Empty. Clear it to remove the item."
                 />
               </div>
             </li>
@@ -123,7 +126,7 @@ export function ProposalDocument({
                 }
                 className="flex items-center gap-1.5 text-[13px] text-[color:var(--p-muted)] hover:text-[color:var(--p-ink)] transition-colors py-1"
               >
-                <Plus className="size-3" strokeWidth={1.5} />
+                <PlusIcon className="size-3" strokeWidth={1.5} />
                 Add deliverable
               </button>
             </li>
@@ -305,7 +308,7 @@ function Section({
 function Bullet({ theme, index }: { theme: ProposalTheme; index: number }) {
   if (theme.bullet === "check") {
     return (
-      <Check
+      <CheckIcon
         aria-hidden
         className="mt-[3px] size-4 shrink-0 text-[color:var(--p-accent)]"
         strokeWidth={2}

@@ -16,7 +16,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format";
 import { useStreamingJson } from "@/lib/hooks/use-streaming-json";
 import type { Deal, PricingResult } from "@/lib/types";
-import { Loader2, Sparkles } from "lucide-react";
+import { CheckIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
+import { RevealText } from "@/components/ui/reveal-text";
 
 /**
  * What should I charge *this* client?
@@ -27,13 +29,21 @@ import { Loader2, Sparkles } from "lucide-react";
  * starts being something only a tool holding the conversation can do. The
  * fields stay editable because the extraction is a starting point, not gospel.
  */
-export function PricingPanel({ deal }: { deal: Deal }) {
+export function PricingPanel({
+  deal,
+  onApply,
+}: {
+  deal: Deal;
+  /** Puts a recommended figure on the deal as its value. */
+  onApply?: (amount: number) => void;
+}) {
   const initial = useMemo(
     () => ({
       desc: [deal.pain_point, deal.timeline ? `Timeline: ${deal.timeline}` : ""]
         .filter(Boolean)
         .join("\n\n"),
-      industry: deal.client_company ?? "",
+      // Nothing on the deal records the industry; the company name is not one.
+      industry: "",
       budget: deal.budget_signal ?? "",
       timeline: deal.timeline ?? "",
     }),
@@ -56,7 +66,7 @@ export function PricingPanel({ deal }: { deal: Deal }) {
     <div className="space-y-6">
       {prefilled && (
         <p className="text-[12px] text-[var(--brand)]">
-          Prefilled from this deal — edit anything that looks off.
+          Prefilled from this deal. Edit anything that looks off.
         </p>
       )}
 
@@ -133,15 +143,16 @@ export function PricingPanel({ deal }: { deal: Deal }) {
           })
         }
         disabled={!desc.trim() || streaming}
-        className="h-9 px-4 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
+        variant="brand"
+        className="h-9 gap-2 px-4 text-[12.5px]"
       >
         {streaming ? (
           <>
-            <Loader2 className="size-3.5 animate-spin" /> Calculating…
+            <Spinner className="size-3.5" /> <span className="shimmer-text">Weighing the scope and the budget…</span>
           </>
         ) : (
           <>
-            <Sparkles className="size-3.5" strokeWidth={1.75} /> Recommend a
+            <SparklesIcon className="size-3.5" strokeWidth={1.75} /> Recommend a
             price
           </>
         )}
@@ -149,7 +160,11 @@ export function PricingPanel({ deal }: { deal: Deal }) {
 
       {(result || streaming) && (
         <div className="space-y-4">
-          <PriceCard result={result} current={deal.proposed_amount} />
+          <PriceCard
+            result={result}
+            current={deal.proposed_amount}
+            onApply={streaming ? undefined : onApply}
+          />
           <ReasoningCard result={result} />
         </div>
       )}
@@ -177,9 +192,11 @@ function FieldLabel({
 function PriceCard({
   result,
   current,
+  onApply,
 }: {
   result: Partial<PricingResult> | null;
   current: number | null;
+  onApply?: (amount: number) => void;
 }) {
   if (!result) return <Skeleton className="h-[160px] w-full rounded-lg" />;
   const currency = result.currency ?? "USD";
@@ -239,6 +256,18 @@ function PriceCard({
           )}
         </div>
       )}
+
+      {onApply && result.price_mid != null && result.price_mid !== current && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onApply(result.price_mid as number)}
+          className="mt-5 gap-1.5"
+        >
+          <CheckIcon className="size-3.5" strokeWidth={2} />
+          Use {formatCurrency(result.price_mid, result.currency ?? "USD")} as the deal value
+        </Button>
+      )}
     </div>
   );
 }
@@ -266,7 +295,7 @@ function PricePill({
             : "text-[17px] sm:text-[19px] text-foreground/80"
         }`}
       >
-        {amount ? formatCurrency(amount, currency) : "—"}
+        {amount ? formatCurrency(amount, currency) : <span className="shimmer-text">Working</span>}
       </div>
     </div>
   );
@@ -285,7 +314,7 @@ function ReasoningCard({ result }: { result: Partial<PricingResult> | null }) {
             <span className="text-muted-foreground/50 tabular-nums shrink-0">
               {String(i + 1).padStart(2, "0")}
             </span>
-            <span>{r}</span>
+            <RevealText text={r} />
           </li>
         ))}
       </ul>

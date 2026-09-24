@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Link2, Check, Copy, Eye } from "lucide-react";
+import {
+  CheckIcon,
+  EyeIcon,
+  LinkIcon,
+  Square2StackIcon,
+} from "@heroicons/react/24/outline";
 
 interface Analytics {
   total_views: number;
@@ -25,20 +31,21 @@ export function SharePanel({
 }) {
   const [working, setWorking] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const qc = useQueryClient();
+  const analyticsKey = ["proposal", proposalId, "analytics"] as const;
 
   const shareUrl = shareToken
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/p/${shareToken}`
     : null;
 
-  const loadAnalytics = useCallback(async () => {
-    const res = await fetch(`/api/proposals/${proposalId}/analytics`);
-    if (res.ok) setAnalytics(await res.json());
-  }, [proposalId]);
-
-  useEffect(() => {
-    if (shareToken) loadAnalytics();
-  }, [shareToken, loadAnalytics]);
+  const { data: analytics = null } = useQuery({
+    queryKey: analyticsKey,
+    queryFn: async (): Promise<Analytics | null> => {
+      const res = await fetch(`/api/proposals/${proposalId}/analytics`);
+      return res.ok ? res.json() : null;
+    },
+    enabled: !!shareToken,
+  });
 
   const createLink = async () => {
     setWorking(true);
@@ -67,7 +74,7 @@ export function SharePanel({
       });
       if (!res.ok) throw new Error();
       onTokenChange(null);
-      setAnalytics(null);
+      qc.setQueryData(analyticsKey, null);
       toast.success("Link revoked. Anyone holding it now sees a 404.");
     } catch {
       toast.error("Couldn't revoke the link.");
@@ -88,7 +95,7 @@ export function SharePanel({
       <div className="rounded-md border border-border px-4 py-4">
         <div className="text-[13.5px] font-medium">Share with your client</div>
         <p className="mt-1.5 text-[12.5px] text-muted-foreground leading-relaxed">
-          Creates a link anyone can open — no account needed. You&rsquo;ll see
+          Creates a link anyone can open, no account needed. You&rsquo;ll see
           when they read it and which sections they spent time on.
         </p>
         <Button
@@ -96,7 +103,7 @@ export function SharePanel({
           disabled={working}
           className="mt-4 h-9 text-[12.5px] gap-2 bg-[var(--brand)] text-[var(--brand-fg)] hover:bg-[var(--brand)]/90 cursor-pointer"
         >
-          <Link2 className="size-3.5" strokeWidth={1.5} />
+          <LinkIcon className="size-3.5" strokeWidth={1.5} />
           {working ? "Creating…" : "Create share link"}
         </Button>
       </div>
@@ -119,9 +126,9 @@ export function SharePanel({
             className="h-8 gap-1.5 text-[12px] shrink-0 cursor-pointer pointer-coarse:h-10"
           >
             {copied ? (
-              <Check className="size-3" strokeWidth={2} />
+              <CheckIcon className="size-3" strokeWidth={2} />
             ) : (
-              <Copy className="size-3" strokeWidth={1.5} />
+              <Square2StackIcon className="size-3" strokeWidth={1.5} />
             )}
             {copied ? "Copied" : "Copy"}
           </Button>
@@ -143,7 +150,7 @@ export function SharePanel({
 
         {!analytics || analytics.total_views === 0 ? (
           <div className="flex items-center gap-2 text-[12.5px] text-muted-foreground">
-            <Eye className="size-3.5" strokeWidth={1.5} />
+            <EyeIcon className="size-3.5" strokeWidth={1.5} />
             Not opened yet.
           </div>
         ) : (

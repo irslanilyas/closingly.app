@@ -2,6 +2,27 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications";
+import { z } from "zod";
+import { checkRateLimitByKey, clientIp } from "@/lib/rate-limit";
+import { field, readJson } from "@/lib/validate";
+
+/**
+ * Per viewer network and share link. A real reader opens a proposal a handful
+ * of times and sends a heartbeat every so often; these ceilings are far above
+ * that and far below what it would take to flood a proposal's analytics.
+ */
+const OPEN_LIMIT = { action: "track_open", limit: 30, windowMinutes: 10 };
+const BEAT_LIMIT = { action: "track_beat", limit: 300, windowMinutes: 10 };
+
+/** Section keys are generated from the document's own headings. */
+const Beat = z.object({
+  view_id: field.id,
+  duration_seconds: z.number().finite().min(0).max(1_000_000).default(0),
+  sections_viewed: z
+    .array(z.string().regex(/^[a-z0-9_]{1,40}$/))
+    .max(20)
+    .default([]),
+});
 
 /**
  * View tracking for the public share page.
@@ -22,12 +43,6 @@ function hashViewer(ip: string, proposalId: string): string {
     .update(`${ip}:${proposalId}`)
     .digest("hex")
     .slice(0, 32);
-}
-
-function clientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return request.headers.get("x-real-ip") ?? "unknown";
 }
 
 async function resolveProposal(token: string) {
@@ -51,6 +66,9 @@ export async function POST(
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
+
+  const limit = await checkRateLimitByKey(`${clientIp(request)}:${token}`, OPEN_LIMIT);
+  if (!limit.ok) return NextResponse.json({ ok: true }, { status: 429 });
 
   const proposal = await resolveProposal(token);
   if (!proposal) {
@@ -147,15 +165,12 @@ export async function PATCH(
 ) {
   const { token } = await params;
 
-  const body = (await request.json().catch(() => ({}))) as {
-    view_id?: string;
-    duration_seconds?: number;
-    sections_viewed?: string[];
-  };
+  const limit = await checkRateLimitByKey(`${clientIp(request)}:${token}`, BEAT_LIMIT);
+  if (!limit.ok) return NextResponse.json({ ok: true }, { status: 429 });
 
-  if (!body.view_id) {
-    return NextResponse.json({ error: "missing_view_id" }, { status: 400 });
-  }
+  const parsed = await readJson(request, Beat);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const proposal = await resolveProposal(token);
   if (!proposal) {
@@ -170,11 +185,11 @@ export async function PATCH(
     .from("proposal_views")
     .update({
       duration_seconds: Math.min(
-        Math.max(0, Math.round(body.duration_seconds ?? 0)),
+        Math.round(body.duration_seconds),
         // A tab left open overnight isn't engagement. Cap at 2 hours.
         7200
       ),
-      sections_viewed: body.sections_viewed ?? [],
+      sections_viewed: body.sections_viewed,
     })
     .eq("id", body.view_id)
     .eq("proposal_id", proposal.id);

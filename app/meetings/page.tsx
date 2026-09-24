@@ -13,17 +13,15 @@ import { type Meeting } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  RefreshCw,
-  Video,
-  CalendarX2,
-  FileUp,
-  Loader2,
-  Mic,
-  MicOff,
-  FileText,
-  ArrowRight,
-  CalendarOff,
-} from "lucide-react";
+  ArrowPathIcon,
+  ArrowRightIcon,
+  CalendarIcon,
+  DocumentArrowUpIcon,
+  DocumentTextIcon,
+  VideoCameraIcon,
+  VideoCameraSlashIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 
 /** How far back the history goes. Older calls live on their deal. */
 const HISTORY_DAYS = 120;
@@ -238,7 +236,7 @@ export default function MeetingsPage() {
               size="lg"
               className="text-[12.5px] gap-2"
             >
-              <RefreshCw
+              <ArrowPathIcon
                 className={cn("size-3.5", syncing && "animate-spin")}
                 strokeWidth={1.5}
               />
@@ -349,12 +347,12 @@ function MeetingRow({
           </span>
           {hasLink ? (
             <span className="inline-flex items-center gap-1.5">
-              <Video className="size-3" strokeWidth={1.5} />
+              <VideoCameraIcon className="size-3" strokeWidth={1.5} />
               {platformLabel(meeting.platform)}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
-              <CalendarX2 className="size-3" strokeWidth={1.5} />
+              <CalendarIcon className="size-3" strokeWidth={1.5} />
               No call link
             </span>
           )}
@@ -420,28 +418,28 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
           </span>
           {processing ? (
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-              <Loader2 className="size-3 animate-spin" strokeWidth={1.75} />
+              <Spinner className="size-3" strokeWidth={1.75} />
               Reading the transcript
             </span>
           ) : failed ? (
             <span className="inline-flex items-center gap-1.5 text-destructive">
-              <MicOff className="size-3" strokeWidth={1.7} />
+              <VideoCameraSlashIcon className="size-3" strokeWidth={1.7} />
               Recording failed
             </span>
           ) : imported ? (
             <span className="inline-flex items-center gap-1.5 text-brand">
-              <FileUp className="size-3" strokeWidth={1.7} />
+              <DocumentArrowUpIcon className="size-3" strokeWidth={1.7} />
               Imported transcript
             </span>
           ) : recorded ? (
             <span className="inline-flex items-center gap-1.5 text-brand">
-              <Mic className="size-3" strokeWidth={1.7} />
+              <VideoCameraIcon className="size-3" strokeWidth={1.7} />
               Notetaker recorded this
               {minutes ? ` · ${minutes} min` : ""}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-              <MicOff className="size-3" strokeWidth={1.7} />
+              <VideoCameraSlashIcon className="size-3" strokeWidth={1.7} />
               Notetaker was off
             </span>
           )}
@@ -461,9 +459,9 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
             aria-label="View deal"
             className="-m-2 inline-flex items-center gap-1 rounded-md p-2 text-[12.5px] text-muted-foreground transition-colors hover:text-brand sm:m-0 sm:p-0"
           >
-            <FileText className="size-3.5" strokeWidth={1.6} />
+            <DocumentTextIcon className="size-3.5" strokeWidth={1.6} />
             <span className="hidden sm:inline">View deal</span>
-            <ArrowRight className="size-3" strokeWidth={1.8} />
+            <ArrowRightIcon className="size-3" strokeWidth={1.8} />
           </Link>
         ) : recorded ? (
           <span className="hidden text-[11.5px] text-muted-foreground sm:inline">
@@ -535,7 +533,7 @@ function EmptyState({
     return (
       <div className="panel px-6 py-12 text-center">
         <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
-          <CalendarOff className="size-4 text-muted-foreground" strokeWidth={1.6} />
+          <CalendarIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
         </span>
         <p className="mt-4 text-[14px] font-medium tracking-tight">
           Nothing set aside
@@ -551,7 +549,7 @@ function EmptyState({
     return (
       <div className="panel px-6 py-12 text-center">
         <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
-          <Mic className="size-4 text-muted-foreground" strokeWidth={1.6} />
+          <VideoCameraIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
         </span>
         <p className="mt-4 text-[14px] font-medium tracking-tight">
           No calls read yet
@@ -570,7 +568,7 @@ function EmptyState({
   return (
     <div className="panel px-6 py-12 text-center">
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
-        <CalendarX2 className="size-4 text-muted-foreground" strokeWidth={1.6} />
+        <CalendarIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
       <p className="mt-4 text-[14px] font-medium tracking-tight">
         Nothing coming up
@@ -587,7 +585,7 @@ function EmptyState({
           size="lg"
           className="text-[12.5px] gap-2"
         >
-          <RefreshCw
+          <ArrowPathIcon
             className={cn("size-3.5", syncing && "animate-spin")}
             strokeWidth={1.6}
           />
