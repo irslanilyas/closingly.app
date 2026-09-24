@@ -40,9 +40,12 @@ export async function POST() {
       return NextResponse.json({ synced: 0, with_links: 0 });
     }
 
-    // Upsert on google_event_id. Only the fields Google owns are sent, so a
-    // re-sync can't clobber our own state — agent_enabled, recall_bot_id,
-    // status, transcript and deal_id are all left untouched.
+    // Upsert on (user_id, google_event_id). Only the fields Google owns are
+    // sent, so a re-sync can't clobber our own state — agent_enabled,
+    // recall_bot_id, status, transcript and deal_id are all left untouched.
+    // The user is part of the key because every guest on a Google event sees
+    // the same event id: two Closingly users on one call each get their own
+    // row instead of colliding on the other's.
     const { error } = await supabase.from("meetings").upsert(
       events.map((e) => ({
         user_id: user.id,
@@ -57,7 +60,7 @@ export async function POST() {
         is_call: e.is_call,
         not_call_reason: e.not_call_reason,
       })),
-      { onConflict: "google_event_id" }
+      { onConflict: "user_id,google_event_id" }
     );
 
     if (error) {
