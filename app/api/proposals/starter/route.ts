@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { latestSpecification, latestFacts } from "@/lib/onboarding/persist";
 import { generateStarterProposal } from "@/lib/onboarding/starter-proposal";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 
 
 const RATE_LIMIT = { action: "starter_proposal", limit: 10, windowMinutes: 60 };
@@ -28,7 +28,7 @@ export async function POST() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   const { data: proposal } = await supabase

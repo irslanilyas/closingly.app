@@ -4,10 +4,10 @@ import { kimiComplete, KimiError } from "@/lib/kimi";
 import { parseJsonResponse } from "@/lib/anthropic";
 import { templatePrompt } from "@/lib/prompts";
 import { coerceTheme } from "@/lib/proposal-theme";
-
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 
 /** Generations per user per hour. The only billable action in this feature. */
-const HOURLY_LIMIT = 8;
+const RATE_LIMIT = { action: "template_generate", limit: 8, windowMinutes: 60 };
 
 /** Total saved custom templates. A picker past this stops being a picker. */
 const TOTAL_LIMIT = 24;
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
   const { data: mine } = await supabase
     .from("templates")
-    .select("name, created_at")
+    .select("name")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -72,18 +72,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Rate limit read off the templates table itself. A generation always leaves
-  // a row, so the row count *is* the counter — no second store to keep in sync
-  // and nothing to reset when a serverless instance goes away.
-  const hourAgo = Date.now() - 60 * 60 * 1000;
-  const recent = own.filter((t) => new Date(t.created_at).getTime() > hourAgo);
-
-  if (recent.length >= HOURLY_LIMIT) {
-    return NextResponse.json(
-      { error: "rate_limited", message: "That's plenty of designs for one hour." },
-      { status: 429 }
-    );
-  }
+  // Counted in the limiter, not from the templates table: deleting a
+  // template would otherwise hand the generation back.
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   let generated: { name?: string; description?: string; design?: unknown };
 

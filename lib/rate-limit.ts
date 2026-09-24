@@ -114,12 +114,45 @@ export async function checkRateLimitByKey(
   };
 }
 
+/**
+ * One ceiling across every feature that spends model tokens on a person's
+ * behalf. Each route's own limit stops a burst on one button; this stops the
+ * sum of them, so no mix of buttons can run up an unbounded bill in a day.
+ * Resets at midnight UTC.
+ */
+export const AI_DAILY: RateLimitConfig = {
+  action: "ai_daily",
+  limit: 200,
+  windowMinutes: 24 * 60,
+};
+
+/**
+ * The limits for a request that calls a model: the route's own, then the
+ * shared daily budget. Stops at the first one exceeded, so a request refused
+ * by its route does not also spend from the day's budget.
+ */
+export async function checkAiBudget(
+  userId: string,
+  ...limits: RateLimitConfig[]
+): Promise<{ ok: boolean; remaining: number; retryAfterSeconds: number }> {
+  let last = { ok: true, remaining: Infinity, retryAfterSeconds: 0 };
+  for (const config of [...limits, AI_DAILY]) {
+    last = await checkRateLimit(userId, config);
+    if (!last.ok) return last;
+  }
+  return last;
+}
+
 /** Standard 429 body + Retry-After header, so every route returns the same shape. */
 export function rateLimitResponse(retryAfterSeconds: number) {
+  const hours = Math.ceil(retryAfterSeconds / 3600);
   return NextResponse.json(
     {
       error: "rate_limited",
-      message: "You're doing that a bit fast. Try again in a moment.",
+      message:
+        retryAfterSeconds > 3600
+          ? `You've reached today's limit for this. It resets in about ${hours} hours.`
+          : "You're doing that a bit fast. Try again in a moment.",
     },
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );

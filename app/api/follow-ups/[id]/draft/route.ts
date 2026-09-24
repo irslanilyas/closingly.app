@@ -5,7 +5,7 @@ import { field, readJson } from "@/lib/validate";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { followUpDraftPrompt } from "@/lib/prompts";
 import { KIND_LABELS, type FollowUpKind } from "@/lib/follow-ups/rules";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 
 
 /**
@@ -36,7 +36,7 @@ export async function POST(
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   // An empty body is the common case: "write it", with no steer.

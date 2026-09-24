@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImportCallDialog } from "@/components/meetings/import-call-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { splitCalls } from "@/lib/meetings/split";
 import { type Meeting } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -25,9 +26,6 @@ import { Spinner } from "@/components/ui/spinner";
 
 /** How far back the history goes. Older calls live on their deal. */
 const HISTORY_DAYS = 120;
-
-/** A call is "upcoming" until it has been over for this long. */
-const RECENT_GRACE_HOURS = 12;
 
 type Tab = "upcoming" | "past" | "other";
 
@@ -183,33 +181,10 @@ export default function MeetingsPage() {
     }
   };
 
-  const { upcoming, past, other } = useMemo(() => {
-    const meetings = state?.rows ?? [];
-    const cutoff = (state?.at ?? 0) - RECENT_GRACE_HOURS * 3_600_000;
-
-    const upcoming: Meeting[] = [];
-    const past: Meeting[] = [];
-    const other: Meeting[] = [];
-
-    for (const m of meetings) {
-      if (m.is_call === false) {
-        other.push(m);
-        continue;
-      }
-      const starts = m.starts_at ? new Date(m.starts_at).getTime() : 0;
-      // An imported transcript is always history: it was pasted after the fact.
-      if (starts >= cutoff && m.google_event_id) upcoming.push(m);
-      else past.push(m);
-    }
-
-    // Upcoming reads forward in time; history reads backward from today.
-    upcoming.sort(
-      (a, b) =>
-        new Date(a.starts_at ?? 0).getTime() - new Date(b.starts_at ?? 0).getTime()
-    );
-
-    return { upcoming, past, other };
-  }, [state]);
+  const { upcoming, past, other } = useMemo(
+    () => splitCalls(state?.rows ?? [], state?.at ?? 0),
+    [state]
+  );
 
   const rows = tab === "upcoming" ? upcoming : tab === "past" ? past : other;
   const armed = upcoming.filter((m) => m.agent_enabled).length;

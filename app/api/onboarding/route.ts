@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { validateAnswers } from "@/lib/onboarding/schema";
 import { persistOnboarding } from "@/lib/onboarding/persist";
 import { enqueue } from "@/lib/jobs";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 
 
 /**
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   let body: unknown;

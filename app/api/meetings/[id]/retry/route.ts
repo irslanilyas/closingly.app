@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enqueue } from "@/lib/jobs";
 import { nextProgress, writeProgress } from "@/lib/meetings/progress";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 import { field, readJson } from "@/lib/validate";
 
 const Body = z.object({
@@ -13,7 +13,7 @@ const Body = z.object({
 });
 
 /** Each run costs up to two model calls. */
-const RATE_LIMIT = { action: "meeting_retry", limit: 20, windowMinutes: 60 };
+const RATE_LIMIT = { action: "meeting_retry", limit: 6, windowMinutes: 60 };
 
 /**
  * Run a call through the pipeline again: after a failure, or to make a deal
@@ -34,7 +34,7 @@ export async function POST(
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   const parsed = await readJson(request, Body);

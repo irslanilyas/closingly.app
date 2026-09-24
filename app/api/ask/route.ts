@@ -4,7 +4,7 @@ import { z } from "zod";
 import { anthropic } from "@/lib/anthropic";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 import { field, readJson } from "@/lib/validate";
 import { AGENT_SYSTEM, agentContext } from "@/lib/ask/agent-prompt";
 import { AGENT_TOOLS, kindOfTool, linkFor, readLabel, runRead, type NavigateName } from "@/lib/ask/tools";
@@ -28,12 +28,25 @@ import type { ActionView, AskEvent, AskPart } from "@/lib/ask/parts";
  * lib/ask/actions.ts.
  */
 
-const AGENT_MODEL = "claude-opus-5";
-const RATE_LIMIT = { action: "ask", limit: 60, windowMinutes: 60 };
+/**
+ * Sonnet 5 rather than Opus: workspace lookups and small edits don't need the
+ * larger model, and it costs $2/$10 per million tokens against $5/$25.
+ */
+const AGENT_MODEL = "claude-sonnet-5";
+/** Questions per person: plenty for real work, a hard stop for anything else. */
+const HOURLY_LIMIT = { action: "ask", limit: 30, windowMinutes: 60 };
+const DAILY_LIMIT = { action: "ask_daily", limit: 100, windowMinutes: 24 * 60 };
 /** Model rounds per turn. Bounds cost and the free plan's 50-request cap. */
 const MAX_ROUNDS = 5;
 const MAX_WRITES = 5;
+/**
+ * Output per round, thinking included. Room for an answer and a drafted
+ * email; not room for an essay. Worst case per question is MAX_ROUNDS times it.
+ */
+const MAX_OUTPUT_TOKENS = 6_000;
 const HISTORY_MESSAGES = 12;
+/** A long past reply is replayed trimmed: history is context, not a payload. */
+const HISTORY_CHARS = 3_000;
 const TOOL_RESULT_CHARS = 16_000;
 
 const Body = z.object({
@@ -68,7 +81,7 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return Response.json({ error: "unauthorized" }, { status: 401 });
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, HOURLY_LIMIT, DAILY_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   const parsed = await readJson(request, Body);
@@ -104,7 +117,10 @@ export async function POST(request: NextRequest) {
       history = (past ?? [])
         .reverse()
         .filter((m) => typeof m.content === "string" && m.content.trim())
-        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content as string }));
+        .map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: (m.content as string).slice(0, HISTORY_CHARS),
+        }));
       while (history.length && history[0].role !== "user") history.shift();
     }
   }
@@ -173,9 +189,7 @@ export async function POST(request: NextRequest) {
         for (let round = 0; round < MAX_ROUNDS; round++) {
           const turn = anthropic.beta.messages.stream({
             model: AGENT_MODEL,
-            max_tokens: 16_000,
-            betas: ["server-side-fallback-2026-07-01"],
-            fallbacks: "default",
+            max_tokens: MAX_OUTPUT_TOKENS,
             output_config: { effort: "medium" },
             system,
             tools: AGENT_TOOLS,

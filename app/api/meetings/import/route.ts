@@ -5,7 +5,7 @@ import { enqueue } from "@/lib/jobs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { nextProgress, writeProgress } from "@/lib/meetings/progress";
 import { readJson } from "@/lib/validate";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkAiBudget, rateLimitResponse } from "@/lib/rate-limit";
 
 
 /** Same floor the pipeline itself enforces — fail here with a clear message
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const limit = await checkRateLimit(user.id, RATE_LIMIT);
+  const limit = await checkAiBudget(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   const parsed = await readJson(request, ImportBody);

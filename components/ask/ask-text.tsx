@@ -101,8 +101,13 @@ function Inline({ text, animate, keyBase }: { text: string; animate: boolean; ke
   return <>{nodes}</>;
 }
 
+// The prompt forbids em dashes and the model still slips now and then. Tidied
+// on the whole text at render time, so a dash split across two streamed
+// chunks is caught the same as any other.
+const tidy = (text: string) => text.replace(/\s*—\s*/g, ", ");
+
 export function AskText({ text, animate = false }: { text: string; animate?: boolean }) {
-  const blocks = parseBlocks(text);
+  const blocks = parseBlocks(tidy(text));
   return (
     <div className="space-y-2.5 text-[13.5px] leading-[1.65] text-foreground/90">
       {blocks.map((block, b) => {

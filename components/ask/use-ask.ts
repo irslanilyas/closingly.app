@@ -142,9 +142,14 @@ export function useAsk(context: AskContext, open: boolean) {
         // an error status, so the content type is the reliable tell.
         const streamed = res.headers.get("content-type")?.includes("ndjson");
         if (!res.ok || !res.body || !streamed) {
+          // A 429 says which limit it hit: a busy hour or the day's cap.
+          const limited =
+            res.status === 429
+              ? ((await res.json().catch(() => null)) as { message?: string } | null)?.message
+              : undefined;
           const reason =
             res.status === 429
-              ? "That's a lot of questions at once. Give it a minute."
+              ? (limited ?? "That's a lot of questions at once. Give it a minute.")
               : res.ok && !streamed
                 ? "Your session has ended. Sign in again to keep going."
                 : "Couldn't reach Ask Closingly. Try again.";
