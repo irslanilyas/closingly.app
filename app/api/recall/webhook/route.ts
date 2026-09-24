@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyWebhookSignature } from "@/lib/webhook-signature";
 import { enqueue } from "@/lib/jobs";
+import { nextProgress, writeProgress } from "@/lib/meetings/progress";
 
 /**
  * Recall.ai webhook receiver.
@@ -69,10 +70,18 @@ export async function POST(request: NextRequest) {
 
     case "bot.done":
     case "bot.call_ended":
-      await supabase
-        .from("meetings")
-        .update({ status: "processing" })
-        .eq("id", meeting.id);
+      // Recall sends both events, and redelivers either. A late copy must not
+      // drag a finished call back to "processing" on the page.
+      if (meeting.status === "completed") break;
+      if (meeting.status !== "processing") {
+        await supabase
+          .from("meetings")
+          .update({ status: "processing" })
+          .eq("id", meeting.id);
+        // The page shows the call as "just finished" from this moment, not
+        // from when the worker happens to pick it up.
+        await writeProgress(supabase, meeting.id, nextProgress(null, "queued"));
+      }
 
       // Small delay: bot.done fires when the bot leaves, but the transcript is
       // produced asynchronously and usually isn't ready the instant we ask.

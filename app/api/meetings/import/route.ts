@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 import { enqueue } from "@/lib/jobs";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { nextProgress, writeProgress } from "@/lib/meetings/progress";
+import { readJson } from "@/lib/validate";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 
@@ -10,6 +14,11 @@ const MIN_TRANSCRIPT_CHARS = 200;
 
 /** Roughly a 3-hour call. Past this it's a paste accident, not a transcript. */
 const MAX_TRANSCRIPT_CHARS = 400_000;
+
+const ImportBody = z.object({
+  transcript: z.string().max(MAX_TRANSCRIPT_CHARS * 2),
+  title: z.string().max(500).optional(),
+});
 
 /** Each import costs two AI calls once the worker picks it up. */
 const RATE_LIMIT = { action: "meeting_import", limit: 20, windowMinutes: 60 };
@@ -41,10 +50,9 @@ export async function POST(request: NextRequest) {
   const limit = await checkRateLimit(user.id, RATE_LIMIT);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
-  const body = (await request.json().catch(() => ({}))) as {
-    transcript?: string;
-    title?: string;
-  };
+  const parsed = await readJson(request, ImportBody);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const transcript = (body.transcript ?? "").trim();
   const title = (body.title ?? "").trim().slice(0, 200) || "Imported call";
@@ -83,9 +91,13 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error || !meeting) {
-    console.error("[meetings/import] insert failed:", error);
+    console.error("[meetings/import] insert failed:", error?.message);
     return NextResponse.json({ error: "import_failed" }, { status: 500 });
   }
+
+  // Progress belongs to the server (users can't write it), so it goes
+  // through the service client.
+  await writeProgress(createAdminClient(), meeting.id, nextProgress(null, "queued"));
 
   await enqueue(
     "process_transcript",

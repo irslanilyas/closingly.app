@@ -49,31 +49,62 @@ export function NotificationBell() {
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
 
+  // Never throws. A poll that fails (the laptop slept, the wifi dropped, a
+  // deploy swapped the server mid-request) is not an error worth reporting:
+  // the badge just stays as it was until the next one succeeds. Uncaught, each
+  // of those used to land in Sentry as "TypeError: Failed to fetch".
   const read = useCallback(async () => {
-    const res = await fetch("/api/notifications");
-    if (!res.ok) return null;
-    return (await res.json()) as {
-      notifications: NotificationRow[];
-      unread: number;
-    };
+    try {
+      const res = await fetch("/api/notifications");
+      if (!res.ok) return null;
+      return (await res.json()) as {
+        notifications: NotificationRow[];
+        unread: number;
+      };
+    } catch {
+      return null;
+    }
   }, []);
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
 
-    const pull = () =>
-      read().then((next) => {
-        if (cancelled || !next) return;
+    // Polls only while the tab is visible, and backs off after failures, so a
+    // tab left open overnight costs nothing and a flaky network isn't hammered.
+    const schedule = () => {
+      clearTimeout(timer);
+      if (cancelled || document.visibilityState !== "visible") return;
+      const delay = Math.min(POLL_MS * 2 ** failures, 10 * POLL_MS);
+      timer = setTimeout(pull, delay);
+    };
+
+    const pull = async () => {
+      const next = await read();
+      if (cancelled) return;
+      if (next) {
+        failures = 0;
         setItems(next.notifications);
         setUnread(next.unread);
-      });
+      } else {
+        failures = Math.min(failures + 1, 4);
+      }
+      schedule();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") pull();
+      else clearTimeout(timer);
+    };
 
     pull();
-    const timer = setInterval(pull, POLL_MS);
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [read]);
 
@@ -86,7 +117,7 @@ export function NotificationBell() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ all: true }),
-    });
+    }).catch(() => {});
   };
 
   const markOne = async (id: string) => {
@@ -100,7 +131,7 @@ export function NotificationBell() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
-    });
+    }).catch(() => {});
   };
 
   return (

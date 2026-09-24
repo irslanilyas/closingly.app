@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShellClient } from "@/components/app-shell-client";
 import { SetupChecklist } from "@/components/onboarding/setup-checklist";
+import { JustFinished } from "@/components/calls/call-progress";
 import { NeedsYou, NextCallCard, AskPrompt } from "@/components/dashboard/needs-you";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
@@ -168,6 +169,8 @@ export default function DashboardPage() {
           )}
         </p>
       </div>
+
+      <JustFinished />
 
       <SetupChecklist />
 

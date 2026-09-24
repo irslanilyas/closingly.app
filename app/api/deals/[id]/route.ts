@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { field, readJson } from "@/lib/validate";
-import { STAGE_ORDER, type DealStage } from "@/lib/types";
+import { DealPatch } from "@/lib/deal-patch";
 
 /**
  * One deal: read, edit, delete.
@@ -51,35 +50,6 @@ export async function GET(
   return NextResponse.json({ deal: data });
 }
 
-/**
- * The fields a person may edit, and nothing else. Unknown keys are dropped, so
- * the transcript, source and ownership columns cannot be written through here.
- */
-const DealPatch = z
-  .object({
-    client_name: field.text(200).nullable(),
-    client_company: field.text(200).nullable(),
-    client_email: z
-      .union([z.email().max(320), z.literal(""), z.null()])
-      .transform((value) => value || null),
-    pain_point: field.text(4000).nullable(),
-    budget_signal: field.text(1000).nullable(),
-    timeline: field.text(1000).nullable(),
-    decision_maker: field.text(500).nullable(),
-    fit_score: z.number().int().min(0).max(10).nullable(),
-    stage: z.enum(STAGE_ORDER as [DealStage, ...DealStage[]]),
-    proposed_amount: field.money.nullable(),
-    estimated_hours: z.number().finite().min(0).max(100_000).nullable(),
-    start_date: field.isoDate.nullable(),
-    target_end_date: field.isoDate.nullable(),
-    competitor_mentioned: field.text(200).nullable(),
-    competitive_note: field.text(2000).nullable(),
-  })
-  .partial()
-  .refine((patch) => Object.keys(patch).length > 0, {
-    message: "Nothing to update",
-  });
-
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -95,6 +65,14 @@ export async function PATCH(
   const body = await readJson(request, DealPatch);
   if (!body.ok) return body.response;
 
+  // A stage move is history the rest of the product reads ("days in stage",
+  // win/loss timing), so the stage it left is captured before the write.
+  const previousStage = body.data.stage
+    ? ((await supabase.from("deals").select("stage").eq("id", id).maybeSingle()).data?.stage as
+        | string
+        | undefined)
+    : undefined;
+
   const { data, error } = await supabase
     .from("deals")
     .update({ ...body.data, updated_at: new Date().toISOString() })
@@ -107,6 +85,16 @@ export async function PATCH(
     return NextResponse.json({ error: "update_failed" }, { status: 500 });
   }
   if (!data) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  if (body.data.stage && previousStage && previousStage !== body.data.stage) {
+    await supabase.from("deal_events").insert({
+      deal_id: id,
+      user_id: user.id,
+      kind: "stage_changed",
+      from_value: previousStage,
+      to_value: body.data.stage,
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

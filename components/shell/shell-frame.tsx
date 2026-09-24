@@ -2,6 +2,7 @@ import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
 import { AssistantDock } from "./assistant-dock";
+import { CallActivityWatcher } from "@/components/calls/call-activity-watcher";
 
 /**
  * The frame every signed-in page is drawn inside: a fixed rail on the left on
@@ -41,6 +42,7 @@ export function ShellFrame({
 
       <MobileNav email={email} />
       <AssistantDock />
+      <CallActivityWatcher />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { enqueue, claimJobs, completeJob, failJob, type ClaimedJob } from "@/lib/jobs";
-import { getBotStatus, getTranscript } from "@/lib/recall";
+import { enqueue, claimJobs, completeJob, deferJob, failJob, type ClaimedJob } from "@/lib/jobs";
+import { getBotStatus, getTranscript, TranscriptNotReadyError } from "@/lib/recall";
+import { nextProgress, writeProgress, type MeetingProgress } from "@/lib/meetings/progress";
+import { notify } from "@/lib/notifications";
 import { dealFromTranscript } from "@/lib/pipeline/from-transcript";
 import { isRetryable } from "@/lib/retry";
 import { latestSpecification, latestFacts } from "@/lib/onboarding/persist";
@@ -25,12 +27,22 @@ const RECONCILE_LIMIT = 5;
  * Jobs claimed per tick.
  *
  * Sized against the Workers Free plan cap of 50 outbound requests per
- * invocation, not against time. A transcript job makes roughly fifteen
- * (Supabase reads and writes, two model calls, Recall), so two leave headroom,
- * and a tick that ran jobs skips the periodic phases entirely rather than
- * risk being cut off by the cap halfway through a write.
+ * invocation, not against time. A transcript job makes about twenty-five
+ * (Supabase reads and writes, two model calls, Recall, the progress the page
+ * shows and the notification at the end), so one per tick keeps a wide
+ * margin, and a tick that ran a job skips the periodic phases entirely rather
+ * than risk being cut off by the cap halfway through a write. A queue that
+ * only ever holds a few calls at a time loses nothing to this.
  */
-const JOBS_PER_TICK = 2;
+const JOBS_PER_TICK = 1;
+
+/**
+ * How long a finished call may wait on Recall's transcript before the wait
+ * starts counting as failed attempts. Long calls take Recall minutes to
+ * transcribe, and "not ready yet" is not a failure.
+ */
+const TRANSCRIPT_PATIENCE_MS = 30 * 60_000;
+const TRANSCRIPT_RECHECK_MS = 45_000;
 
 /**
  * The clock the phases below run against.
@@ -67,7 +79,7 @@ export async function POST(request: NextRequest) {
   const deadline = Date.now() + BUDGET_MS;
   const timeLeft = () => deadline - Date.now();
 
-  const jobs = await claimJobs(JOBS_PER_TICK);
+  const jobs = await claimJobs(JOBS_PER_TICK, { onExhausted });
   for (const job of jobs) {
     await runJob(job);
   }
@@ -158,6 +170,65 @@ async function reconcileMeeting(meetingId: string, botId: string) {
     .eq("id", meetingId);
 }
 
+/**
+ * A job that has failed for good. For a call, that has to be visible: the
+ * meeting is marked failed with a reason a person can act on, and the page
+ * offers a retry, instead of "processing" forever.
+ */
+async function onExhausted(job: ClaimedJob, message: string) {
+  if (job.kind !== "process_transcript") return;
+  const meetingId = job.payload.meeting_id as string | undefined;
+  if (!meetingId) return;
+
+  const supabase = createAdminClient();
+  const { data: meeting } = await supabase
+    .from("meetings")
+    .select("*")
+    .eq("id", meetingId)
+    .maybeSingle();
+  if (!meeting) return;
+
+  await supabase
+    .from("meetings")
+    .update({ status: "failed", error: humanError(message) })
+    .eq("id", meetingId);
+  await writeProgress(
+    supabase,
+    meetingId,
+    nextProgress(meeting.progress as MeetingProgress | null, "failed")
+  );
+  await notify({
+    userId: meeting.user_id as string,
+    kind: "meeting_failed",
+    title: `Couldn't turn "${(meeting.title as string | null) ?? "your call"}" into a deal`,
+    body: "Open it to try again.",
+    href: "/",
+    entityType: "meeting",
+    entityId: meetingId,
+  });
+}
+
+/** The job's raw error, translated into something a consultant can act on. */
+function humanError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("not ready")) {
+    return "Recall never finished the transcript for this call.";
+  }
+  if (m.includes("overloaded") || m.includes("529") || m.includes("rate_limit") || m.includes("429")) {
+    return "The AI service was too busy. Trying again usually works.";
+  }
+  if (m.includes("credit") || m.includes("billing")) {
+    return "The AI service refused the request. Check the Anthropic balance, then try again.";
+  }
+  if (m.includes("repeated attempts")) {
+    return "Processing kept getting cut off before it finished.";
+  }
+  if (m.includes("empty_transcript")) {
+    return "Nothing was said on this call, so there was nothing to read.";
+  }
+  return "Something went wrong while reading this call.";
+}
+
 async function runJob(job: ClaimedJob) {
   try {
     switch (job.kind) {
@@ -173,8 +244,19 @@ async function runJob(job: ClaimedJob) {
     await completeJob(job.id);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+
+    // Recall hasn't finished transcribing. Not a failure: check again shortly
+    // without spending an attempt, for as long as a long call can take.
+    if (
+      err instanceof TranscriptNotReadyError &&
+      Date.now() - new Date(job.created_at).getTime() < TRANSCRIPT_PATIENCE_MS
+    ) {
+      await deferJob(job, TRANSCRIPT_RECHECK_MS, message);
+      return;
+    }
+
     console.error(`[cron/worker] ${job.kind} failed:`, message);
-    await failJob(job, message, { retryable: isRetryable(err) });
+    await failJob(job, message, { retryable: isRetryable(err), onExhausted });
   }
 }
 
@@ -198,9 +280,11 @@ async function processTranscript(job: ClaimedJob) {
 
   const supabase = createAdminClient();
 
+  // `*` rather than a column list: `progress` may not exist yet on a database
+  // that hasn't had its migration, and naming it would fail the whole read.
   const { data: meeting } = await supabase
     .from("meetings")
-    .select("id, user_id, transcript")
+    .select("*")
     .eq("id", meetingId)
     .single();
 
@@ -215,7 +299,11 @@ async function processTranscript(job: ClaimedJob) {
   // otherwise leave the meeting parked at "processing" forever even though
   // the work is done — exactly what happened the first time a webhook's
   // signature stopped matching and a replay landed after the fact.
-  const hadTranscriptAlready = !!meeting.transcript;
+  let progress = (meeting.progress as MeetingProgress | null) ?? null;
+  const stage = async (next: MeetingProgress["stage"]) => {
+    progress = nextProgress(progress, next);
+    await writeProgress(supabase, meetingId, progress);
+  };
 
   // ── Fetch (skipped if a previous attempt already got this far) ──────────
   if (!meeting.transcript) {
@@ -229,6 +317,7 @@ async function processTranscript(job: ClaimedJob) {
       );
     }
 
+    if (progress?.stage !== "transcript") await stage("transcript");
     const { text, segments, durationSeconds } = await getTranscript(botId);
 
     await supabase
@@ -241,8 +330,10 @@ async function processTranscript(job: ClaimedJob) {
         transcript_segments: segments.length ? segments : null,
         transcript_fetched_at: new Date().toISOString(),
         recording_seconds: durationSeconds,
-        status: text.trim() ? "completed" : "failed",
-        error: text.trim() ? null : "Recall returned an empty transcript",
+        // Stays "processing" until the deal exists: "completed" is what the
+        // page reads as done.
+        status: text.trim() ? "processing" : "failed",
+        error: text.trim() ? null : "Nothing was said on this call, so there was nothing to read.",
       })
       .eq("id", meetingId);
 
@@ -271,16 +362,40 @@ async function processTranscript(job: ClaimedJob) {
   }
 
   // ── Triage → deal → draft proposal ─────────────────────────────────────
-  const result = await dealFromTranscript(meetingId, source);
+  const result = await dealFromTranscript(meetingId, source, {
+    force: job.payload.force === true,
+    onStage: stage,
+  });
 
-  if (hadTranscriptAlready) {
-    // Heal the status the fetch branch would have set, without stomping a
-    // status something else may have written concurrently (e.g. "failed").
-    await supabase
-      .from("meetings")
-      .update({ status: "completed" })
-      .eq("id", meetingId)
-      .in("status", ["processing", "recording", "bot_scheduled"]);
+  // Done, whichever branch ran. A retry of a failed meeting lands here too.
+  await supabase
+    .from("meetings")
+    .update({ status: "completed", error: null })
+    .eq("id", meetingId)
+    .in("status", ["processing", "recording", "bot_scheduled", "failed"]);
+  await stage("done");
+
+  const title = (meeting.title as string | null) ?? "your call";
+  if (result.dealId && result.skippedReason !== "already_processed") {
+    await notify({
+      userId: meeting.user_id as string,
+      kind: "meeting_processed",
+      title: `Proposal drafted from "${title}"`,
+      body: "The deal and its draft proposal are ready to review.",
+      href: `/pipeline/${result.dealId}`,
+      entityType: "deal",
+      entityId: result.dealId,
+    });
+  } else if (!result.dealId) {
+    await notify({
+      userId: meeting.user_id as string,
+      kind: "meeting_processed",
+      title: `"${title}" didn't look like a sales call`,
+      body: "Nothing was created. You can attach it to a deal or make one anyway.",
+      href: "/",
+      entityType: "meeting",
+      entityId: meetingId,
+    });
   }
 
   console.log(
@@ -381,7 +496,7 @@ async function runStarterProposal(job: ClaimedJob) {
   } catch (err) {
     // One more attempt left means the person should see a retry, not a dead
     // end. The last attempt is where it becomes terminal.
-    const lastAttempt = job.attempts + 1 >= job.max_attempts;
+    const lastAttempt = job.attempts >= job.max_attempts;
     await setState(lastAttempt ? "failed_terminal" : "failed_retryable", {
       failure: err instanceof Error ? err.message : String(err),
       failed_at: new Date().toISOString(),

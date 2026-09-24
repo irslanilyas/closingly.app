@@ -49,7 +49,16 @@ export interface ProcessResult {
  */
 export async function dealFromTranscript(
   meetingId: string,
-  source: string = "meeting_agent"
+  source: string = "meeting_agent",
+  opts: {
+    /**
+     * The person has said this was a sales conversation ("create a deal
+     * anyway"), so the triage gate is skipped. Their call, not the model's.
+     */
+    force?: boolean;
+    /** Told when the work moves to the next visible step. */
+    onStage?: (stage: "reading" | "writing") => Promise<void>;
+  } = {}
 ): Promise<ProcessResult> {
   const supabase = createAdminClient();
 
@@ -89,13 +98,16 @@ export async function dealFromTranscript(
   }
 
   // ── 1. Triage ──────────────────────────────────────────────────────────
-  const triage = parseJsonResponse<TriageResult>(
-    await complete({
-      model: CLAUDE_FAST_MODEL,
-      prompt: triagePrompt(transcript.slice(0, TRIAGE_CHARS)),
-      maxTokens: 256,
-    })
-  );
+  await opts.onStage?.("reading");
+  const triage: TriageResult = opts.force
+    ? { kind: "discovery", confidence: "high", reason: "Marked as a sales call by the user" }
+    : parseJsonResponse<TriageResult>(
+        await complete({
+          model: CLAUDE_FAST_MODEL,
+          prompt: triagePrompt(transcript.slice(0, TRIAGE_CHARS)),
+          maxTokens: 256,
+        })
+      );
 
   await supabase
     .from("meetings")
@@ -112,6 +124,7 @@ export async function dealFromTranscript(
   }
 
   // ── 2. Extract ─────────────────────────────────────────────────────────
+  await opts.onStage?.("writing");
   const extracted = parseJsonResponse<ProposalGeneration>(
     await complete({
       model: CLAUDE_MODEL,

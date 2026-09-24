@@ -26,6 +26,7 @@ import {
   type DealStage,
 } from "@/lib/types";
 import type { PipelineDeal } from "@/app/api/pipeline/route";
+import { PendingDealCards } from "@/components/calls/call-progress";
 import {
   ExclamationCircleIcon,
   InboxIcon,
@@ -262,7 +263,12 @@ export function PipelineView() {
       {isLoading ? (
         <BoardSkeleton />
       ) : filtered.length === 0 ? (
-        <EmptyPipeline filtered={!!q.trim() || needsAction} />
+        <>
+          <div className="mb-3 grid gap-2 empty:hidden sm:grid-cols-2 lg:grid-cols-3">
+            <PendingDealCards />
+          </div>
+          <EmptyPipeline filtered={!!q.trim() || needsAction} />
+        </>
       ) : view === "board" ? (
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
           <div className="board-scroll -mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:-mx-8 lg:snap-none lg:px-8 lg:pb-3">
@@ -335,6 +341,8 @@ function Column({
       </div>
 
       <div className="flex flex-col gap-2">
+        {/* A call being written up waits here, where its deal will land. */}
+        {stage === "lead" && <PendingDealCards />}
         {deals.length === 0 ? (
           <div className="stock-grain rounded-lg py-8" aria-hidden />
         ) : (
