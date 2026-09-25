@@ -82,7 +82,7 @@ function Inline({ text, animate, keyBase }: { text: string; animate: boolean; ke
       );
     } else if (token.startsWith("`")) {
       nodes.push(
-        <code key={k} className="rounded bg-secondary px-1 py-px font-mono text-[0.9em]">
+        <code key={k} className="rounded-[3.2px] bg-secondary px-1 py-px font-mono text-[0.9em]">
           {token.slice(1, -1)}
         </code>
       );

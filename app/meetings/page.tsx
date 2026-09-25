@@ -313,7 +313,7 @@ function MeetingRow({
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] font-medium tracking-tight">
+        <div className="truncate text-[13.5px] font-medium">
           {meeting.title ?? "Untitled meeting"}
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted-foreground">
@@ -383,7 +383,7 @@ function HistoryRow({ meeting }: { meeting: Meeting }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] font-medium tracking-tight">
+        <div className="truncate text-[13.5px] font-medium">
           {meeting.title ?? "Untitled meeting"}
         </div>
 
@@ -510,7 +510,7 @@ function EmptyState({
         <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
           <CalendarIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
         </span>
-        <p className="mt-4 text-[14px] font-medium tracking-tight">
+        <p className="mt-4 text-[14px] font-medium">
           Nothing set aside
         </p>
         <p className="mx-auto mt-1.5 max-w-[44ch] text-[12.5px] leading-relaxed text-muted-foreground">
@@ -526,7 +526,7 @@ function EmptyState({
         <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
           <VideoCameraIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
         </span>
-        <p className="mt-4 text-[14px] font-medium tracking-tight">
+        <p className="mt-4 text-[14px] font-medium">
           No calls read yet
         </p>
         <p className="mx-auto mt-1.5 max-w-[46ch] text-[12.5px] leading-relaxed text-muted-foreground">
@@ -545,7 +545,7 @@ function EmptyState({
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
         <CalendarIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
-      <p className="mt-4 text-[14px] font-medium tracking-tight">
+      <p className="mt-4 text-[14px] font-medium">
         Nothing coming up
       </p>
       <p className="mx-auto mt-1.5 max-w-[46ch] text-[12.5px] leading-relaxed text-muted-foreground">

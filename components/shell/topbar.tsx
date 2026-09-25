@@ -55,7 +55,7 @@ export function Topbar({ email }: { email: string }) {
           <div className="lg:hidden min-w-0">
             <Wordmark />
           </div>
-          <span className="hidden lg:block text-[13px] font-medium tracking-tight truncate">
+          <span className="hidden lg:block text-[13px] font-medium truncate">
             {section}
           </span>
         </div>

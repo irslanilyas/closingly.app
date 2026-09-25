@@ -23,7 +23,9 @@ const TYPE_STYLES: Record<
   { heading: string; body: string; headingWeight: number; tracking: string }
 > = {
   modern_editorial: {
-    heading: "var(--font-display), Georgia, serif",
+    // The display serif proposals are actually set in (loaded by
+    // app/onboarding/layout.tsx), not the app's own heading face.
+    heading: "var(--font-proposal-display), Georgia, serif",
     body: "var(--font-sans), system-ui, sans-serif",
     headingWeight: 400,
     tracking: "-0.02em",
@@ -71,7 +73,7 @@ export function ProposalPreview({
 
       <div
         aria-label="Preview of your proposal layout"
-        className="rounded-lg border border-border overflow-hidden shadow-[0_1px_2px_oklch(0.215_0.012_90/0.05),0_18px_36px_-16px_oklch(0.215_0.012_90/0.18)]"
+        className="rounded-lg border border-border overflow-hidden"
         style={{ background: paper, color: ink }}
       >
         <div className="px-5 pt-6 pb-5 sm:px-6 sm:pt-7 sm:pb-6">

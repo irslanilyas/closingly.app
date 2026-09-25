@@ -130,7 +130,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
           <config.Icon className="size-5" strokeWidth={1.5} />
         </div>
         <div>
-          <div className="text-[19px] font-medium tracking-tight">
+          <div className="text-[19px] font-medium tracking-[-0.03em]">
             {config.label}
           </div>
           <div className="text-[12.5px] opacity-80 mt-0.5">{config.copy}</div>
@@ -159,7 +159,7 @@ function Verdict({ result }: { result: Partial<ScopeAnalysis> | null }) {
       {result.estimated_additional_billing &&
         result.estimated_additional_billing !== "N/A" && (
           <Card title="Worth billing">
-            <div className="text-[19px] font-medium tabular-nums tracking-tight text-[var(--brand)]">
+            <div className="text-[19px] font-medium tabular-nums tracking-[-0.03em] text-[var(--brand)]">
               {result.estimated_additional_billing}
             </div>
           </Card>

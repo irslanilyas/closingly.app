@@ -10,10 +10,9 @@ import { cn } from "@/lib/utils";
  * proposal writing itself from it on the right.
  *
  * Phrases the client says get marked as they are heard; each mark sends a
- * bead (the same bead that closes the arc in the wordmark) across into the
- * proposal, where that section writes itself. Then the proposal goes out, the
- * client reads it, and the deal moves. Every name and figure here is an
- * illustration, and the stage says so.
+ * bead across into the proposal, where that section writes itself. Then the
+ * proposal goes out, the client reads it, and the deal moves. Every name and
+ * figure here is an illustration, and the stage says so.
  *
  * Laid out at a fixed size and scaled to fit, so the choreography holds its
  * geometry at any width. Pauses when scrolled away or the tab is hidden, and
@@ -229,7 +228,7 @@ export function ProductStory({ className, tone = "field" }: { className?: string
             {/* The proposal, writing itself */}
             <div className="story-paper absolute right-0 top-[236px] w-[336px] -rotate-[1.2deg] rounded-2xl px-5 pb-5 pt-4">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="font-display text-[18px] leading-tight tracking-[-0.015em] text-foreground">Proposal for Northwind</p>
+                <p className="font-display text-[18px] leading-tight tracking-[-0.03em] text-foreground">Proposal for Northwind</p>
                 <AnimatePresence>
                   {s.shared && (
                     <motion.span

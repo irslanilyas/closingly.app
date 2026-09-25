@@ -289,7 +289,7 @@ function PricePill({
         {label}
       </div>
       <div
-        className={`tabular-nums tracking-tight font-medium ${
+        className={`tabular-nums tracking-[-0.03em] font-medium ${
           headline
             ? "text-[28px] sm:text-[30px] text-[var(--brand)]"
             : "text-[17px] sm:text-[19px] text-foreground/80"

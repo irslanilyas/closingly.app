@@ -194,7 +194,7 @@ export function SetupChecklist() {
     <div className="panel mb-8 p-4 sm:p-5 resolve">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-[13.5px] font-medium tracking-tight">
+          <div className="text-[13.5px] font-medium">
             Getting set up
           </div>
           <div className="mt-0.5 text-[12px] text-muted-foreground tabular-nums">

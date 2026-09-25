@@ -51,9 +51,9 @@ export function ThemeToggle({ className }: { className?: string }) {
           aria-pressed={theme === value}
           title={label}
           className={cn(
-            "inline-flex items-center justify-center size-7 pointer-coarse:size-9 rounded transition-colors",
+            "inline-flex items-center justify-center size-7 pointer-coarse:size-9 rounded-[3.2px] transition-colors",
             theme === value
-              ? "bg-background text-foreground shadow-sm"
+              ? "bg-background text-foreground"
               : "text-muted-foreground hover:text-foreground"
           )}
         >

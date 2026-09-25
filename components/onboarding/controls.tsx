@@ -30,7 +30,7 @@ export function Field({
       <div className="flex items-baseline gap-2">
         <label
           htmlFor={htmlFor}
-          className="text-[13.5px] font-medium tracking-tight"
+          className="text-[13.5px] font-medium"
         >
           {label}
         </label>
@@ -164,7 +164,7 @@ export function SectionPicker({
             <div className="flex items-start gap-2.5">
               <span
                 className={cn(
-                  "mt-[3px] grid size-[15px] shrink-0 place-items-center rounded-[4px] border",
+                  "mt-[3px] grid size-[15px] shrink-0 place-items-center rounded-[3.2px] border",
                   checked
                     ? "border-brand bg-brand text-brand-fg"
                     : "border-foreground/30"

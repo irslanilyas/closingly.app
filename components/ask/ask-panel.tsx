@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowPathIcon,
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { Icon } from "@/lib/icon";
-import { AskMark } from "./ask-mark";
+import { AskOrb } from "./ask-orb";
 import { AskMessageView } from "./ask-message";
 import { useAsk, type AskContext, type AskMode } from "./use-ask";
 
@@ -148,8 +148,8 @@ export function AskPanel({
                 type="button"
                 className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-secondary"
               >
-                <AskMark size={20} state={ask.busy ? "thinking" : "idle"} />
-                <span className="truncate text-[13.5px] font-medium tracking-tight">
+                <AskOrb size={20} state={ask.busy ? "thinking" : "idle"} />
+                <span className="truncate text-[13.5px] font-medium">
                   {ask.title ?? "New conversation"}
                 </span>
                 <ChevronDownIcon className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2} />
@@ -213,7 +213,7 @@ export function AskPanel({
           </div>
         </header>
 
-        <div className="ask-canvas min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+        <AskCanvas>
           <AnimatePresence mode="wait" initial={false}>
             {empty ? (
               <motion.div
@@ -224,13 +224,7 @@ export function AskPanel({
                 className="flex min-h-full flex-col px-5 pb-6 pt-10 sm:pt-14"
               >
                 <div className="flex flex-col items-center text-center">
-                  <motion.div
-                    initial={{ scale: 0.7, opacity: 0, y: 8 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                  >
-                    <AskMark size={60} />
-                  </motion.div>
+                  <AskOrb size={64} arrive />
                   <h2 className="mt-5 text-[25px] leading-tight">{greeting()}</h2>
                   <p className="mt-1.5 max-w-[34ch] text-[13px] leading-relaxed text-muted-foreground">
                     {context.dealId
@@ -250,13 +244,13 @@ export function AskPanel({
                       <button
                         type="button"
                         onClick={() => pick(s)}
-                        className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5 text-left transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-px hover:border-brand/40 hover:shadow-[0_6px_16px_-10px_oklch(0.517_0.116_250/0.45)] active:translate-y-0"
+                        className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5 text-left transition-colors duration-200 hover:border-brand/40"
                       >
                         <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-brand-fg">
                           <s.icon className="size-4" strokeWidth={1.8} />
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-[13px] font-medium tracking-tight">{s.title}</span>
+                          <span className="block text-[13px] font-medium">{s.title}</span>
                           <span className="block truncate text-[11.5px] text-muted-foreground">{s.hint}</span>
                         </span>
                       </button>
@@ -278,11 +272,11 @@ export function AskPanel({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </AskCanvas>
 
         {/* Composer */}
         <div className="border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="rounded-2xl border border-input bg-card px-3 pt-2.5 shadow-[0_1px_2px_oklch(0.215_0.012_90/0.04)] transition-[border-color,box-shadow] focus-within:border-brand/60 focus-within:shadow-[0_0_0_3px_oklch(0.517_0.116_250/0.12)]">
+          <div className="rounded-2xl border border-input bg-card px-3 pt-2.5 transition-colors focus-within:border-brand">
             <textarea
               ref={inputRef}
               value={draft}
@@ -351,5 +345,46 @@ export function AskPanel({
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/**
+ * The thread's backdrop. The dot grid stays put while the thread scrolls over
+ * it, and under a mouse the dots around the pointer light up in the brand.
+ * The pointer position goes straight to two CSS variables once per frame, so
+ * following it never re-renders the thread. Touch has no hover, so it is
+ * ignored rather than leaving a glow wherever the last tap landed.
+ */
+function AskCanvas({ children }: { children: ReactNode }) {
+  const glow = useRef<HTMLDivElement>(null);
+  const frame = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(frame.current), []);
+
+  const follow = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      const el = glow.current;
+      if (!el) return;
+      el.style.setProperty("--ask-x", `${x}px`);
+      el.style.setProperty("--ask-y", `${y}px`);
+      el.dataset.on = "";
+    });
+  };
+
+  const leave = () => {
+    cancelAnimationFrame(frame.current);
+    if (glow.current) delete glow.current.dataset.on;
+  };
+
+  return (
+    <div className="ask-canvas flex min-h-0 flex-1 flex-col" onPointerMove={follow} onPointerLeave={leave}>
+      <div ref={glow} aria-hidden className="ask-canvas-glow" />
+      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">{children}</div>
+    </div>
   );
 }

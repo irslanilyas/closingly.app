@@ -84,7 +84,7 @@ export function StatStrip({ overview }: { overview: DealOverview }) {
             <div className="text-[11px] text-muted-foreground">{stat.label}</div>
             <div
               className={cn(
-                "mt-1.5 truncate text-[18px] font-medium leading-tight tracking-tight tabular-nums sm:text-[19px]",
+                "mt-1.5 truncate text-[18px] font-medium leading-tight tracking-[-0.03em] tabular-nums sm:text-[19px]",
                 stat.tone === "good" && "text-success",
                 stat.tone === "warn" && "text-[color-mix(in_oklch,var(--warning),black_25%)] dark:text-warning"
               )}

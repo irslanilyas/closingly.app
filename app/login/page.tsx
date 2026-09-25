@@ -73,7 +73,7 @@ function LoginForm() {
         <Wordmark href={null} />
 
         <div className="my-auto w-full max-w-[470px] py-12 lg:py-10">
-          <motion.h1 {...rise(0.05)} className="text-[40px] leading-[1.04] tracking-[-0.03em] sm:text-[50px] xl:text-[56px]">
+          <motion.h1 {...rise(0.05)} className="text-[40px] leading-[1.04] sm:text-[50px] xl:text-[56px]">
             The call ends.
             <span className="block text-brand">The proposal is already written.</span>
           </motion.h1>
@@ -99,14 +99,14 @@ function LoginForm() {
               onClick={signIn}
               disabled={submitting}
               className={cn(
-                "group relative flex h-12 w-full max-w-[400px] items-center gap-3 rounded-xl bg-brand pl-1.5 pr-4 text-[14.5px] font-medium text-brand-fg outline-none",
-                "shadow-[0_1px_2px_oklch(0.25_0.06_252/0.25),0_14px_30px_-12px_oklch(0.517_0.116_250/0.7)]",
-                "transition-[transform,box-shadow,background-color] duration-200 hover:-translate-y-px hover:bg-[color-mix(in_oklch,var(--brand),black_8%)] hover:shadow-[0_1px_2px_oklch(0.25_0.06_252/0.25),0_18px_36px_-12px_oklch(0.517_0.116_250/0.8)]",
-                "focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-0 disabled:cursor-wait disabled:opacity-90"
+                // Ink on the ground in both themes: black here, light in dark.
+                "group relative flex h-12 w-full max-w-[400px] items-center gap-3 rounded-xl bg-foreground px-4 text-[14.5px] font-medium text-background outline-none",
+                "transition-colors duration-200 hover:bg-[color-mix(in_oklch,var(--foreground),var(--background)_14%)]",
+                "focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-wait disabled:opacity-90"
               )}
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-white">
-                {submitting ? <Spinner className="size-4 text-brand" /> : <GoogleMark />}
+              <span className="grid size-[18px] shrink-0 place-items-center">
+                {submitting ? <Spinner className="size-4" /> : <GoogleMark />}
               </span>
               <span className="flex-1 text-left">{submitting ? "Opening Google" : "Continue with Google"}</span>
               <ArrowRightIcon
@@ -146,18 +146,19 @@ function LoginForm() {
       {/* The mechanism, playing */}
       <section
         aria-label="How Closingly works, as an example"
-        className="login-field relative mx-3 mb-3 flex flex-col overflow-hidden rounded-[28px] px-4 pb-6 pt-7 sm:mx-4 sm:mb-4 sm:px-8 lg:my-4 lg:ml-0 lg:mr-4 lg:justify-center lg:px-10"
+        className="login-field relative mx-3 mb-3 flex flex-col overflow-hidden rounded-[22.4px] px-4 pb-6 pt-7 sm:mx-4 sm:mb-4 sm:px-8 lg:my-4 lg:ml-0 lg:mr-4 lg:justify-center lg:px-10"
       >
         <div className="mx-auto w-full max-w-[600px]">
           <ProductStory />
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[12.5px] font-medium text-white/90">
+          {/* Full white: anything dimmer drops under 4.5:1 on the field. */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[12.5px] font-medium text-white">
             <span>Record the call</span>
-            <ArrowRightIcon className="size-3.5 opacity-60" strokeWidth={2} aria-hidden />
+            <ArrowRightIcon className="size-3.5 opacity-80" strokeWidth={2} aria-hidden />
             <span>Draft the proposal</span>
-            <ArrowRightIcon className="size-3.5 opacity-60" strokeWidth={2} aria-hidden />
+            <ArrowRightIcon className="size-3.5 opacity-80" strokeWidth={2} aria-hidden />
             <span>Know when they read it</span>
           </div>
-          <p className="mt-3 text-center text-[11.5px] text-white/65">
+          <p className="mt-3 text-center text-[11.5px] text-white">
             An illustration. The client, call and figures are made up.
           </p>
         </div>

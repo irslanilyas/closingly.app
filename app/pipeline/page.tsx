@@ -202,7 +202,7 @@ export function PipelineView() {
                 onClick={() => setView(v.value)}
                 aria-label={v.label}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1.5 pointer-coarse:px-3.5 pointer-coarse:py-2 text-[12.5px] transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-[5.6px] px-2.5 py-1.5 pointer-coarse:px-3.5 pointer-coarse:py-2 text-[12.5px] transition-colors",
                   view === v.value
                     ? "bg-secondary font-medium text-foreground"
                     : "text-muted-foreground hover:text-foreground"
@@ -327,7 +327,7 @@ function Column({
       )}
     >
       <div className="mb-2.5 flex items-baseline justify-between gap-2 px-1">
-        <span className="text-[12.5px] font-medium tracking-tight">
+        <span className="text-[12.5px] font-medium">
           {STAGE_LABELS[stage]}
           <span className="ml-1.5 text-[11.5px] font-normal text-muted-foreground tabular-nums">
             {deals.length}
@@ -404,7 +404,7 @@ function Stat({
       <div className="label truncate">{label}</div>
       <div
         className={cn(
-          "mt-1.5 text-[19px] sm:text-[22px] leading-none tabular-nums tracking-tight",
+          "mt-1.5 text-[19px] sm:text-[22px] leading-none tabular-nums tracking-[-0.03em]",
           accent && "text-brand"
         )}
       >
@@ -422,7 +422,7 @@ function BoardSkeleton() {
     <div className="flex gap-3 overflow-hidden" aria-hidden>
       {[0, 1, 2, 3].map((i) => (
         <div key={i} className="w-[min(288px,calc(100vw-56px))] shrink-0 space-y-2">
-          <Skeleton className="h-5 w-28 rounded" />
+          <Skeleton className="h-5 w-28 rounded-[3.2px]" />
           <Skeleton className="h-[104px] w-full rounded-xl" />
           <Skeleton className="h-[104px] w-full rounded-xl" />
         </div>
@@ -437,7 +437,7 @@ function EmptyPipeline({ filtered }: { filtered: boolean }) {
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
         <InboxIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
-      <p className="mt-4 text-[14px] font-medium tracking-tight">
+      <p className="mt-4 text-[14px] font-medium">
         {filtered ? "Nothing matches that" : "No deals yet"}
       </p>
       <p className="mx-auto mt-1.5 max-w-[46ch] text-[12.5px] leading-relaxed text-muted-foreground">

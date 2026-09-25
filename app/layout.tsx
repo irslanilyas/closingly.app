@@ -1,40 +1,36 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Fraunces, DM_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { DM_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 /**
- * Every face here is fetched and self-hosted at build by next/font — no CDN
- * at runtime, no flash of a platform fallback, and the CSS `size-adjust`
- * metrics are generated so the fallback occupies the same space as the real
- * face while it loads.
+ * Every face here is self-hosted and served from our own origin with the
+ * rest of the build's static assets: no font CDN at runtime, nothing a
+ * crawler or a strict CSP has to reach elsewhere for. next/font generates a
+ * metric-matched fallback (`size-adjust` and friends on a local Arial), so
+ * text is readable immediately (`swap`) and barely moves when the real face
+ * lands.
  */
-
-/** Body and UI. Humanist with soft terminals — warm where Inter is neutral. */
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 /**
- * Display voice. Fraunces is an old-style serif with deliberate softness in
- * its curves, and it is the single clearest signal that this interface was
- * not assembled out of a component gallery. Used on headings only.
+ * General Sans (Indian Type Foundry, via Fontshare): every role, headings
+ * included. Only the styles the app uses ship, converted from the supplied
+ * OpenType files to WOFF2 (see app/fonts/general-sans/README.md). There is
+ * no 700: nothing asks for it, and bold falls to the 600.
  */
-const fraunces = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  // Loaded variable rather than as fixed weights: the SOFT and WONK axes are
-  // where its warmth lives, and next/font rejects custom axes alongside a
-  // fixed weight list. Variable also gives the whole weight range for one
-  // file rather than three.
-  weight: "variable",
-  axes: ["SOFT", "WONK"],
+const generalSans = localFont({
+  variable: "--font-sans",
+  src: [
+    { path: "./fonts/general-sans/GeneralSans-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/general-sans/GeneralSans-Italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/general-sans/GeneralSans-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/general-sans/GeneralSans-Semibold.woff2", weight: "600", style: "normal" },
+  ],
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 /** Reserved for measurement: tabular figures and metadata. */
@@ -61,8 +57,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf8" },
-    { media: "(prefers-color-scheme: dark)", color: "#121517" },
+    { media: "(prefers-color-scheme: light)", color: "#fdfefb" },
+    { media: "(prefers-color-scheme: dark)", color: "#13120f" },
   ],
 };
 
@@ -75,7 +71,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${jakarta.variable} ${fraunces.variable} ${dmMono.variable} h-full antialiased`}
+      className={`${generalSans.variable} ${dmMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider

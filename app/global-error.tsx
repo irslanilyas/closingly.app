@@ -34,19 +34,20 @@ export default function GlobalError({
           justifyContent: "center",
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif",
-          background: "#fdfdfc",
-          color: "#26241f",
+          // The ground, ink, muted ink and border tokens from globals.css.
+          background: "#fdfefb",
+          color: "#1c1913",
         }}
       >
         <div style={{ maxWidth: 380, textAlign: "center", padding: 24 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 500, margin: "0 0 10px" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, letterSpacing: "-0.03em", margin: "0 0 10px" }}>
             Something went wrong
           </h1>
           <p
             style={{
               fontSize: 13.5,
               lineHeight: 1.6,
-              color: "#71706b",
+              color: "#65625b",
               margin: "0 0 24px",
             }}
           >
@@ -57,10 +58,10 @@ export default function GlobalError({
             style={{
               fontSize: 13,
               padding: "8px 16px",
-              borderRadius: 6,
-              border: "1px solid #d8d5cf",
+              borderRadius: 4.8,
+              border: "1px solid #ededed",
               background: "#ffffff",
-              color: "#26241f",
+              color: "#1c1913",
               cursor: "pointer",
             }}
           >

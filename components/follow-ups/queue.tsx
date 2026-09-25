@@ -294,7 +294,7 @@ function FollowUpCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-[13.5px] font-medium tracking-tight">
+            <span className="text-[13.5px] font-medium">
               {nameOf(deal)}
             </span>
             <span className="text-[11px] text-muted-foreground">
@@ -433,7 +433,7 @@ function FollowUpCard({
                   Not now
                 </Button>
                 {snoozeOpen && (
-                  <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-border bg-popover p-1 shadow-[0_1px_2px_oklch(0.215_0.012_90/0.06),0_12px_28px_-8px_oklch(0.215_0.012_90/0.14)]">
+                  <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-border bg-popover p-1 shadow-float">
                     {SNOOZE_OPTIONS.map((option) => (
                       <button
                         key={option.value}
@@ -502,8 +502,8 @@ function QueueSkeleton() {
     <div className="space-y-2" aria-hidden>
       {[0, 1, 2].map((i) => (
         <div key={i} className="panel px-4 py-3.5">
-          <div className="h-3.5 w-40 rounded bg-muted animate-pulse" />
-          <div className="mt-2 h-3 w-full max-w-[420px] rounded bg-muted animate-pulse" />
+          <div className="h-3.5 w-40 rounded-[3.2px] bg-muted animate-pulse" />
+          <div className="mt-2 h-3 w-full max-w-[420px] rounded-[3.2px] bg-muted animate-pulse" />
         </div>
       ))}
     </div>
@@ -516,7 +516,7 @@ function EmptyQueue({ tab }: { tab: "open" | "done" }) {
       <span className="mx-auto grid size-10 place-items-center rounded-full bg-secondary">
         <InboxIcon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </span>
-      <p className="mt-4 text-[14px] font-medium tracking-tight">
+      <p className="mt-4 text-[14px] font-medium">
         {tab === "open" ? "Nothing needs chasing" : "Nothing handled yet"}
       </p>
       <p className="mx-auto mt-1.5 max-w-[42ch] text-[12.5px] text-muted-foreground leading-relaxed">

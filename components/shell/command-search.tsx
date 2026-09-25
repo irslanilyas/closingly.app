@@ -200,7 +200,7 @@ export function CommandSearch() {
       >
         <MagnifyingGlassIcon className="size-4 sm:size-3.5" strokeWidth={1.7} />
         <span className="hidden sm:inline">Search</span>
-        <kbd className="ml-1 hidden rounded border border-border bg-secondary px-1.5 py-px font-mono text-[10px] leading-[1.4] text-muted-foreground sm:inline pointer-coarse:hidden">
+        <kbd className="ml-1 hidden rounded-[3.2px] border border-border bg-secondary px-1.5 py-px font-mono text-[10px] leading-[1.4] text-muted-foreground sm:inline pointer-coarse:hidden">
           ⌘K
         </kbd>
       </button>
@@ -227,7 +227,7 @@ export function CommandSearch() {
               onClick={close}
             />
 
-            <div className="relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-[0_2px_4px_oklch(0.215_0.012_90/0.06),0_24px_56px_-12px_oklch(0.215_0.012_90/0.28)] warm-in">
+            <div className="relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-float warm-in">
               <div className="flex items-center gap-2.5 border-b border-border px-4">
                 {loading ? (
                   <Spinner className="size-4 shrink-0 text-muted-foreground" />
@@ -252,7 +252,7 @@ export function CommandSearch() {
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="shrink-0 rounded px-1 py-2 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
+                    className="shrink-0 rounded-[3.2px] px-1 py-2 text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Clear
                   </button>
@@ -262,7 +262,7 @@ export function CommandSearch() {
                 <button
                   type="button"
                   onClick={close}
-                  className="-mr-1 shrink-0 rounded px-1.5 py-2 text-[12.5px] font-medium text-brand pointer-fine:hidden"
+                  className="-mr-1 shrink-0 rounded-[3.2px] px-1.5 py-2 text-[12.5px] font-medium text-brand pointer-fine:hidden"
                 >
                   Cancel
                 </button>
@@ -315,7 +315,7 @@ function Hint({
 }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <kbd className="grid h-[17px] min-w-[17px] place-items-center rounded border border-border bg-secondary px-1 font-mono text-[10px] leading-none text-muted-foreground">
+      <kbd className="grid h-[17px] min-w-[17px] place-items-center rounded-[3.2px] border border-border bg-secondary px-1 font-mono text-[10px] leading-none text-muted-foreground">
         {keys}
       </kbd>
       {children}

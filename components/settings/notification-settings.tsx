@@ -104,7 +104,7 @@ export function NotificationSettings() {
   if (!prefs) {
     return (
       <div className="rounded-lg border border-border p-4" aria-hidden>
-        <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-40 animate-pulse rounded-[3.2px] bg-muted" />
       </div>
     );
   }
@@ -118,7 +118,7 @@ export function NotificationSettings() {
             className="flex items-start justify-between gap-4 px-4 py-3.5"
           >
             <div className="min-w-0">
-              <div className="text-[13.5px] font-medium tracking-tight">
+              <div className="text-[13.5px] font-medium">
                 {toggle.label}
               </div>
               <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">

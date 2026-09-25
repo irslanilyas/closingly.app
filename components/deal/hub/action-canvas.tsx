@@ -231,7 +231,7 @@ function ProposalPreview({
           <div className="text-[10.5px] font-medium uppercase tracking-[0.13em] text-muted-foreground">
             Proposal
           </div>
-          <div className="mt-2 text-[19px] font-medium leading-snug tracking-tight">
+          <div className="mt-2 text-[19px] font-medium leading-snug tracking-[-0.03em]">
             Prepared for {name}
           </div>
           {proposal.data.challenge && (
@@ -310,7 +310,7 @@ function ProposalPreview({
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-medium tracking-tight">{section.title}</span>
+                  <span className="text-[13px] font-medium">{section.title}</span>
                   {wasRead && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-px text-[10.5px] font-medium text-success">
                       <EyeIcon className="size-3" strokeWidth={2} />

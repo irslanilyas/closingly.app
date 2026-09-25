@@ -39,7 +39,7 @@ export default function ErrorPage({
           className="size-6 mx-auto text-muted-foreground mb-4"
           strokeWidth={1.5}
         />
-        <h1 className="text-[18px] font-medium tracking-tight">
+        <h1 className="text-[18px] font-medium">
           Something went wrong
         </h1>
         <p className="mt-2.5 text-[13.5px] text-muted-foreground leading-relaxed">

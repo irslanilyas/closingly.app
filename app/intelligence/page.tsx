@@ -201,7 +201,7 @@ export default function InsightsPage() {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-[15px] font-medium tracking-tight mb-4">{children}</h2>
+    <h2 className="text-[15px] font-medium mb-4">{children}</h2>
   );
 }
 

@@ -22,7 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import type { ActionView, AskPart, LinkPart } from "@/lib/ask/parts";
 import { AskText } from "./ask-text";
-import { AskMark } from "./ask-mark";
+import { AskOrb } from "./ask-orb";
 import type { UiMessage } from "./use-ask";
 
 /* ── Steps ────────────────────────────────────────────────────────────── */
@@ -123,7 +123,7 @@ export function ActionCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "my-3 overflow-hidden rounded-xl border bg-card shadow-[0_1px_2px_oklch(0.215_0.012_90/0.05),0_6px_16px_-8px_oklch(0.215_0.012_90/0.12)] transition-colors",
+        "my-3 overflow-hidden rounded-xl border bg-card transition-colors",
         action.status === "done" && "border-brand/35",
         action.status === "pending" && destructive && "border-destructive/35",
         (action.status === "cancelled" || action.status === "expired") && "opacity-70"
@@ -149,7 +149,7 @@ export function ActionCard({
           )}
         </span>
         <div className="min-w-0 flex-1 pb-0.5">
-          <p className="text-[13.5px] font-medium leading-snug tracking-tight">{action.title}</p>
+          <p className="text-[13.5px] font-medium leading-snug">{action.title}</p>
           {action.detail && (
             <p className="mt-1 line-clamp-4 whitespace-pre-line text-[12.5px] leading-relaxed text-muted-foreground">
               {action.detail}
@@ -347,7 +347,7 @@ export function AskMessageView({
 
       {waiting && (
         <div className="flex items-center gap-2.5 py-1 text-[12.5px] text-muted-foreground" aria-live="polite">
-          <AskMark size={18} state="thinking" />
+          <AskOrb size={18} state="thinking" />
           Thinking<span className="ask-ellipsis" aria-hidden />
         </div>
       )}

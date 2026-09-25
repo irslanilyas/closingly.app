@@ -35,9 +35,10 @@ import {
 const OPEN_STAGES: DealStage[] = ["lead", "proposal_sent", "negotiating"];
 
 /**
- * Each open stage gets its own step on the sage ramp, darkening as the deal
- * gets closer to closing. Reading left to right, the bar gets darker as money
- * gets more real — the colour carries the same information as the order.
+ * Each open stage gets its own step on the brand ramp, moving further from the
+ * ground as the deal gets closer to closing (darker in light, lighter in
+ * dark). Reading left to right, the colour carries the same information as
+ * the order.
  */
 const STAGE_FILL: Record<string, string> = {
   lead: "var(--chart-3)",
@@ -156,12 +157,12 @@ export default function DashboardPage() {
   return (
     <AppShellClient>
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-[24px] sm:text-[28px] font-medium tracking-tight leading-tight">
+        <h1 className="text-[24px] sm:text-[28px] font-medium leading-tight">
           {greeting()}
         </h1>
         <p className="mt-1.5 text-[13.5px] text-muted-foreground">
           {loading ? (
-            <span className="inline-block h-[1em] w-[240px] align-middle rounded bg-muted animate-pulse" />
+            <span className="inline-block h-[1em] w-[240px] align-middle rounded-[3.2px] bg-muted animate-pulse" />
           ) : stats.open === 0 ? (
             "Nothing in the pipeline yet. Switch the agent on for a call and it fills itself."
           ) : (
@@ -452,7 +453,7 @@ function Stat({
     <div className="flex flex-row-reverse items-baseline justify-between gap-4 px-4 py-3 sm:block sm:rounded-lg sm:border sm:border-border sm:bg-card sm:py-3.5 sm:transition-colors sm:hover:border-muted-foreground/25">
       <div
         className={cn(
-          "text-[17px] sm:text-[22px] font-medium tabular-nums tracking-tight leading-none",
+          "text-[17px] sm:text-[22px] font-medium tabular-nums tracking-[-0.03em] leading-none",
           accent && "text-[var(--brand)]"
         )}
       >
@@ -559,23 +560,23 @@ function DashboardSkeleton() {
           ))}
         </div>
         <div>
-          <Skeleton className="h-3 w-16 mb-3 rounded" />
+          <Skeleton className="h-3 w-16 mb-3 rounded-[3.2px]" />
           <Skeleton className="h-[132px] w-full rounded-lg" />
         </div>
         <div>
-          <Skeleton className="h-3 w-16 mb-3 rounded" />
+          <Skeleton className="h-3 w-16 mb-3 rounded-[3.2px]" />
           <Skeleton className="h-[88px] w-full rounded-lg" />
         </div>
       </div>
       <div>
-        <Skeleton className="h-3 w-24 mb-4 rounded" />
+        <Skeleton className="h-3 w-24 mb-4 rounded-[3.2px]" />
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex gap-3">
               <Skeleton className="size-[22px] rounded-full shrink-0" />
               <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-3 w-full rounded" />
-                <Skeleton className="h-2.5 w-16 rounded" />
+                <Skeleton className="h-3 w-full rounded-[3.2px]" />
+                <Skeleton className="h-2.5 w-16 rounded-[3.2px]" />
               </div>
             </div>
           ))}

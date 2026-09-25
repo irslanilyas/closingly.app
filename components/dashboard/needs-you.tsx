@@ -11,10 +11,10 @@ import {
   CalendarDateRangeIcon,
   EyeIcon,
   PaperAirplaneIcon,
-  SparklesIcon,
   VideoCameraIcon,
   VideoCameraSlashIcon,
 } from "@heroicons/react/24/outline";
+import { AskOrb } from "@/components/ask/ask-orb";
 
 /**
  * The one band on the dashboard that answers "what do I do now".
@@ -201,7 +201,7 @@ export function NeedsYou() {
             <RowIcon icon={row.icon} urgent={row.urgent} />
 
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13.5px] font-medium tracking-tight">
+              <div className="truncate text-[13.5px] font-medium">
                 {row.title}
               </div>
               {row.detail && (
@@ -316,7 +316,7 @@ export function NextCallCard() {
   return (
     <div className="panel p-4">
       <div className="label">Next call</div>
-      <div className="mt-2 text-[14px] font-medium leading-snug tracking-tight">
+      <div className="mt-2 text-[14px] font-medium leading-snug">
         {call.title}
       </div>
       <div className="mt-1 text-[12.5px] text-muted-foreground tabular-nums">
@@ -363,8 +363,8 @@ export function AskPrompt() {
   return (
     <div className="panel p-4">
       <div className="flex items-center gap-2">
-        <SparklesIcon className="size-3.5 text-brand" strokeWidth={1.7} />
-        <span className="text-[13px] font-medium tracking-tight">
+        <AskOrb size={16} />
+        <span className="text-[13px] font-medium">
           Ask Closingly
         </span>
       </div>
@@ -373,7 +373,7 @@ export function AskPrompt() {
         about budget, which proposals are unread, what should you do next.
       </p>
       <p className="mt-2.5 text-[11.5px] text-muted-foreground">
-        The blue button, bottom right, on any screen.
+        The Ask button, bottom right, on any screen.
       </p>
     </div>
   );

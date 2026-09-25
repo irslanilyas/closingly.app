@@ -62,7 +62,7 @@ function Result({ data }: { data: Partial<CaseStudyResult> | null }) {
         <div className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-medium mb-2">
           Headline
         </div>
-        <div className="text-[18px] font-medium tracking-tight leading-snug">
+        <div className="text-[18px] font-medium tracking-[-0.03em] leading-snug">
           <RevealText text={data.headline} />
         </div>
       </div>

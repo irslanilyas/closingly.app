@@ -46,16 +46,16 @@ export default function TourPage() {
     <AppShellClient>
       <div className="mx-auto max-w-[1040px]">
         <header className="mb-8 max-w-[60ch]">
-          <h1 className="text-[28px] leading-tight tracking-tight sm:text-[34px]">How Closingly works</h1>
+          <h1 className="text-[28px] leading-tight sm:text-[34px]">How Closingly works</h1>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
             One call in, a priced proposal and a tracked deal out, and a nudge whenever something goes quiet.
           </p>
         </header>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12">
-          <section aria-label="An example, played back" className="login-field rounded-[24px] px-4 pb-5 pt-6 sm:px-7">
+          <section aria-label="An example, played back" className="login-field rounded-[19.2px] px-4 pb-5 pt-6 sm:px-7">
             <ProductStory />
-            <p className="mt-4 text-center text-[11.5px] text-white/70">
+            <p className="mt-4 text-center text-[11.5px] text-white">
               An illustration. The client, call and figures are made up.
             </p>
           </section>
@@ -74,7 +74,7 @@ export default function TourPage() {
                   {i + 1}
                 </span>
                 <div className="min-w-0 pt-0.5">
-                  <h2 className="font-sans text-[15px] font-medium tracking-tight">{step.title}</h2>
+                  <h2 className="font-sans text-[15px] font-medium">{step.title}</h2>
                   <p className="mt-1 max-w-[52ch] text-[13.5px] leading-relaxed text-muted-foreground">{step.body}</p>
                   {step.link && (
                     <Link
@@ -93,7 +93,7 @@ export default function TourPage() {
 
         <p className="mt-10 border-t border-border pt-6 text-[13px] text-muted-foreground">
           Rather ask than click? Press{" "}
-          <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-sans text-[11.5px] text-foreground">Ctrl J</kbd>{" "}
+          <kbd className="rounded-[3.2px] border border-border bg-card px-1.5 py-0.5 font-sans text-[11.5px] text-foreground">Ctrl J</kbd>{" "}
           anywhere and Ask Closingly will find things, answer questions, and make changes once you confirm them.
         </p>
       </div>

@@ -32,24 +32,17 @@ export function Sidebar({ email }: { email: string }) {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] row-lift",
+                  "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] row-lift",
                   active
                     ? "bg-sidebar-accent text-foreground font-medium"
                     : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
                 )}
               >
-                {/* The only brand mark in the rail: one bead for where you are. */}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-full bg-brand-vivid transition-all duration-200",
-                    active ? "h-4 opacity-100" : "h-0 opacity-0"
-                  )}
-                />
+                {/* Where you are is the row and its icon, nothing else. */}
                 <Icon
                   className={cn(
                     "size-4 shrink-0 transition-colors",
-                    active ? "text-brand" : "text-muted-foreground/80"
+                    active ? "text-sidebar-primary" : "text-muted-foreground/80"
                   )}
                   strokeWidth={1.6}
                 />

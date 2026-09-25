@@ -9,9 +9,9 @@ import { navFor, isActive } from "./nav";
  * The rail, turned into a thumb bar for phones and tablets.
  *
  * Same destinations in the same order as the desktop rail, so moving between a
- * laptop and a phone never means relearning where anything lives. The mark for
- * where you are is the rail's own blue bead, turned horizontal and set on the
- * bar's top edge.
+ * laptop and a phone never means relearning where anything lives. Where you
+ * are is marked the rail's way: the icon lights up in the brand, the label
+ * darkens, and nothing else is drawn.
  */
 export function MobileNav({ email }: { email: string }) {
   const path = usePathname();
@@ -32,21 +32,14 @@ export function MobileNav({ email }: { email: string }) {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-full flex-col items-center justify-center gap-[5px] text-[10.5px] font-medium tracking-tight transition-colors",
+                  "flex h-full flex-col items-center justify-center gap-[5px] text-[10.5px] font-medium transition-colors",
                   active
-                    ? "text-brand"
+                    ? "text-foreground"
                     : "text-muted-foreground active:text-foreground"
                 )}
               >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute top-[-1px] h-[2px] w-6 rounded-full bg-brand-vivid transition-opacity duration-200",
-                    active ? "opacity-100" : "opacity-0"
-                  )}
-                />
                 <Icon
-                  className="size-[19px] shrink-0"
+                  className={cn("size-[19px] shrink-0 transition-colors", active && "text-brand-vivid")}
                   strokeWidth={active ? 1.9 : 1.6}
                 />
                 <span className="max-w-full truncate px-0.5">{label}</span>

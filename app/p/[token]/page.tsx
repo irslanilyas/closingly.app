@@ -92,7 +92,7 @@ function Expired() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
       <div className="max-w-[420px] text-center">
-        <h1 className="text-[20px] font-medium tracking-tight">
+        <h1 className="text-[20px] font-medium">
           This link has expired
         </h1>
         <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">

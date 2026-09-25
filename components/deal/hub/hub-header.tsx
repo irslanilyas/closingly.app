@@ -189,7 +189,7 @@ export function HubHeader({
         )}
       </div>
 
-      <h1 className="mt-3 text-[26px] font-medium leading-tight tracking-tight text-balance sm:text-[30px]">
+      <h1 className="mt-3 text-[26px] font-medium leading-tight text-balance sm:text-[30px]">
         {name}
       </h1>
       <p className="mt-1.5 text-[12.5px] text-muted-foreground">

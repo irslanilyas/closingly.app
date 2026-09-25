@@ -55,7 +55,7 @@ export function HubCard({
             {eyebrow}
           </div>
           {title && (
-            <h2 className="mt-2 text-[16px] font-medium leading-snug tracking-tight text-balance">
+            <h2 className="mt-2 text-[16px] font-medium leading-snug text-balance">
               {title}
             </h2>
           )}
@@ -90,7 +90,7 @@ export function ToolSheet({
         className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:w-[560px] data-[side=right]:sm:max-w-[560px]"
       >
         <SheetHeader className="gap-1.5 border-b border-border py-4 pl-5 pr-14 pt-[max(1rem,env(safe-area-inset-top))]">
-          <SheetTitle className="text-left text-[15px] tracking-tight">{title}</SheetTitle>
+          <SheetTitle className="text-left text-[15px]">{title}</SheetTitle>
           {description && (
             <SheetDescription className="max-w-[46ch] text-left text-[12.5px] leading-relaxed">
               {description}

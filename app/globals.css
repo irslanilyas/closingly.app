@@ -50,6 +50,24 @@
   --color-brand-vivid: var(--brand-vivid);
   --color-clay: var(--clay);
 
+  /* The full brand ramp, for anything the semantic roles above don't cover. */
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
+
+  /* One elevation, for what floats above the page: menus, dialogs, the Ask
+     launcher. Surfaces that sit in the page (cards, panels, buttons) have
+     none; a 1px border separates them. */
+  --shadow-float: var(--shadow-float);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -59,15 +77,36 @@
 }
 
 /* ── Palette ──────────────────────────────────────────────────────────────
-   Ground is a near-white paper with the faintest warmth in it, ink is a deep
-   graphite, and the accent is a steel blue: confident, readable, and calm
-   enough to sit under financial figures all day without shouting at them.
+   The brand is #FF4601, oklch(0.661 0.229 35.5), sitting on the edge of the
+   sRGB gamut. Everything orange in the app is derived from it:
 
-   The accent carries in two steps because a single mid-tone cannot do both
-   jobs well: `brand` holds text and fills controls, `brand-vivid` is the
-   brighter mark used for icons, charts and borders where the bar is 3:1.  */
+   - The ramp holds its hue at 35.5 and steps lightness, taking the most
+     chroma sRGB allows at each step, eased off toward white and black so
+     tints don't go neon and shades don't go muddy.
+   - Roles are placed on the ramp by contrast, not by eye. `brand` is the
+     lightest tone that reads at 4.5:1 as text on every surface it sits on
+     (ground, card, grey fills, its own wash) and carries white labels at
+     4.5:1; that is step 600. #FF4601 itself cannot: white on it is 3.4:1.
+   - `brand-vivid` is #FF4601, for marks, icons, charts and focus details,
+     where the bar is 3:1 and the exact brand colour matters most.
+
+   Ground, rail, border and the selected row are the brief's own values;
+   ink and greys keep their warm hue.                                      */
 :root {
-  --background: oklch(0.985 0.003 90);          /* near white, faint warmth */
+  /* The ramp. 500 is the brand; 600 is where text starts to read. */
+  --brand-50: #fcf6f4;                           /* oklch(0.977 0.007 35.5) */
+  --brand-100: #faeae6;                          /* oklch(0.948 0.018 35.5) */
+  --brand-200: #f8d5cb;                          /* oklch(0.899 0.042 35.5) */
+  --brand-300: #f9b5a3;                          /* oklch(0.832 0.084 35.5) */
+  --brand-400: #fd8869;                          /* oklch(0.749 0.149 35.5) */
+  --brand-500: #ff4601;                          /* oklch(0.661 0.229 35.5) */
+  --brand-600: #c83603;                          /* oklch(0.552 0.19 35.5)  */
+  --brand-700: #af2f05;                          /* oklch(0.5 0.17 35.5)    */
+  --brand-800: #8b2507;                          /* oklch(0.425 0.142 35.5) */
+  --brand-900: #6d1d07;                          /* oklch(0.36 0.117 35.5)  */
+  --brand-950: #451105;                          /* oklch(0.265 0.082 35.5) */
+
+  --background: #fdfefb;
   --foreground: oklch(0.215 0.012 90);          /* deep graphite, never #000 */
 
   --card: oklch(1 0 0);
@@ -76,7 +115,7 @@
   --popover-foreground: oklch(0.215 0.012 90);
 
   --primary: oklch(0.215 0.012 90);
-  --primary-foreground: oklch(0.985 0.003 90);
+  --primary-foreground: #fdfefb;
   --secondary: oklch(0.962 0.004 90);
   --secondary-foreground: oklch(0.285 0.013 90);
   --muted: oklch(0.962 0.004 90);
@@ -84,36 +123,43 @@
   --accent: oklch(0.962 0.004 90);
   --accent-foreground: oklch(0.285 0.013 90);
 
-  --border: oklch(0.905 0.005 90);
-  --input: oklch(0.905 0.005 90);
+  --border: #ededed;
+  --input: #ededed;
 
-  /* Steel blue, in two steps.
-     `brand` is the readable tone that fills controls and carries labels
-     against the ground; `brand-vivid` is a step brighter for marks, icons,
-     charts and borders, where the requirement is 3:1 rather than 4.5:1. */
-  --brand: oklch(0.517 0.116 250);
-  --brand-fg: oklch(0.992 0.002 90);
-  --brand-vivid: oklch(0.608 0.142 252);
-  --brand-soft: oklch(0.955 0.021 250);         /* wash, for tints only */
-  --ring: oklch(0.517 0.116 250);
+  --brand: var(--brand-600);                     /* text and fills: 5.2:1 on the ground */
+  --brand-fg: oklch(0.992 0.002 90);             /* labels on brand fills: 5.1:1 */
+  --brand-vivid: var(--brand-500);               /* marks and icons: 3.4:1 on the ground */
+  --brand-soft: var(--brand-100);                /* wash; brand text on it is 4.5:1 */
+  --ring: var(--brand-600);
 
-  /* Second data series. Reads as a relative of the accent without competing
-     with it for attention. */
-  --clay: oklch(0.592 0.062 245);
+  /* Second data series: the brand's hue with the colour taken out, so it
+     reads as a relative of the accent without competing with it. */
+  --clay: #9f7165;                               /* oklch(0.592 0.062 35.5) */
 
-  /* Pushed well off the accent hue so failure never reads as the brand. */
-  --destructive: oklch(0.552 0.196 27);
+  /* Kept red, and pushed off the brand's hue toward crimson (18 against
+     35.5) so a failure never reads as the brand. */
+  --destructive: #ca193e;                        /* oklch(0.54 0.205 18) */
 
   --success: oklch(0.552 0.126 152);
   --warning: oklch(0.735 0.135 76);
 
-  --chart-1: oklch(0.608 0.142 252);
-  --chart-2: oklch(0.592 0.062 245);
-  --chart-3: oklch(0.735 0.135 76);
+  /* Pipeline stages, evenly spaced on the ramp: the closer to closing, the
+     further from the ground. */
+  --chart-1: var(--brand-700);
+  --chart-2: var(--brand-500);
+  --chart-3: var(--brand-300);
   --chart-4: oklch(0.552 0.126 152);
   --chart-5: oklch(0.498 0.012 90);
 
-  --radius: 0.625rem;                            /* soft — nothing sharp */
+  --shadow-float:
+    0 2px 6px -2px oklch(0.215 0.012 90 / 0.06),
+    0 14px 32px -14px oklch(0.215 0.012 90 / 0.16);
+
+  --radius: 0.5rem;                              /* every radius derives from this */
+
+  /* Headings and running text share General Sans; the role stays separate so
+     the two can diverge again without touching every heading. */
+  --font-display: var(--font-sans);
 
   /* Rail width. Lives here rather than in a TS constant because the rail is a
      client component and the frame that insets by it is a server component —
@@ -129,65 +175,81 @@
      button at desktop. */
   --toast-bottom: calc(var(--mobile-nav-h) + 72px);
 
-  --sidebar: oklch(0.972 0.004 90);
+  --sidebar: #fafbf8;
   --sidebar-foreground: oklch(0.215 0.012 90);
-  --sidebar-primary: oklch(0.608 0.142 252);
+  /* The selected row's icon: the tone closest to #FF4601 that still reaches
+     3:1 on #ebe9e6 (#FF4601 itself is 2.8:1 there). The two are 0.017 apart
+     in OKLab, under one just-noticeable step. */
+  --sidebar-primary: #f74300;
   --sidebar-primary-foreground: oklch(0.992 0.002 90);
-  --sidebar-accent: oklch(0.935 0.005 90);
+  --sidebar-accent: #ebe9e6;                     /* the selected row */
   --sidebar-accent-foreground: oklch(0.285 0.013 90);
-  --sidebar-border: oklch(0.905 0.005 90);
-  --sidebar-ring: oklch(0.608 0.142 252);
+  --sidebar-border: #ededed;
+  --sidebar-ring: var(--brand-600);
 }
 
-/* Dark is the same scheme at low key: a cool graphite ground rather than a
-   flat black, with the blue lifted so it keeps its identity against it. */
+/* Dark is derived from light, not inverted from it. For each value the brief
+   changed (ground, rail, border, selected row), the old dark theme held a
+   fixed ratio between its distance from the dark ground and the light
+   token's distance from the light ground; the new light distances times the
+   same ratios give these. Values the brief left alone keep their old offset
+   from the ground. Neutrals move from the cool hue the old blue palette
+   needed to the warm one the light theme's ink already uses, and the brand
+   roles are placed by the same contrast rules as in light. */
 .dark {
-  --background: oklch(0.192 0.007 250);
+  --background: #13120f;                         /* oklch(0.182 0.006 92) */
   --foreground: oklch(0.945 0.004 90);
 
-  --card: oklch(0.232 0.008 250);
+  --card: #1c1b17;
   --card-foreground: oklch(0.945 0.004 90);
-  --popover: oklch(0.248 0.008 250);
+  --popover: #201f1b;
   --popover-foreground: oklch(0.945 0.004 90);
 
   --primary: oklch(0.945 0.004 90);
-  --primary-foreground: oklch(0.192 0.007 250);
-  --secondary: oklch(0.278 0.009 250);
+  --primary-foreground: #13120f;
+  --secondary: #272621;
   --secondary-foreground: oklch(0.945 0.004 90);
-  --muted: oklch(0.278 0.009 250);
-  --muted-foreground: oklch(0.722 0.009 250);
-  --accent: oklch(0.278 0.009 250);
+  --muted: #272621;
+  --muted-foreground: oklch(0.722 0.009 90);
+  --accent: #272621;
   --accent-foreground: oklch(0.945 0.004 90);
 
-  --border: oklch(0.352 0.010 250);
-  --input: oklch(0.372 0.010 250);
+  --border: #2a2925;                             /* light's 0.049 step from the ground, x2.0 */
+  --input: #2f2e29;
 
-  --brand: oklch(0.668 0.132 252);
-  --brand-vivid: oklch(0.735 0.126 252);
-  --brand-fg: oklch(0.172 0.010 250);
-  --brand-soft: oklch(0.322 0.052 252);
-  --ring: oklch(0.702 0.132 252);
+  /* The tone closest to #FF4601 that reads at 4.5:1 on every dark surface
+     and carries near-black labels at 4.5:1. */
+  --brand: #ff4a0e;
+  --brand-vivid: var(--brand-500);               /* 5.5:1 on the ground */
+  --brand-fg: #11100b;
+  --brand-soft: #371f19;                         /* most visible wash that brand text still reads on */
+  --ring: #ff4a0e;
 
-  --clay: oklch(0.652 0.058 245);
+  --clay: #b08478;                               /* oklch(0.652 0.058 35.5) */
 
-  --destructive: oklch(0.638 0.192 27);
+  --destructive: #f05465;                        /* oklch(0.66 0.19 18) */
   --success: oklch(0.662 0.126 152);
   --warning: oklch(0.788 0.135 76);
 
-  --chart-1: oklch(0.702 0.132 252);
-  --chart-2: oklch(0.652 0.058 245);
-  --chart-3: oklch(0.788 0.135 76);
+  /* Mirrored: on a dark ground the lightest step is the furthest from it. */
+  --chart-1: var(--brand-300);
+  --chart-2: var(--brand-500);
+  --chart-3: var(--brand-700);
   --chart-4: oklch(0.662 0.126 152);
-  --chart-5: oklch(0.722 0.009 250);
+  --chart-5: oklch(0.722 0.009 90);
 
-  --sidebar: oklch(0.212 0.007 250);
+  --shadow-float:
+    0 2px 6px -2px oklch(0 0 0 / 0.3),
+    0 16px 36px -14px oklch(0 0 0 / 0.55);
+
+  --sidebar: #161512;                            /* light's 0.009 step, x1.54 */
   --sidebar-foreground: oklch(0.945 0.004 90);
-  --sidebar-primary: oklch(0.702 0.132 252);
-  --sidebar-primary-foreground: oklch(0.172 0.010 250);
-  --sidebar-accent: oklch(0.278 0.009 250);
+  --sidebar-primary: var(--brand-500);           /* 4.2:1 on the selected row */
+  --sidebar-primary-foreground: #11100b;
+  --sidebar-accent: #2c2a26;                     /* light's 0.059 step, x1.72 */
   --sidebar-accent-foreground: oklch(0.945 0.004 90);
-  --sidebar-border: oklch(0.352 0.010 250);
-  --sidebar-ring: oklch(0.702 0.132 252);
+  --sidebar-border: #2a2925;
+  --sidebar-ring: #ff4a0e;
 }
 
 @layer base {
@@ -203,17 +265,17 @@
     @apply font-sans;
   }
 
-  /* Display voice is the serif. Warm, slightly wonky, and the clearest
-     signal that this was not assembled from a component gallery. */
+  /* One family carries every role. Headings are drawn 3% tight; subheadings
+     and running text sit at the face's own spacing. */
   h1, h2 {
     font-family: var(--font-display);
     font-weight: 400;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.03em;
     text-wrap: balance;
   }
 
   h3, h4 {
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
     text-wrap: balance;
   }
 
@@ -222,8 +284,10 @@
     cursor: pointer;
   }
 
-  /* Figures here are compared, not read. Tabular by default so money and
-     dates line up without every call site remembering to ask. */
+  /* Figures here are compared, not read. General Sans has no tabular
+     figures (no `tnum` feature), so its digits stay proportional and
+     columns align on their right edge only; this still applies wherever a
+     fallback face or DM Mono draws the digits. */
   table, .tabular, [data-numeric] {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
@@ -299,13 +363,11 @@
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
 
-  /* A panel: soft, warm, lifted just enough to sit above the stock. */
+  /* A panel: flat, separated from the ground by its border alone. */
   .panel {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 1px 2px oklch(0.215 0.012 90 / 0.04),
-                0 4px 12px -4px oklch(0.215 0.012 90 / 0.06);
   }
 
   /* Brand wash. Tint only — never a fill competing with the accent. */
@@ -475,14 +537,67 @@
   }
 
   /* Ask Closingly's canvas: a faint dot grid, the texture of a desk blotter,
-     so the panel reads as a workspace rather than a chat log. */
+     so the panel reads as a workspace rather than a chat log. Under a mouse,
+     the grid lights up in the brand around the pointer: a second grid of
+     brand dots, masked to a soft circle that follows it (see AskCanvas). */
   .ask-canvas {
+    position: relative;
+    isolation: isolate;
     background-color: var(--popover);
+    /* Tinted from the muted ink, not the border: the border is now light
+       enough that dots drawn from it would all but vanish. */
     background-image: radial-gradient(
-      color-mix(in oklch, var(--border), transparent 15%) 0.7px,
+      color-mix(in oklch, var(--muted-foreground), transparent 82%) 0.7px,
       transparent 0.8px
     );
     background-size: 14px 14px;
+  }
+  .ask-canvas-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-image:
+      radial-gradient(var(--brand-vivid) 0.95px, transparent 1.05px),
+      radial-gradient(
+        circle 170px at var(--ask-x, 50%) var(--ask-y, 50%),
+        color-mix(in oklch, var(--brand-vivid), transparent 90%),
+        transparent 72%
+      );
+    background-size: 14px 14px, 100% 100%;
+    -webkit-mask-image: radial-gradient(circle 150px at var(--ask-x, 50%) var(--ask-y, 50%), #000 0%, #000 22%, transparent 100%);
+    mask-image: radial-gradient(circle 150px at var(--ask-x, 50%) var(--ask-y, 50%), #000 0%, #000 22%, transparent 100%);
+  }
+  .ask-canvas-glow[data-on] {
+    opacity: 1;
+  }
+
+  /* The Ask orb: arrives with a spin that settles exactly on the painted
+     light (a whole number of turns short of zero), out of a soft blur, with
+     one bloom of brand light behind it. */
+  @keyframes orb-arrive {
+    0%   { transform: rotate(-300deg) scale(0.55); filter: blur(8px); opacity: 0; }
+    35%  { opacity: 1; }
+    100% { transform: rotate(0deg) scale(1); filter: blur(0); opacity: 1; }
+  }
+  @keyframes orb-bloom {
+    0%   { transform: scale(0.6); opacity: 0; }
+    45%  { opacity: 0.75; }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+  @keyframes orb-spin {
+    to { transform: rotate(360deg); }
+  }
+  .orb-arrive {
+    animation: orb-arrive 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .orb-bloom {
+    animation: orb-bloom 1100ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;
+  }
+  .orb-spin {
+    animation: orb-spin 1.1s linear infinite;
   }
 
   /* "Reading your pipeline..." with the dots arriving one at a time. */
@@ -501,15 +616,12 @@
   }
 
   /* ── The product story (login, tour) ───────────────────────────────────
-     Cards sit on a committed steel-blue field, lifted with an offset shadow
-     tinted from the field rather than grey. */
+     Flat cards on a committed brand field; the field's own colour is the
+     separation, so they carry no shadow. */
   .story-card,
   .story-paper {
     background: var(--card);
     border: 1px solid color-mix(in oklch, var(--border), transparent 25%);
-    box-shadow:
-      0 1px 2px oklch(0.22 0.04 252 / 0.14),
-      0 22px 44px -20px oklch(0.2 0.06 252 / 0.55);
   }
   .story-paper {
     background: color-mix(in oklch, var(--card), var(--background) 55%);
@@ -520,7 +632,7 @@
     background: linear-gradient(var(--brand-soft), var(--brand-soft)) no-repeat 0 0 / 0% 100%;
     background-color: transparent;
     color: inherit;
-    border-radius: 3px;
+    border-radius: 2.4px;
     padding: 0 2px;
     margin: 0 -2px;
     transition:
@@ -532,18 +644,21 @@
     color: var(--foreground);
   }
 
-  /* The login's color field. Steel blue owns half the page; a slow light
-     falls across it from the top so it reads as a surface, not a fill. */
+  /* The login's color field. The brand owns half the page; a slow light
+     falls across it from the top so it reads as a surface, not a fill. The
+     field is the readable brand tone rather than #FF4601 itself, so the
+     #FF4601 beads crossing it stay visible and white text on it reads at
+     5.1:1; in dark it drops two steps down the ramp. */
   .login-field {
-    --field: var(--brand);
+    --field: var(--brand-600);
     background-color: var(--field);
     background-image:
       radial-gradient(120% 80% at 12% 0%, oklch(1 0 0 / 0.14), transparent 60%),
-      radial-gradient(oklch(1 0 0 / 0.11) 0.8px, transparent 0.9px);
+      radial-gradient(oklch(1 0 0 / 0.13) 0.8px, transparent 0.9px);
     background-size: auto, 16px 16px;
   }
   .dark .login-field {
-    --field: oklch(0.39 0.1 252);
+    --field: var(--brand-800);
   }
 
   /* A call still in progress: bars keeping time, not a spinner. */
@@ -566,4 +681,8 @@
   .live-bar { animation: none; }
   .ask-ellipsis::after { animation: none; }
   .story-mark { transition: none; }
+  /* The orb still arrives, by fading in; it does not turn. */
+  .orb-arrive { animation: resolve 240ms ease-out both; }
+  .orb-bloom, .orb-spin { animation: none; }
+  .ask-canvas-glow { transition: none; }
 }

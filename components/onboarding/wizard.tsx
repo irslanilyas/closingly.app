@@ -421,7 +421,7 @@ function Screen({
 }) {
   return (
     <div className="warm-in pt-4 sm:pt-10">
-      <h1 className="text-[28px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
+      <h1 className="text-[28px] sm:text-[36px] leading-[1.1]">
         {title}
       </h1>
       <p className="mt-3 mb-7 sm:mb-9 text-[14px] text-muted-foreground leading-relaxed max-w-[58ch] text-pretty">
@@ -494,7 +494,7 @@ const LOOP = [
 function Promise({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="warm-in pt-6 sm:pt-16 max-w-[720px]">
-      <h1 className="text-[31px] sm:text-[44px] leading-[1.08] tracking-[-0.025em]">
+      <h1 className="text-[31px] sm:text-[44px] leading-[1.08]">
         A call becomes a priced proposal, without you writing it
       </h1>
       <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed max-w-[54ch] text-pretty">
@@ -510,7 +510,7 @@ function Promise({ onContinue }: { onContinue: () => void }) {
             style={{ animationDelay: `${80 + i * 60}ms` }}
           >
             <Icon className="size-4 text-brand" strokeWidth={1.6} />
-            <div className="mt-2.5 text-[13.5px] font-medium tracking-tight">
+            <div className="mt-2.5 text-[13.5px] font-medium">
               {title}
             </div>
             <div className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
@@ -560,7 +560,7 @@ function Calls({
         <div className="mb-8 flex items-start gap-3 rounded-lg wash border border-brand/25 px-4 py-3">
           <Spinner className="size-4 mt-0.5 shrink-0 text-brand" />
           <div>
-            <div className="text-[13.5px] font-medium tracking-tight">
+            <div className="text-[13.5px] font-medium">
               Your proposal is being written
             </div>
             <div className="mt-0.5 text-[12.5px] text-muted-foreground leading-relaxed">
@@ -571,7 +571,7 @@ function Calls({
         </div>
       )}
 
-      <h1 className="text-[28px] sm:text-[36px] leading-[1.1] tracking-[-0.02em]">
+      <h1 className="text-[28px] sm:text-[36px] leading-[1.1]">
         Last thing: your calls
       </h1>
       <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed text-pretty">
@@ -588,7 +588,7 @@ function Calls({
             <CalendarIcon className="size-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={1.6} />
           )}
           <div>
-            <div className="text-[13.5px] font-medium tracking-tight">
+            <div className="text-[13.5px] font-medium">
               {calendarConnected ? "Calendar connected" : "Calendar not connected"}
             </div>
             <ul className="mt-2.5 space-y-1.5">

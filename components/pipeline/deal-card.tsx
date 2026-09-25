@@ -106,7 +106,7 @@ export function DealCard({
         )}
 
         <Link href={`/pipeline/${deal.id}`} className="min-w-0 flex-1">
-          <div className="truncate text-[13.5px] font-medium leading-snug tracking-tight hover:text-brand">
+          <div className="truncate text-[13.5px] font-medium leading-snug hover:text-brand">
             {name}
           </div>
           <div className="mt-0.5 flex items-baseline gap-2">

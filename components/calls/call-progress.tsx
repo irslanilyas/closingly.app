@@ -245,7 +245,7 @@ export function CallProgressCard({ call, onDismiss }: { call: CallActivity; onDi
                 <span className="size-1.5 rounded-full bg-brand" />
               </span>
             ) : null}
-            <h3 className="truncate text-[14.5px] font-medium tracking-tight">{call.title}</h3>
+            <h3 className="truncate text-[14.5px] font-medium">{call.title}</h3>
           </div>
           <p className="mt-0.5 text-[12px] text-muted-foreground">{meta}</p>
         </div>
@@ -272,7 +272,7 @@ export function CallProgressCard({ call, onDismiss }: { call: CallActivity; onDi
 
           {phase.kind === "processing" && (
             <>
-              <p className="mt-3 text-[15px] font-medium leading-snug tracking-tight">{HEADLINES[active]}</p>
+              <p className="mt-3 text-[15px] font-medium leading-snug">{HEADLINES[active]}</p>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
                 {phase.stage === "queued" && !call.imported
                   ? "Recall finishes the transcript a minute or two after a call ends."
@@ -288,7 +288,7 @@ export function CallProgressCard({ call, onDismiss }: { call: CallActivity; onDi
                 <span className="ready-ring absolute inset-0 rounded-full border-2 border-brand" aria-hidden />
               </span>
               <div className="min-w-0">
-                <p className="text-[15px] font-medium leading-snug tracking-tight">
+                <p className="text-[15px] font-medium leading-snug">
                   Proposal ready for {call.deal_name ?? call.title}
                 </p>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
@@ -304,7 +304,7 @@ export function CallProgressCard({ call, onDismiss }: { call: CallActivity; onDi
                 <ChatBubbleLeftRightIcon className="size-4" strokeWidth={1.7} />
               </span>
               <div className="min-w-0">
-                <p className="text-[15px] font-medium leading-snug tracking-tight">
+                <p className="text-[15px] font-medium leading-snug">
                   This looked like {KIND_LABEL[phase.meetingKind ?? "other"] ?? KIND_LABEL.other}, not a sales call
                 </p>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
@@ -321,7 +321,7 @@ export function CallProgressCard({ call, onDismiss }: { call: CallActivity; onDi
                 <ExclamationTriangleIcon className="size-4" strokeWidth={1.8} />
               </span>
               <div className="min-w-0">
-                <p className="text-[15px] font-medium leading-snug tracking-tight">Couldn&rsquo;t finish this call</p>
+                <p className="text-[15px] font-medium leading-snug">Couldn&rsquo;t finish this call</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{phase.error}</p>
               </div>
             </div>
@@ -457,7 +457,7 @@ export function PendingDealCards({ compact = true }: { compact?: boolean }) {
           >
             <div className="flex items-center gap-2">
               {phase.kind === "recording" ? <LiveBars /> : <Spinner className="size-3.5 text-brand" />}
-              <span className="truncate text-[13px] font-medium tracking-tight">{call.title}</span>
+              <span className="truncate text-[13px] font-medium">{call.title}</span>
             </div>
             <p className="mt-1 text-[11.5px] text-muted-foreground">
               {phase.kind === "recording" ? "Recording now" : `${HEADLINES[active]}…`}

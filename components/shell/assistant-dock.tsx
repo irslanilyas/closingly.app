@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { AskMark } from "@/components/ask/ask-mark";
+import { AskOrb } from "@/components/ask/ask-orb";
 import { AskPanel } from "@/components/ask/ask-panel";
 
 const DEAL_PATH = /^\/pipeline\/([0-9a-f-]{36})/i;
@@ -45,15 +45,15 @@ export function AssistantDock() {
         className={cn(
           "group fixed z-30 flex items-center gap-2 rounded-full bg-card py-2 pl-2 pr-3.5 text-foreground ring-1 ring-border",
           "bottom-[calc(var(--mobile-nav-h)+12px)] right-[max(1rem,env(safe-area-inset-right))] lg:bottom-5 lg:right-5",
-          "shadow-[0_2px_6px_oklch(0.215_0.012_90/0.10),0_12px_32px_-10px_oklch(0.517_0.116_250/0.45)]",
-          "transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_2px_6px_oklch(0.215_0.012_90/0.12),0_16px_36px_-10px_oklch(0.517_0.116_250/0.55)] active:scale-[0.97]",
+          // It floats over the page, so it takes the one float elevation.
+          "shadow-float transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.97]",
           path.startsWith("/proposals/") && "max-lg:hidden",
           open && "pointer-events-none opacity-0"
         )}
       >
-        <AskMark size={24} />
-        <span className="text-[13px] font-medium tracking-tight">Ask</span>
-        <kbd className="ml-0.5 hidden rounded border border-border px-1 font-sans text-[10.5px] text-muted-foreground lg:inline">
+        <AskOrb size={24} />
+        <span className="text-[13px] font-medium">Ask</span>
+        <kbd className="ml-0.5 hidden rounded-[3.2px] border border-border px-1 font-sans text-[10.5px] text-muted-foreground lg:inline">
           Ctrl J
         </kbd>
       </button>
